@@ -17,15 +17,15 @@ Aplikasi web internal untuk memantau **margin proyek** (RAB vs. realisasi) di 13
 
 | Layer | Teknologi | Platform |
 |---|---|---|
-| Frontend | React 18 + Vite + React Router v6 + Recharts | Vercel |
-| Backend | Node.js 20 + Express 4 | Render (free web service) |
+| Frontend | React 19 + Vite 8 + React Router v7 + Recharts | Vercel |
+| Backend | Node.js 20 + Express 5.2.1 | Render (free web service) |
 | Database | PostgreSQL via Supabase | Supabase (free tier) |
 | Auth | JWT (jsonwebtoken) + bcryptjs | Di backend |
 | HTTP Client | Axios | Di frontend |
 
 **Environment variables:**
-- Frontend: `VITE_API_URL` → URL backend Render (misal: `https://divre-api.onrender.com`)
-- Backend: `SUPABASE_URL`, `SUPABASE_SERVICE_KEY`, `JWT_SECRET`, `PORT`
+- Frontend: `VITE_API_URL` → URL backend Render (`https://divre-api.onrender.com`)
+- Backend: `SUPABASE_URL`, `SUPABASE_SERVICE_KEY`, `JWT_SECRET`, `PORT`, `CORS_ORIGIN`
 
 ---
 
@@ -131,13 +131,15 @@ Konfigurasi deployment:
 - Root Directory: `frontend`
 - Build Command: `npm run build`
 - Output Directory: `dist`
-- Env: `VITE_API_URL=https://[backend-render-url]`
+- Env: `VITE_API_URL=https://divre-api.onrender.com`
 
 **Render**
 - Root Directory: `backend`
 - Build Command: `npm install`
 - Start Command: `node src/app.js`
 - Env: `SUPABASE_URL`, `SUPABASE_SERVICE_KEY`, `JWT_SECRET`, `PORT`, `CORS_ORIGIN`
+- Production URL backend: `https://divre-api.onrender.com`
+- Production URL frontend: `https://divre-monitoring.vercel.app/`
 
 Jangan pindahkan frontend dan backend ke repository terpisah. Jangan membuat file backend di folder frontend atau sebaliknya.
 

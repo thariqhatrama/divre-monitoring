@@ -200,8 +200,8 @@ Summary: nilai proyek, total RAB, margin RAB, total realisasi, margin realisasi,
 
 | Layer | Teknologi | Platform |
 |---|---|---|
-| Frontend | React 18 + Vite + React Router v6 + Recharts + Axios | Vercel |
-| Backend | Node.js 20 + Express 4 + JWT + bcryptjs | Render (free) |
+| Frontend | React 19 + Vite 8 + React Router v7 + Recharts + Axios | Vercel |
+| Backend | Node.js 20 + Express 5.2.1 + JWT + bcryptjs | Render (free) |
 | Database | PostgreSQL via Supabase JS client | Supabase (free tier) |
 
 ### 7.2 Deployment
@@ -209,20 +209,23 @@ Summary: nilai proyek, total RAB, margin RAB, total realisasi, margin realisasi,
 Project menggunakan **satu repository / monorepo** dengan dua root aplikasi: `frontend/` untuk Vercel dan `backend/` untuk Render. Kedua platform bisa membaca satu repository yang sama selama masing-masing project/service diarahkan ke root directory yang benar.
 
 **Vercel (frontend/):**
-- Import repository yang sama dari GitHub
+- Import repository GitHub: `https://github.com/thariqhatrama/divre-monitoring`
 - Set **Root Directory**: `frontend`
 - Build command: `npm run build`
 - Output directory: `dist`
-- Env var: `VITE_API_URL=https://[nama-service].onrender.com`
+- Production URL saat ini: `https://divre-monitoring.vercel.app/`
+- Env var: `VITE_API_URL=https://divre-api.onrender.com`
 - Config: `frontend/vercel.json` dengan rewrite `"/*" → "/index.html"` agar React Router tidak 404
 
 **Render (backend/):**
-- Import repository yang sama dari GitHub
+- Import repository GitHub: `https://github.com/thariqhatrama/divre-monitoring`
 - Set **Root Directory**: `backend`
 - Runtime: Node
 - Build command: `npm install`
 - Start command: `node src/app.js`
+- Production URL saat ini: `https://divre-api.onrender.com`
 - Env vars: `SUPABASE_URL`, `SUPABASE_SERVICE_KEY`, `JWT_SECRET`, `PORT`, `CORS_ORIGIN`
+- `CORS_ORIGIN` production: `https://divre-monitoring.vercel.app`
 - Free tier: service tidur setelah idle — masih dapat diterima untuk MVP/internal demo
 
 **Catatan penting monorepo:**
