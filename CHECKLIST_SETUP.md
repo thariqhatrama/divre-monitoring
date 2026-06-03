@@ -8,16 +8,16 @@
 
 ### Buat akun (jika belum ada)
 - [x] GitHub → https://github.com (buat repo baru: `divre-monitoring`)
-- [ ] Supabase → https://supabase.com (1 project, pilih region Singapore)
-- [ ] Vercel → https://vercel.com (connect ke GitHub)
-- [ ] Render → https://render.com (connect ke GitHub)
-- [ ] OpenRouter → https://openrouter.ai (untuk AI Router di Claude CLI)
+- [x] Supabase → https://supabase.com (1 project, pilih region Singapore)
+- [x] Vercel → https://vercel.com (connect ke GitHub)
+- [x] Render → https://render.com (connect ke GitHub)
+- [x] OpenRouter → https://openrouter.ai (untuk AI Router di Claude CLI)
 
 ### Install di laptop
-- [ ] Node.js 20 LTS → https://nodejs.org
-- [ ] Git
-- [ ] Claude CLI → `npm install -g @anthropic-ai/claude-code`
-- [ ] VS Code atau editor pilihan
+- [x] Node.js 20 LTS → https://nodejs.org
+- [x] Git
+- [x] Claude CLI → `npm install -g @anthropic-ai/claude-code`
+- [x] VS Code atau editor pilihan
 
 ---
 

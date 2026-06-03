@@ -1,0 +1,10 @@
+yaml
+services:
+  - type: web
+    name: divre-api
+    env: node
+    buildCommand: npm install
+    startCommand: node src/app.js
+    envVars:
+      - key: NODE_ENV
+        value: production
