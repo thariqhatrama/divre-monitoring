@@ -12,7 +12,7 @@
 **Timeline:** 3 minggu  
 **Scope utama:** Monitoring margin, bukan approval, bukan SLA, bukan ERP.  
 **COA acuan:** COA Tahun 2025  
-**Status saat ini:** Phase 1C auth dan RBAC selesai dibuat; backend auth route, JWT middleware, RBAC middleware, frontend login/auth context, dan protected route tersedia
+**Status saat ini:** Phase 1C auth dan RBAC tervalidasi untuk admin; backend auth route, JWT middleware, RBAC middleware, frontend login/auth context, protected route tersedia; bootstrap admin berhasil login dan admin RBAC route sukses
 
 ---
 
@@ -24,7 +24,7 @@
 | Frontend setup | 🟨 Dalam proses | React 19 + Vite 8 tersedia; Vercel root `frontend/` |
 | Backend setup | ✅ Selesai | Phase 1A selesai: Express 5.2.1, middleware dasar, Supabase client, health check `/api/health`; Render root `backend/` |
 | Database setup | 🟨 Dalam proses | Project Supabase sudah dibuat; `001_create_tables.sql` sudah dijalankan dan tabel berhasil dibuat; seed belum dibuat/dijalankan |
-| Auth & RBAC | 🟨 Dalam proses | Phase 1C files selesai; perlu admin user untuk validasi login end-to-end |
+| Auth & RBAC | ✅ Selesai | Phase 1C tervalidasi: bootstrap admin login sukses, JWT dibuat, dan admin RBAC route berhasil |
 | Master data COA | ⬜ Belum mulai | Seed dari COA 2025 |
 | Master data cabang | ⬜ Belum mulai | 13 cabang + 26 UP |
 | Proyek | ⬜ Belum mulai | Registrasi proyek + Segmen 11 |
@@ -83,8 +83,8 @@ Keterangan status:
 - [x] Jalankan migration `001_create_tables.sql` — tabel berhasil dibuat di Supabase
 - [ ] Jalankan seed `002_seed_coa.sql` — sumber data tersedia di `docs/COA tahun 2025.xlsx`, dibuat pada Phase 1D
 - [ ] Jalankan seed `003_seed_branches.sql`
-- [ ] Buat admin user pertama
-- [ ] Test koneksi backend ke Supabase
+- [x] Buat admin user pertama
+- [x] Test koneksi backend ke Supabase
 
 ---
 
@@ -125,7 +125,7 @@ Target: fondasi aplikasi bisa jalan dari login sampai input RAB basic.
 
 ### Validasi Fase 1
 
-- [ ] Admin bisa login
+- [x] Admin bisa login
 - [ ] PM bisa login
 - [ ] Kepala Divre bisa login
 - [ ] PM hanya melihat proyek cabangnya sendiri
@@ -214,6 +214,8 @@ Target: aplikasi siap demo dan bisa diakses via browser.
 
 | Tanggal | Tipe | Area | Deskripsi | File Terkait | Status |
 |---|---|---|---|---|---|
+| 2026-06-09 | Fix | Backend Setup | Memperbaiki startup backend Node 20 dengan dependency `ws` untuk transport WebSocket Supabase; backend berhasil start di port 3001 | `backend/src/db/supabase.js`, `backend/package.json`, `backend/package-lock.json` | ✅ |
+| 2026-06-09 | Add | Auth & RBAC | Menyelesaikan validasi Phase 1C: bootstrap admin dibuat di Supabase, `/api/health` sukses, login admin sukses, JWT dibuat, dan `/api/test/admin` berhasil memvalidasi RBAC admin | `STATUS.md`, `backend/src/routes/test.routes.js`, `backend/src/controllers/auth.controller.js`, `backend/src/models/user.model.js` | ✅ |
 | 2026-06-03 | Add | Auth & RBAC | Menyelesaikan Phase 1C: backend login/logout, JWT auth middleware, RBAC middleware, protected test route, frontend login/auth context/protected route; backend health dan frontend build berhasil | `backend/src/routes/auth.routes.js`, `backend/src/controllers/auth.controller.js`, `backend/src/models/user.model.js`, `backend/src/middleware/auth.middleware.js`, `backend/src/middleware/rbac.middleware.js`, `frontend/src/services/api.js`, `frontend/src/context/AuthContext.jsx`, `frontend/src/hooks/useAuth.js`, `frontend/src/pages/Login.jsx`, `frontend/src/components/ProtectedRoute.jsx`, `frontend/src/App.jsx`, `frontend/src/main.jsx`, `STATUS.md` | ✅ |
 | 2026-06-03 | Add | Database | Menyelesaikan Phase 1B: membuat migration schema dasar sesuai PRD, tanpa tabel approval/SLA; mencatat `docs/COA tahun 2025.xlsx` sebagai sumber seed COA Phase 1D | `backend/migrations/001_create_tables.sql`, `backend/migrations/README.md`, `docs/COA tahun 2025.xlsx`, `STATUS.md` | ✅ |
 | 2026-06-03 | Add | Backend Setup | Menyelesaikan Phase 1A: Express app, middleware dasar, Supabase client, dan health check `/api/health`; validasi lokal berhasil | `backend/src/app.js`, `backend/src/db/supabase.js`, `STATUS.md` | ✅ |
@@ -288,7 +290,7 @@ Update bagian ini sebelum membuka sesi Claude baru agar tidak kehilangan konteks
 Tulis ringkasan singkat pekerjaan terakhir.
 
 ```txt
-Phase 1C auth dan RBAC selesai dibuat. Backend memiliki POST /api/auth/login, POST /api/auth/logout, auth.middleware.js untuk JWT, rbac.middleware.js untuk role kepala_divre/pm/admin, user.model.js, serta route test /api/test/protected dan /api/test/admin. Frontend memiliki api.js, AuthContext.jsx, useAuth.js, Login.jsx, ProtectedRoute.jsx, serta route sederhana untuk validasi protected page. Backend health berhasil dan frontend build berhasil. Login end-to-end belum divalidasi karena admin user pertama belum dibuat.
+Phase 1C auth dan RBAC selesai dibuat dan tervalidasi untuk admin. Backend memiliki POST /api/auth/login, POST /api/auth/logout, auth.middleware.js untuk JWT, rbac.middleware.js untuk role kepala_divre/pm/admin, user.model.js, serta route test /api/test/protected dan /api/test/admin. Backend sempat gagal start di Node 20 karena Supabase Realtime membutuhkan WebSocket transport; sudah diperbaiki dengan dependency `ws` dan konfigurasi `realtime.transport`. Bootstrap admin `admin@regtim.com` sudah dibuat di Supabase; validasi `/api/health`, login admin, JWT, dan `/api/test/admin` berhasil. Frontend memiliki api.js, AuthContext.jsx, useAuth.js, Login.jsx, ProtectedRoute.jsx, serta route sederhana untuk validasi protected page.
 ```
 
 ### File yang terakhir diubah
@@ -303,6 +305,7 @@ backend/src/middleware/auth.middleware.js
 backend/src/middleware/rbac.middleware.js
 backend/src/db/supabase.js
 backend/package.json
+backend/package-lock.json
 frontend/src/services/api.js
 frontend/src/context/AuthContext.jsx
 frontend/src/hooks/useAuth.js
@@ -317,13 +320,13 @@ STATUS.md
 ### Masalah yang belum selesai
 
 ```txt
-Admin user pertama belum dibuat, sehingga validasi login end-to-end belum bisa dilakukan. Seed COA 002_seed_coa.sql belum dibuat; sumber datanya adalah docs/COA tahun 2025.xlsx dan akan dikerjakan di Phase 1D. Seed cabang 003_seed_branches.sql belum dibuat. Backend env production di Render masih perlu diisi manual memakai SUPABASE_SERVICE_KEY dari Supabase Project Settings > API (service_role), bukan publishable key. Proyek, RAB, master data, dan fitur lain belum dibuat.
+Admin bootstrap sudah dibuat dan login admin end-to-end sudah tervalidasi. Password bootstrap saat ini sementara dan harus diganti/dirotasi saat fitur user management Phase 1D tersedia. PM dan Kepala Divre user belum dibuat, sehingga validasi login untuk role tersebut belum dilakukan. Seed COA 002_seed_coa.sql belum dibuat; sumber datanya adalah docs/COA tahun 2025.xlsx dan akan dikerjakan di Phase 1D. Seed cabang 003_seed_branches.sql belum dibuat. Backend env production di Render masih perlu diisi manual memakai SUPABASE_SERVICE_KEY dari Supabase Project Settings > API (service_role), bukan publishable key. Proyek, RAB, master data, dan fitur lain belum dibuat.
 ```
 
 ### Prompt lanjutan untuk Claude
 
 ```txt
-Lanjutkan dari STATUS.md bagian "Masalah yang belum selesai". Jangan membuat fitur baru di luar PRD.md. Fokus berikutnya adalah membuat admin user pertama atau lanjut Phase 1D master data sesuai urutan prompt project, lalu validasi login admin end-to-end.
+Lanjutkan dari STATUS.md bagian "Masalah yang belum selesai". Jangan membuat fitur baru di luar PRD.md. Phase 1C admin auth/RBAC sudah tervalidasi. Fokus berikutnya adalah Phase 1D master data sesuai urutan prompt project: COA, cabang, user, dan kurs; pastikan password bootstrap admin diganti/dirotasi saat user management tersedia.
 ```
 
 ---

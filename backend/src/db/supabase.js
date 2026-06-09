@@ -1,4 +1,5 @@
 const { createClient } = require('@supabase/supabase-js')
+const WebSocket = require('ws')
 require('dotenv').config()
 
 const supabaseUrl = process.env.SUPABASE_URL
@@ -17,6 +18,9 @@ const supabase = supabaseUrl && supabaseServiceKey
       auth: {
         persistSession: false,
         autoRefreshToken: false
+      },
+      realtime: {
+        transport: WebSocket
       }
     })
   : createMissingEnvClient()
