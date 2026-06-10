@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import useAuth from '../hooks/useAuth'
-import { kursAPI, proyekAPI } from '../services/api'
+import { kursAPI, masterAPI, proyekAPI } from '../services/api'
 import { calculateNilaiIdr, normalizeKurs } from '../utils/currencyConvert'
 import { formatIDR } from '../utils/formatIDR'
 
@@ -30,9 +30,25 @@ function ProyekForm() {
   const isPm = user?.role === 'pm'
 
   const [form, setForm] = useState(INITIAL_FORM)
+  const [branches, setBranches] = useState([])
   const [loading, setLoading] = useState(isEdit)
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState('')
+
+  useEffect(() => {
+    if (isPm) return
+
+    async function loadBranches() {
+      try {
+        const response = await masterAPI.getCabang()
+        setBranches(response.data.data || [])
+      } catch (err) {
+        setError(err.response?.data?.error?.message || 'Gagal memuat daftar cabang')
+      }
+    }
+
+    loadBranches()
+  }, [isPm])
 
   useEffect(() => {
     if (!isEdit) return
@@ -208,13 +224,19 @@ function ProyekForm() {
           </label>
 
           <label>
-            Cabang ID {isPm ? '(otomatis dari akun PM)' : '*'}
-            <input
-              value={isPm ? user?.cabang_id || 'PM belum memiliki cabang_id' : form.cabang_id}
-              onChange={(event) => updateField('cabang_id', event.target.value)}
-              disabled={isPm}
-              required={!isPm}
-            />
+            Cabang {isPm ? '(otomatis dari akun PM)' : '*'}
+            {isPm ? (
+              <input value={user?.cabang_id ? 'Otomatis sesuai cabang akun PM' : 'PM belum memiliki cabang'} disabled />
+            ) : (
+              <select value={form.cabang_id} onChange={(event) => updateField('cabang_id', event.target.value)} required>
+                <option value="">Pilih cabang / unit pelayanan</option>
+                {branches.map((branch) => (
+                  <option key={branch.id} value={branch.id}>
+                    {branch.kode_seg23} — {branch.nama} ({branch.tipe === 'unit_pelayanan' ? 'UP' : 'Cabang'})
+                  </option>
+                ))}
+              </select>
+            )}
           </label>
 
           <label>
