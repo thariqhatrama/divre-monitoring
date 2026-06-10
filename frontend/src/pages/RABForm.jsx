@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import MarginCard from '../components/MarginCard'
-import { kursAPI, masterAPI, rabAPI } from '../services/api'
+import { kursAPI, masterAPI, rabAPI, realisasiAPI } from '../services/api'
 import { calculateLineTotalIdr, calculateNilaiIdr, normalizeKurs } from '../utils/currencyConvert'
 import { formatIDR, formatPercent } from '../utils/formatIDR'
 import { calculateRabMargin } from '../utils/marginFlag'
@@ -27,6 +27,8 @@ function RABForm() {
   const [totals, setTotals] = useState({})
   const [totalRab, setTotalRab] = useState(0)
   const [marginRab, setMarginRab] = useState(null)
+  const [totalRealisasi, setTotalRealisasi] = useState(0)
+  const [marginRealisasi, setMarginRealisasi] = useState(null)
   const [canEdit, setCanEdit] = useState(false)
   const [coaAccounts, setCoaAccounts] = useState([])
   const [form, setForm] = useState(INITIAL_FORM)
@@ -65,22 +67,33 @@ function RABForm() {
     }
   }, [editingItem, nilaiProyekIdr, totalPreview, totalRab])
 
+  const deltaLabel = useMemo(() => {
+    if (!marginRealisasi?.indikator_delta) return 'Delta belum tersedia'
+    if (marginRealisasi.indikator_delta === 'naik') return `▲ Naik ${formatPercent(marginRealisasi.delta_margin)} vs RAB`
+    if (marginRealisasi.indikator_delta === 'turun') return `▼ Turun ${formatPercent(marginRealisasi.delta_margin)} vs RAB`
+    return `■ Tetap ${formatPercent(marginRealisasi.delta_margin)} vs RAB`
+  }, [marginRealisasi])
+
   async function loadRab() {
     setLoading(true)
     setError('')
 
     try {
-      const [rabResponse, coaResponse] = await Promise.all([
+      const [rabResponse, coaResponse, realisasiResponse] = await Promise.all([
         rabAPI.getRab(id),
-        masterAPI.getCoa({ aktif: 'true' })
+        masterAPI.getCoa({ aktif: 'true' }),
+        realisasiAPI.getRealisasi(id)
       ])
 
       const rabData = rabResponse.data.data
+      const realisasiData = realisasiResponse.data.data
       setProject(rabData.project)
       setItems(rabData.items)
       setTotals(rabData.totals_by_kategori || {})
       setTotalRab(rabData.total_rab_idr || 0)
       setMarginRab(rabData.margin_rab || null)
+      setTotalRealisasi(realisasiData.total_realisasi_idr || 0)
+      setMarginRealisasi(realisasiData.margin_realisasi || null)
       setCanEdit(Boolean(rabData.can_edit))
       setCoaAccounts(coaResponse.data.data || [])
     } catch (err) {
@@ -248,6 +261,14 @@ function RABForm() {
             <span>Total RAB</span>
             <strong>{formatIDR(totalRab)}</strong>
           </div>
+          <div>
+            <span>Total Realisasi</span>
+            <strong>{formatIDR(totalRealisasi)}</strong>
+          </div>
+          <div>
+            <span>Selisih RAB vs Realisasi</span>
+            <strong>{formatIDR(totalRab - totalRealisasi)}</strong>
+          </div>
           {KATEGORI_OPTIONS.map((kategori) => (
             <div key={kategori}>
               <span>Kategori {kategori}</span>
@@ -263,6 +284,13 @@ function RABForm() {
             percent={marginRab?.margin_persen}
             status={marginRab?.status_margin}
             description={`Nilai proyek ${formatIDR(nilaiProyekIdr)} · Subkon ${formatPercent(marginRab?.persen_subkon)}`}
+          />
+          <MarginCard
+            title="Margin Realisasi"
+            amount={marginRealisasi?.laba_operasi_realisasi ?? marginRealisasi?.margin_idr}
+            percent={marginRealisasi?.margin_realisasi ?? marginRealisasi?.margin_persen}
+            status={marginRealisasi?.status_margin}
+            description={`${deltaLabel} · Total realisasi ${formatIDR(totalRealisasi)}`}
           />
           <MarginCard
             title="Preview setelah input"

@@ -78,15 +78,23 @@ function calculateRabMargin(project, items = []) {
 }
 
 function sumRealisasiTotals(items = []) {
-  let totalRealisasiIdr = 0
+  let totalBiayaRealisasi = 0
 
   for (const item of items) {
-    totalRealisasiIdr += toNumber(item.total_idr)
+    totalBiayaRealisasi += toNumber(item.total_idr)
   }
 
   return {
-    total_realisasi_idr: totalRealisasiIdr
+    total_biaya_realisasi: totalBiayaRealisasi,
+    total_realisasi_idr: totalBiayaRealisasi
   }
+}
+
+function getDeltaIndicator(deltaMargin) {
+  if (!Number.isFinite(deltaMargin)) return null
+  if (deltaMargin > 0) return 'naik'
+  if (deltaMargin < 0) return 'turun'
+  return 'tetap'
 }
 
 function calculateRealisasiMargin(project, rabItems = [], realisasiItems = []) {
@@ -98,32 +106,39 @@ function calculateRealisasiMargin(project, rabItems = [], realisasiItems = []) {
     return {
       margin_rab: rabMargin,
       ...totals,
+      laba_operasi_realisasi: null,
+      margin_realisasi: null,
       margin_idr: null,
       margin_persen: null,
       delta_margin: null,
+      indikator_delta: null,
       status_margin: null
     }
   }
 
-  const marginIdr = nilaiProyekIdr - totals.total_realisasi_idr
-  const marginPersen = roundPercent((marginIdr / nilaiProyekIdr) * 100)
+  const labaOperasiRealisasi = nilaiProyekIdr - totals.total_biaya_realisasi
+  const marginRealisasi = roundPercent((labaOperasiRealisasi / nilaiProyekIdr) * 100)
   const deltaMargin = Number.isFinite(rabMargin.margin_persen)
-    ? roundPercent(marginPersen - rabMargin.margin_persen)
+    ? roundPercent(marginRealisasi - rabMargin.margin_persen)
     : null
 
   return {
     margin_rab: rabMargin,
     ...totals,
     nilai_proyek_idr: nilaiProyekIdr,
-    margin_idr: marginIdr,
-    margin_persen: marginPersen,
+    laba_operasi_realisasi: labaOperasiRealisasi,
+    margin_realisasi: marginRealisasi,
+    margin_idr: labaOperasiRealisasi,
+    margin_persen: marginRealisasi,
     delta_margin: deltaMargin,
-    status_margin: getMarginStatus(marginPersen)
+    indikator_delta: getDeltaIndicator(deltaMargin),
+    status_margin: getMarginStatus(marginRealisasi)
   }
 }
 
 module.exports = {
   getMarginStatus,
+  getDeltaIndicator,
   sumRabTotals,
   calculateProjectValueIdr,
   calculateRabMargin,

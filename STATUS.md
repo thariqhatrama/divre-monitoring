@@ -12,7 +12,7 @@
 **Timeline:** 3 minggu  
 **Scope utama:** Monitoring margin, bukan approval, bukan SLA, bukan ERP.  
 **COA acuan:** COA Tahun 2025  
-**Status saat ini:** Phase 2C realisasi per akun implementasi dasar selesai: backend endpoint realisasi memakai tabel `realisasi_items` tanpa menimpa RAB awal, satu akun RAB bisa punya banyak transaksi realisasi, total realisasi diagregasi per RAB item/per akun, audit log INSERT/UPDATE/DELETE dibuat, frontend `RealisasiForm.jsx` tersedia, backend syntax check Phase 2C lulus, dan build frontend berhasil
+**Status saat ini:** Phase 2D margin realisasi dan delta selesai pada level implementasi dasar: backend menghitung `total_biaya_realisasi`, `laba_operasi_realisasi`, `margin_realisasi`, `delta_margin`, dan `indikator_delta` naik/turun/tetap; RABForm menampilkan summary RAB vs realisasi; validasi kalkulasi lokal dan build frontend berhasil
 
 ---
 
@@ -30,7 +30,7 @@
 | Proyek | ✅ Selesai | Phase 1E: CRUD proyek + RBAC cabang PM + gate Segmen 11 indicator |
 | RAB | ✅ Selesai | Phase 1F: input line item RAB basic + gate Segmen 11 backend/frontend |
 | Realisasi | 🟨 Dalam proses | Phase 2C implementasi dasar selesai dan validasi lokal lulus: CRUD realisasi per akun + audit log + agregasi; runtime API/browser production belum divalidasi |
-| Kalkulasi margin | 🟨 Dalam proses | Margin RAB sudah IDR-normalized; margin realisasi/delta dihitung di endpoint realisasi; runtime API/browser production belum divalidasi |
+| Kalkulasi margin | ✅ Selesai | Phase 2D selesai: margin RAB, margin realisasi, laba operasi realisasi, delta margin, dan indikator delta naik/turun/tetap dihitung; validasi lokal lulus, runtime API/browser production tetap perlu diuji |
 | Dashboard | ⬜ Belum mulai | Kepala Divre + PM |
 | Deployment | ⬜ Belum mulai | Vercel + Render |
 
@@ -224,6 +224,7 @@ Target: aplikasi siap demo dan bisa diakses via browser.
 
 | Tanggal | Tipe | Area | Deskripsi | File Terkait | Status |
 |---|---|---|---|---|---|
+| 2026-06-10 | Add | Margin Realisasi | Menyelesaikan Phase 2D margin realisasi dan delta: `margin.service.js` menghitung `total_biaya_realisasi`, `laba_operasi_realisasi`, `margin_realisasi`, `delta_margin = marginRealisasi - marginRAB`, dan `indikator_delta` naik/turun/tetap; `RABForm.jsx` menampilkan summary Total RAB, Total Realisasi, Selisih RAB vs Realisasi, Margin RAB, Margin Realisasi, dan delta; validasi lokal membuktikan realisasi > RAB membuat margin turun dan realisasi < RAB membuat margin naik; backend syntax check dan frontend build berhasil | `backend/src/services/margin.service.js`, `frontend/src/pages/RABForm.jsx`, `STATUS.md` | ✅ |
 | 2026-06-10 | Test | Realisasi | Review setup repo dan validasi lokal Phase 2C: struktur root `frontend/`, `backend/`, `docs/`, `CLAUDE.md`, `STATUS.md` sesuai; Vercel config berada di `frontend/vercel.json`, Render config berada di `backend/render.yaml`; backend syntax check untuk `app.js`, controller/model/route realisasi lulus; frontend build berhasil; runtime API/browser production masih perlu diuji manual | `CLAUDE.md`, `docs/PRD.md`, `STATUS.md`, `frontend/vercel.json`, `backend/render.yaml`, `backend/src/app.js`, `backend/src/controllers/realisasi.controller.js`, `backend/src/models/realisasi.model.js`, `backend/src/routes/realisasi.routes.js`, `frontend/src/pages/RealisasiForm.jsx` | 🟨 |
 | 2026-06-10 | Add | Realisasi | Menambahkan Phase 2C realisasi per akun: backend CRUD `GET /api/proyek/:id/realisasi`, `POST /api/rab/:itemId/realisasi`, `PATCH/DELETE /api/realisasi/:id` memakai tabel `realisasi_items`; `project_id` diturunkan dari item RAB, RAB awal tidak ditimpa, satu akun RAB bisa punya banyak transaksi, total realisasi diagregasi per RAB item/per akun, audit log dibuat untuk tambah/edit/hapus, frontend `RealisasiForm.jsx` tersedia, backend syntax check Phase 2C lulus, dan build frontend berhasil | `backend/src/models/realisasi.model.js`, `backend/src/controllers/realisasi.controller.js`, `backend/src/routes/realisasi.routes.js`, `backend/src/app.js`, `backend/src/services/margin.service.js`, `frontend/src/pages/RealisasiForm.jsx`, `frontend/src/services/api.js`, `frontend/src/App.jsx`, `frontend/src/pages/RABForm.jsx`, `frontend/src/pages/ProyekList.jsx`, `STATUS.md` | 🟨 |
 | 2026-06-10 | Add | Multi-currency | Menyelesaikan Phase 2B multi-currency: menambahkan `kurs.service.js`, membuka `GET /api/kurs` untuk user authenticated dan menjaga `PUT /api/kurs` admin-only, mengunci IDR ke kurs 1, memastikan USD memakai kurs > 1/terbaru saat input proyek/RAB, memperbaiki margin agar nilai proyek dikonversi ke IDR, serta memperbarui preview frontend proyek/RAB; backend syntax check lulus dan frontend build berhasil | `backend/src/services/kurs.service.js`, `backend/src/controllers/kurs.controller.js`, `backend/src/routes/kurs.routes.js`, `backend/src/controllers/proyek.controller.js`, `backend/src/controllers/rab.controller.js`, `backend/src/services/margin.service.js`, `frontend/src/utils/currencyConvert.js`, `frontend/src/services/api.js`, `frontend/src/pages/ProyekForm.jsx`, `frontend/src/pages/RABForm.jsx`, `STATUS.md` | ✅ |
@@ -309,22 +310,14 @@ Update bagian ini sebelum membuka sesi Claude baru agar tidak kehilangan konteks
 Tulis ringkasan singkat pekerjaan terakhir.
 
 ```txt
-Phase 2C realisasi per akun implementasi dasar selesai di atas Phase 2B multi-currency. Backend memiliki `realisasi.model.js`, `realisasi.controller.js`, dan `realisasi.routes.js` untuk `GET /api/proyek/:id/realisasi`, `POST /api/rab/:itemId/realisasi`, `PATCH /api/realisasi/:id`, dan `DELETE /api/realisasi/:id`. Realisasi disimpan di `realisasi_items`, `project_id` diturunkan dari item RAB server-side, RAB awal di `rab_items` tidak ditimpa, satu RAB item bisa punya banyak transaksi realisasi, total diagregasi per RAB item/per akun, dan audit log INSERT/UPDATE/DELETE dibuat. Frontend memiliki `RealisasiForm.jsx`, route `/proyek/:id/realisasi`, link dari daftar proyek/RAB. Backend syntax check Phase 2C dan frontend build berhasil.
+Phase 2D margin realisasi dan delta selesai di atas Phase 2C realisasi per akun. Backend `margin.service.js` menghitung `total_biaya_realisasi`, `laba_operasi_realisasi`, `margin_realisasi`, `delta_margin = marginRealisasi - marginRAB`, serta `indikator_delta` naik/turun/tetap. Frontend `RABForm.jsx` menampilkan summary RAB vs realisasi: Total RAB, Total Realisasi, Selisih RAB vs Realisasi, Margin RAB, Margin Realisasi, dan delta. Validasi lokal membuktikan realisasi lebih besar dari RAB membuat margin turun, realisasi lebih kecil dari RAB membuat margin naik, dan realisasi sama dengan RAB membuat delta tetap.
 ```
 
 ### File yang terakhir diubah
 
 ```txt
-backend/src/models/realisasi.model.js
-backend/src/controllers/realisasi.controller.js
-backend/src/routes/realisasi.routes.js
-backend/src/app.js
 backend/src/services/margin.service.js
-frontend/src/pages/RealisasiForm.jsx
-frontend/src/services/api.js
-frontend/src/App.jsx
 frontend/src/pages/RABForm.jsx
-frontend/src/pages/ProyekList.jsx
 STATUS.md
 ```
 
@@ -333,13 +326,13 @@ STATUS.md
 #### Selesai / validasi dasar lulus
 
 ```txt
-Phase 2C realisasi per akun sudah selesai pada level implementasi dasar. Backend `node --check` untuk file Phase 2C berhasil dan frontend `npm --prefix frontend run build` berhasil. Endpoint realisasi memakai tabel `realisasi_items`, tidak menimpa `rab_items`, mendukung banyak transaksi realisasi per RAB item, mengagregasi total realisasi per RAB item/per akun, dan membuat audit log untuk tambah/edit/hapus.
+Phase 2D margin realisasi dan delta sudah selesai pada level implementasi dasar. Backend `node --check` untuk file terkait berhasil, validasi kalkulasi lokal berhasil, dan frontend `npm --prefix frontend run build` berhasil. Endpoint realisasi tetap memakai tabel `realisasi_items`, tidak menimpa `rab_items`, mendukung banyak transaksi realisasi per RAB item, mengagregasi total realisasi per RAB item/per akun, serta sekarang mengembalikan margin realisasi dan indikator delta naik/turun/tetap.
 ```
 
 #### Pending validasi runtime
 
 ```txt
-Backend syntax check Phase 2C sudah lulus. Validasi browser/API untuk skenario tambah/edit/hapus realisasi, dua realisasi pada satu item RAB, agregasi total realisasi per akun, RAB awal tidak berubah, gate Segmen 11, dan role PM/Kepala Divre masih perlu dilakukan setelah data user/test project tersedia.
+Backend syntax check Phase 2D dan validasi kalkulasi lokal sudah lulus. Validasi browser/API untuk skenario tambah/edit/hapus realisasi, dua realisasi pada satu item RAB, agregasi total realisasi per akun, RAB awal tidak berubah, margin realisasi/delta tampil di UI, gate Segmen 11, dan role PM/Kepala Divre masih perlu dilakukan setelah data user/test project tersedia.
 ```
 
 #### Butuh aksi manual / secret eksternal
@@ -357,7 +350,7 @@ Runtime validation realisasi, dashboard, detail proyek, dan deployment final bel
 ### Prompt lanjutan untuk Claude
 
 ```txt
-Jangan membuat fitur baru di luar PRD.md. Phase 2C realisasi per akun sudah dibuat pada level implementasi dasar: backend endpoint `GET /api/proyek/:id/realisasi`, `POST /api/rab/:itemId/realisasi`, `PATCH /api/realisasi/:id`, dan `DELETE /api/realisasi/:id` tersedia; realisasi disimpan di `realisasi_items`, tidak menimpa `rab_items`, satu RAB item bisa punya banyak transaksi realisasi, total realisasi diagregasi per RAB item/per akun, audit log dibuat untuk tambah/edit/hapus, frontend `RealisasiForm.jsx` tersedia, backend `node --check` untuk file Phase 2C berhasil, dan `npm --prefix frontend run build` berhasil. Fokus berikutnya: validasi runtime tambah/edit/hapus realisasi di browser/API, lalu lanjut Phase 3 dashboard/detail sesuai PRD.
+Jangan membuat fitur baru di luar PRD.md. Phase 2D margin realisasi dan delta sudah dibuat pada level implementasi dasar: backend menghitung `total_biaya_realisasi`, `laba_operasi_realisasi`, `margin_realisasi`, `delta_margin = marginRealisasi - marginRAB`, dan `indikator_delta` naik/turun/tetap; frontend `RABForm.jsx` menampilkan summary RAB vs realisasi dan delta. Backend `node --check`, validasi kalkulasi lokal, dan `npm --prefix frontend run build` berhasil. Fokus berikutnya: validasi runtime tambah/edit/hapus realisasi dan tampilan margin/delta di browser/API, lalu lanjut Phase 3 dashboard/detail sesuai PRD.
 ```
 
 ---
