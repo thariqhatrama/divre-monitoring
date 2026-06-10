@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate, useParams } from 'react-router-dom'
 import { masterAPI } from '../services/api'
 
 const MASTER_TABS = [
@@ -7,6 +7,8 @@ const MASTER_TABS = [
   { key: 'cabang', label: 'Cabang' },
   { key: 'user', label: 'User' }
 ]
+
+const MASTER_TAB_KEYS = MASTER_TABS.map((item) => item.key)
 
 const ROLE_OPTIONS = [
   { value: 'pm', label: 'Project Manager (PM)' },
@@ -127,7 +129,9 @@ function UserTable({ rows }) {
 }
 
 function MasterData() {
-  const [activeTab, setActiveTab] = useState('coa')
+  const navigate = useNavigate()
+  const { tab } = useParams()
+  const activeTab = MASTER_TAB_KEYS.includes(tab) ? tab : 'coa'
   const [rows, setRows] = useState([])
   const [branches, setBranches] = useState([])
   const [userForm, setUserForm] = useState(INITIAL_USER_FORM)
@@ -140,6 +144,12 @@ function MasterData() {
     const tab = MASTER_TABS.find((item) => item.key === activeTab)
     return tab?.label || 'Master Data'
   }, [activeTab])
+
+  useEffect(() => {
+    if (tab && !MASTER_TAB_KEYS.includes(tab)) {
+      navigate('/master-data/coa', { replace: true })
+    }
+  }, [navigate, tab])
 
   useEffect(() => {
     let ignore = false
@@ -237,10 +247,10 @@ function MasterData() {
       <section className="panel master-panel">
         <div className="master-header">
           <div>
-            <p className="eyebrow">Phase 1D</p>
+            <p className="eyebrow">Administrasi</p>
             <h1>Master Data</h1>
             <p className="muted">
-              Halaman admin sederhana untuk melihat COA 2025, cabang, dan user.
+              Kelola data COA 2025, cabang, dan user aplikasi.
             </p>
           </div>
           <Link to="/">Kembali</Link>
@@ -252,7 +262,7 @@ function MasterData() {
               key={tab.key}
               type="button"
               className={tab.key === activeTab ? 'active' : ''}
-              onClick={() => setActiveTab(tab.key)}
+              onClick={() => navigate(`/master-data/${tab.key}`)}
             >
               {tab.label}
             </button>

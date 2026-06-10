@@ -5,21 +5,18 @@ const MENU_BY_ROLE = {
   admin: [
     { label: 'Dashboard', to: '/dashboard', icon: '▦' },
     { label: 'Proyek', to: '/proyek', icon: '◫', match: ['/proyek'] },
-    { label: 'RAB / Realisasi', to: '/proyek', icon: '▤', match: ['/proyek'] },
-    { label: 'Master COA', to: '/master-data', icon: '◇' },
-    { label: 'Master Cabang', to: '/master-data', icon: '⌂' },
-    { label: 'User Management', to: '/master-data', icon: '◉' }
+    { label: 'Master COA', to: '/master-data/coa', icon: '◇' },
+    { label: 'Master Cabang', to: '/master-data/cabang', icon: '⌂' },
+    { label: 'User Management', to: '/master-data/user', icon: '◉' },
+    { label: 'Audit Log', to: '/audit-log', icon: '◷' }
   ],
   kepala_divre: [
-    { label: 'Dashboard', to: '/dashboard', icon: '▦' },
-    { label: 'Semua Proyek', to: '/proyek', icon: '◫', match: ['/proyek'] },
-    { label: 'Laporan / Monitoring', to: '/dashboard', icon: '◎' }
+    { label: 'Dashboard Monitoring', to: '/dashboard', icon: '▦' },
+    { label: 'Semua Proyek', to: '/proyek', icon: '◫', match: ['/proyek'] }
   ],
   pm: [
     { label: 'Dashboard Cabang', to: '/dashboard-cabang', icon: '▦' },
-    { label: 'Proyek Saya', to: '/proyek', icon: '◫', match: ['/proyek'] },
-    { label: 'Input RAB', to: '/proyek', icon: '▤', match: ['/proyek'] },
-    { label: 'Realisasi', to: '/proyek', icon: '↗', match: ['/proyek'] }
+    { label: 'Proyek Saya', to: '/proyek', icon: '◫', match: ['/proyek'] }
   ]
 }
 

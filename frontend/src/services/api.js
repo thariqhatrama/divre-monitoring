@@ -110,4 +110,10 @@ export const dashboardAPI = {
   }
 }
 
+export const auditAPI = {
+  getAuditLogs(params) {
+    return api.get('/api/audit-log', { params })
+  }
+}
+
 export default api

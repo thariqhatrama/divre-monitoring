@@ -6,6 +6,7 @@ import Login from './pages/Login'
 import Dashboard from './pages/Dashboard'
 import DashboardCabang from './pages/DashboardCabang'
 import MasterData from './pages/MasterData'
+import AuditLog from './pages/AuditLog'
 import ProyekDetail from './pages/ProyekDetail'
 import ProyekForm from './pages/ProyekForm'
 import ProyekList from './pages/ProyekList'
@@ -19,7 +20,7 @@ function Home() {
   return (
     <main className="app-shell">
       <section className="panel">
-        <p className="eyebrow">Phase 1C</p>
+        <p className="eyebrow">Portal Internal</p>
         <h1>Auth dan RBAC aktif</h1>
         <p className="muted">
           Halaman ini adalah protected route sederhana untuk validasi login dan role.
@@ -104,6 +105,22 @@ function App() {
           element={
             <ProtectedLayout allowedRoles={['admin']}>
               <MasterData />
+            </ProtectedLayout>
+          }
+        />
+        <Route
+          path="/master-data/:tab"
+          element={
+            <ProtectedLayout allowedRoles={['admin']}>
+              <MasterData />
+            </ProtectedLayout>
+          }
+        />
+        <Route
+          path="/audit-log"
+          element={
+            <ProtectedLayout allowedRoles={['admin']}>
+              <AuditLog />
             </ProtectedLayout>
           }
         />

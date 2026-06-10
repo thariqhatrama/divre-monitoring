@@ -259,6 +259,7 @@ function Dashboard() {
                       <thead>
                         <tr>
                           <th>Nama Proyek</th>
+                          <th>Segmen 11</th>
                           <th>Cabang</th>
                           <th>Nilai</th>
                           <th>Total RAB</th>
@@ -283,6 +284,7 @@ function Dashboard() {
                                   <Link className="action-link ghost" to={`/proyek/${project.id}/detail`}>Lihat detail</Link>
                                 </div>
                               </td>
+                              <td><code>{project.seg11_no || '-'}</code></td>
                               <td>
                                 <div className="project-cell">
                                   <strong>{project.cabang?.nama || '-'}</strong>
