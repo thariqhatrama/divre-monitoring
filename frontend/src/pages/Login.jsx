@@ -91,7 +91,19 @@ function Login() {
                   aria-pressed={showPassword}
                   onClick={() => setShowPassword((current) => !current)}
                 >
-                  {showPassword ? '🙈' : '👁️'}
+                  {showPassword ? (
+                    <svg aria-hidden="true" viewBox="0 0 24 24" focusable="false">
+                      <path d="M3 3l18 18" />
+                      <path d="M10.58 10.58a2 2 0 0 0 2.84 2.84" />
+                      <path d="M9.88 4.24A10.8 10.8 0 0 1 12 4c5 0 8.5 4.5 9.5 8a11.8 11.8 0 0 1-2.1 3.6" />
+                      <path d="M6.1 6.1A11.8 11.8 0 0 0 2.5 12c1 3.5 4.5 8 9.5 8a10.8 10.8 0 0 0 5.9-1.8" />
+                    </svg>
+                  ) : (
+                    <svg aria-hidden="true" viewBox="0 0 24 24" focusable="false">
+                      <path d="M2.5 12c1-3.5 4.5-8 9.5-8s8.5 4.5 9.5 8c-1 3.5-4.5 8-9.5 8s-8.5-4.5-9.5-8Z" />
+                      <circle cx="12" cy="12" r="3" />
+                    </svg>
+                  )}
                 </button>
               </span>
             </label>

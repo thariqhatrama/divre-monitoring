@@ -1142,11 +1142,15 @@ a {
 }
 
 .password-input-wrap {
+  display: block;
   position: relative;
+  width: 100%;
 }
 
 .password-input {
+  box-sizing: border-box;
   padding-right: 48px;
+  width: 100%;
 }
 
 .password-toggle {
@@ -1164,6 +1168,20 @@ a {
   position: absolute;
   right: 0;
   top: 0;
+}
+
+.password-toggle svg {
+  fill: none;
+  height: 20px;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.9;
+  width: 20px;
+}
+
+.password-toggle:hover {
+  color: #0f172a;
 }
 
 .password-toggle:focus-visible {
