@@ -57,12 +57,44 @@ function EmptyState() {
   return <p className="muted master-empty">Belum ada data untuk ditampilkan.</p>
 }
 
+function PencilIcon() {
+  return (
+    <svg aria-hidden="true" viewBox="0 0 20 20" focusable="false">
+      <path d="M11.7 4.2 15.8 8.3" />
+      <path d="M13.5 2.4a1.9 1.9 0 0 1 2.7 2.7L6.9 14.4 3.5 15.5l1.1-3.4 8.9-9.7Z" />
+    </svg>
+  )
+}
+
+function TrashIcon() {
+  return (
+    <svg aria-hidden="true" viewBox="0 0 20 20" focusable="false">
+      <path d="M3.5 5.5h13" />
+      <path d="M8 5.5V4a1.5 1.5 0 0 1 1.5-1.5h1A1.5 1.5 0 0 1 12 4v1.5" />
+      <path d="M6 5.5l.7 10.2A2 2 0 0 0 8.7 17.5h2.6a2 2 0 0 0 2-1.8L14 5.5" />
+      <path d="M8.7 8.5v5" />
+      <path d="M11.3 8.5v5" />
+    </svg>
+  )
+}
+
+function RestoreIcon() {
+  return (
+    <svg aria-hidden="true" viewBox="0 0 20 20" focusable="false">
+      <path d="M5.5 7.5A5.5 5.5 0 1 1 7 15" />
+      <path d="M5.5 3.5v4h4" />
+    </svg>
+  )
+}
+
 function ActionButtons({ item, onEdit, onToggle, active = item.aktif !== false }) {
   return (
-    <div className="table-actions">
-      <button type="button" onClick={() => onEdit(item)}>Edit</button>
-      <button type="button" className={active ? 'danger-button' : ''} onClick={() => onToggle(item)}>
-        {active ? 'Nonaktifkan' : 'Aktifkan'}
+    <div className="table-actions icon-actions">
+      <button className="icon-action-button edit" type="button" onClick={() => onEdit(item)} title="Edit" aria-label="Edit data">
+        <PencilIcon />
+      </button>
+      <button className={`icon-action-button ${active ? 'delete' : 'restore'}`} type="button" onClick={() => onToggle(item)} title={active ? 'Delete' : 'Restore'} aria-label={active ? 'Delete data' : 'Restore data'}>
+        {active ? <TrashIcon /> : <RestoreIcon />}
       </button>
     </div>
   )
@@ -93,7 +125,7 @@ function CoaTable({ rows, onEdit, onToggle }) {
               <td>{item.seg4_default || '-'}</td>
               <td>{item.kategori_rab || '-'}</td>
               <td>{item.tipe_fv || '-'}</td>
-              <td>{item.aktif ? 'Aktif' : 'Nonaktif'}</td>
+              <td>{item.aktif ? 'Aktif' : 'Delete'}</td>
               <td><ActionButtons item={item} onEdit={onEdit} onToggle={onToggle} active={item.aktif} /></td>
             </tr>
           ))}
@@ -131,7 +163,7 @@ function CabangTable({ rows, onEdit, onToggle, branchById = {} }) {
               <td>{item.nama}</td>
               <td>{item.tipe}</td>
               <td>{formatBranchName(branchById[item.parent_id])}</td>
-              <td>{item.aktif === false ? 'Nonaktif' : 'Aktif'}</td>
+              <td>{item.aktif === false ? 'Delete' : 'Aktif'}</td>
               <td><ActionButtons item={item} onEdit={onEdit} onToggle={onToggle} active={item.aktif !== false} /></td>
             </tr>
           ))}
@@ -164,7 +196,7 @@ function UserTable({ rows, onEdit, onToggle }) {
               <td>{item.email}</td>
               <td>{item.role}</td>
               <td>{formatBranchName(item.cabang)}</td>
-              <td>{item.aktif ? 'Aktif' : 'Nonaktif'}</td>
+              <td>{item.aktif ? 'Aktif' : 'Delete'}</td>
               <td><ActionButtons item={item} onEdit={onEdit} onToggle={onToggle} active={item.aktif} /></td>
             </tr>
           ))}
@@ -425,26 +457,26 @@ function MasterData() {
 
   async function toggleCoa(item) {
     const nextActive = !item.aktif
-    if (!window.confirm(`${nextActive ? 'Aktifkan' : 'Nonaktifkan'} COA ${item.kode_seg5}? Data historis tidak akan dihapus.`)) return
+    if (!window.confirm(`${nextActive ? 'Restore' : 'Delete'} COA ${item.kode_seg5}? Data historis tidak akan dihapus permanen.`)) return
     await masterAPI.updateCoa(item.kode_seg5, { aktif: nextActive })
-    setSuccessMessage(`COA berhasil ${nextActive ? 'diaktifkan' : 'dinonaktifkan'}`)
+    setSuccessMessage(`COA berhasil ${nextActive ? 'direstore' : 'ditandai delete'}`)
     await loadMasterData()
   }
 
   async function toggleCabang(item) {
     const currentActive = item.aktif !== false
     const nextActive = !currentActive
-    if (!window.confirm(`${nextActive ? 'Aktifkan' : 'Nonaktifkan'} cabang ${item.nama}? Data historis tidak akan dihapus.`)) return
+    if (!window.confirm(`${nextActive ? 'Restore' : 'Delete'} cabang ${item.nama}? Data historis tidak akan dihapus permanen.`)) return
     await masterAPI.updateCabang(item.id, { aktif: nextActive })
-    setSuccessMessage(`Cabang berhasil ${nextActive ? 'diaktifkan' : 'dinonaktifkan'}`)
+    setSuccessMessage(`Cabang berhasil ${nextActive ? 'direstore' : 'ditandai delete'}`)
     await loadMasterData()
   }
 
   async function toggleUser(item) {
     const nextActive = !item.aktif
-    if (!window.confirm(`${nextActive ? 'Aktifkan' : 'Nonaktifkan'} user ${item.email}?`)) return
+    if (!window.confirm(`${nextActive ? 'Restore' : 'Delete'} user ${item.email}?`)) return
     await masterAPI.updateUser(item.id, { aktif: nextActive })
-    setSuccessMessage(`User berhasil ${nextActive ? 'diaktifkan' : 'dinonaktifkan'}`)
+    setSuccessMessage(`User berhasil ${nextActive ? 'direstore' : 'ditandai delete'}`)
     await loadMasterData()
   }
 
@@ -455,7 +487,7 @@ function MasterData() {
           <div>
             <p className="eyebrow">Administrasi</p>
             <h1>Master Data</h1>
-            <p className="muted">Kelola data COA 2025, cabang, dan user aplikasi. Nonaktifkan dipakai sebagai pengganti hapus agar riwayat data tetap aman.</p>
+            <p className="muted">Kelola data COA 2025, cabang, dan user aplikasi. Delete bersifat soft delete agar riwayat data tetap aman.</p>
           </div>
           <Link to="/">Kembali</Link>
         </div>
@@ -488,7 +520,7 @@ function MasterData() {
                 <label>Seg 4 Default<input value={coaForm.seg4_default} onChange={(event) => updateCoaForm('seg4_default', event.target.value)} /></label>
                 <Select label="Kategori" value={coaForm.kategori_rab} onChange={(event) => updateCoaForm('kategori_rab', event.target.value)}>{KATEGORI_RAB.map((item) => <option key={item} value={item}>{item}</option>)}</Select>
                 <Select label="Tipe" value={coaForm.tipe_fv} onChange={(event) => updateCoaForm('tipe_fv', event.target.value)}>{TIPE_FV.map((item) => <option key={item} value={item}>{item}</option>)}</Select>
-                <Select label="Status" value={coaForm.aktif ? 'true' : 'false'} onChange={(event) => updateCoaForm('aktif', event.target.value === 'true')}><option value="true">Aktif</option><option value="false">Nonaktif</option></Select>
+                <Select label="Status" value={coaForm.aktif ? 'true' : 'false'} onChange={(event) => updateCoaForm('aktif', event.target.value === 'true')}><option value="true">Aktif</option><option value="false">Delete</option></Select>
               </fieldset>
               <div className="form-actions">
                 <button type="submit" disabled={saving}>{saving ? 'Menyimpan...' : editingCoa ? 'Simpan perubahan' : 'Tambah COA'}</button>
@@ -505,7 +537,7 @@ function MasterData() {
                 <label>Nama<input value={cabangForm.nama} onChange={(event) => updateCabangForm('nama', event.target.value)} required /></label>
                 <Select label="Tipe" value={cabangForm.tipe} onChange={(event) => updateCabangForm('tipe', event.target.value)}>{BRANCH_TYPES.map((item) => <option key={item.value} value={item.value}>{item.label}</option>)}</Select>
                 <Select label="Parent Cabang" value={cabangForm.parent_id} onChange={(event) => updateCabangForm('parent_id', event.target.value)}><option value="">Tidak ada parent</option>{branches.filter((branch) => branch.id !== editingCabang?.id).map((branch) => <option key={branch.id} value={branch.id}>{branch.kode_seg23} — {branch.nama}</option>)}</Select>
-                <Select label="Status" value={cabangForm.aktif ? 'true' : 'false'} onChange={(event) => updateCabangForm('aktif', event.target.value === 'true')}><option value="true">Aktif</option><option value="false">Nonaktif</option></Select>
+                <Select label="Status" value={cabangForm.aktif ? 'true' : 'false'} onChange={(event) => updateCabangForm('aktif', event.target.value === 'true')}><option value="true">Aktif</option><option value="false">Delete</option></Select>
               </fieldset>
               <div className="form-actions">
                 <button type="submit" disabled={saving}>{saving ? 'Menyimpan...' : editingCabang ? 'Simpan perubahan' : 'Tambah cabang'}</button>
@@ -523,7 +555,7 @@ function MasterData() {
                 <label>{editingUser ? 'Password baru (opsional)' : 'Password sementara'}<input type="password" value={userForm.password} onChange={(event) => updateUserForm('password', event.target.value)} required={!editingUser} /></label>
                 <Select label="Role" value={userForm.role} onChange={(event) => updateUserForm('role', event.target.value)} required>{ROLE_OPTIONS.map((role) => <option key={role.value} value={role.value}>{role.label}</option>)}</Select>
                 <Select label="Cabang / Unit PM" value={userForm.cabang_id} onChange={(event) => updateUserForm('cabang_id', event.target.value)} disabled={userForm.role !== 'pm'} required={userForm.role === 'pm'}><option value="">{userForm.role === 'pm' ? 'Pilih cabang untuk PM' : 'Tidak dipakai untuk role ini'}</option>{branches.map((branch) => <option key={branch.id} value={branch.id}>{branch.kode_seg23} — {branch.nama}</option>)}</Select>
-                <Select label="Status" value={userForm.aktif ? 'true' : 'false'} onChange={(event) => updateUserForm('aktif', event.target.value === 'true')}><option value="true">Aktif</option><option value="false">Nonaktif</option></Select>
+                <Select label="Status" value={userForm.aktif ? 'true' : 'false'} onChange={(event) => updateUserForm('aktif', event.target.value === 'true')}><option value="true">Aktif</option><option value="false">Delete</option></Select>
               </fieldset>
               <div className="form-actions">
                 <button type="submit" disabled={saving}>{saving ? 'Menyimpan...' : editingUser ? 'Simpan perubahan' : 'Tambah user'}</button>
