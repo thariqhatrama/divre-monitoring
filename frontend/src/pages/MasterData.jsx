@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
+import Select from '../components/ui/Select'
 import { masterAPI } from '../services/api'
 
 const MASTER_TABS = [
@@ -485,9 +486,9 @@ function MasterData() {
                 <label>Kode Seg 5<input value={coaForm.kode_seg5} onChange={(event) => updateCoaForm('kode_seg5', event.target.value)} disabled={Boolean(editingCoa)} required /></label>
                 <label>Nama<input value={coaForm.nama} onChange={(event) => updateCoaForm('nama', event.target.value)} required /></label>
                 <label>Seg 4 Default<input value={coaForm.seg4_default} onChange={(event) => updateCoaForm('seg4_default', event.target.value)} /></label>
-                <label>Kategori<select value={coaForm.kategori_rab} onChange={(event) => updateCoaForm('kategori_rab', event.target.value)}>{KATEGORI_RAB.map((item) => <option key={item} value={item}>{item}</option>)}</select></label>
-                <label>Tipe<select value={coaForm.tipe_fv} onChange={(event) => updateCoaForm('tipe_fv', event.target.value)}>{TIPE_FV.map((item) => <option key={item} value={item}>{item}</option>)}</select></label>
-                <label>Status<select value={coaForm.aktif ? 'true' : 'false'} onChange={(event) => updateCoaForm('aktif', event.target.value === 'true')}><option value="true">Aktif</option><option value="false">Nonaktif</option></select></label>
+                <Select label="Kategori" value={coaForm.kategori_rab} onChange={(event) => updateCoaForm('kategori_rab', event.target.value)}>{KATEGORI_RAB.map((item) => <option key={item} value={item}>{item}</option>)}</Select>
+                <Select label="Tipe" value={coaForm.tipe_fv} onChange={(event) => updateCoaForm('tipe_fv', event.target.value)}>{TIPE_FV.map((item) => <option key={item} value={item}>{item}</option>)}</Select>
+                <Select label="Status" value={coaForm.aktif ? 'true' : 'false'} onChange={(event) => updateCoaForm('aktif', event.target.value === 'true')}><option value="true">Aktif</option><option value="false">Nonaktif</option></Select>
               </fieldset>
               <div className="form-actions">
                 <button type="submit" disabled={saving}>{saving ? 'Menyimpan...' : editingCoa ? 'Simpan perubahan' : 'Tambah COA'}</button>
@@ -502,9 +503,9 @@ function MasterData() {
                 <legend>{editingCabang ? 'Edit cabang' : 'Tambah cabang'}</legend>
                 <label>Kode Seg 2&3<input value={cabangForm.kode_seg23} onChange={(event) => updateCabangForm('kode_seg23', event.target.value)} required /></label>
                 <label>Nama<input value={cabangForm.nama} onChange={(event) => updateCabangForm('nama', event.target.value)} required /></label>
-                <label>Tipe<select value={cabangForm.tipe} onChange={(event) => updateCabangForm('tipe', event.target.value)}>{BRANCH_TYPES.map((item) => <option key={item.value} value={item.value}>{item.label}</option>)}</select></label>
-                <label>Parent Cabang<select value={cabangForm.parent_id} onChange={(event) => updateCabangForm('parent_id', event.target.value)}><option value="">Tidak ada parent</option>{branches.filter((branch) => branch.id !== editingCabang?.id).map((branch) => <option key={branch.id} value={branch.id}>{branch.kode_seg23} — {branch.nama}</option>)}</select></label>
-                <label>Status<select value={cabangForm.aktif ? 'true' : 'false'} onChange={(event) => updateCabangForm('aktif', event.target.value === 'true')}><option value="true">Aktif</option><option value="false">Nonaktif</option></select></label>
+                <Select label="Tipe" value={cabangForm.tipe} onChange={(event) => updateCabangForm('tipe', event.target.value)}>{BRANCH_TYPES.map((item) => <option key={item.value} value={item.value}>{item.label}</option>)}</Select>
+                <Select label="Parent Cabang" value={cabangForm.parent_id} onChange={(event) => updateCabangForm('parent_id', event.target.value)}><option value="">Tidak ada parent</option>{branches.filter((branch) => branch.id !== editingCabang?.id).map((branch) => <option key={branch.id} value={branch.id}>{branch.kode_seg23} — {branch.nama}</option>)}</Select>
+                <Select label="Status" value={cabangForm.aktif ? 'true' : 'false'} onChange={(event) => updateCabangForm('aktif', event.target.value === 'true')}><option value="true">Aktif</option><option value="false">Nonaktif</option></Select>
               </fieldset>
               <div className="form-actions">
                 <button type="submit" disabled={saving}>{saving ? 'Menyimpan...' : editingCabang ? 'Simpan perubahan' : 'Tambah cabang'}</button>
@@ -520,9 +521,9 @@ function MasterData() {
                 <label>Nama<input value={userForm.nama} onChange={(event) => updateUserForm('nama', event.target.value)} required /></label>
                 <label>Email<input type="email" value={userForm.email} onChange={(event) => updateUserForm('email', event.target.value)} required /></label>
                 <label>{editingUser ? 'Password baru (opsional)' : 'Password sementara'}<input type="password" value={userForm.password} onChange={(event) => updateUserForm('password', event.target.value)} required={!editingUser} /></label>
-                <label>Role<select value={userForm.role} onChange={(event) => updateUserForm('role', event.target.value)} required>{ROLE_OPTIONS.map((role) => <option key={role.value} value={role.value}>{role.label}</option>)}</select></label>
-                <label>Cabang / Unit PM<select value={userForm.cabang_id} onChange={(event) => updateUserForm('cabang_id', event.target.value)} disabled={userForm.role !== 'pm'} required={userForm.role === 'pm'}><option value="">{userForm.role === 'pm' ? 'Pilih cabang untuk PM' : 'Tidak dipakai untuk role ini'}</option>{branches.map((branch) => <option key={branch.id} value={branch.id}>{branch.kode_seg23} — {branch.nama}</option>)}</select></label>
-                <label>Status<select value={userForm.aktif ? 'true' : 'false'} onChange={(event) => updateUserForm('aktif', event.target.value === 'true')}><option value="true">Aktif</option><option value="false">Nonaktif</option></select></label>
+                <Select label="Role" value={userForm.role} onChange={(event) => updateUserForm('role', event.target.value)} required>{ROLE_OPTIONS.map((role) => <option key={role.value} value={role.value}>{role.label}</option>)}</Select>
+                <Select label="Cabang / Unit PM" value={userForm.cabang_id} onChange={(event) => updateUserForm('cabang_id', event.target.value)} disabled={userForm.role !== 'pm'} required={userForm.role === 'pm'}><option value="">{userForm.role === 'pm' ? 'Pilih cabang untuk PM' : 'Tidak dipakai untuk role ini'}</option>{branches.map((branch) => <option key={branch.id} value={branch.id}>{branch.kode_seg23} — {branch.nama}</option>)}</Select>
+                <Select label="Status" value={userForm.aktif ? 'true' : 'false'} onChange={(event) => updateUserForm('aktif', event.target.value === 'true')}><option value="true">Aktif</option><option value="false">Nonaktif</option></Select>
               </fieldset>
               <div className="form-actions">
                 <button type="submit" disabled={saving}>{saving ? 'Menyimpan...' : editingUser ? 'Simpan perubahan' : 'Tambah user'}</button>

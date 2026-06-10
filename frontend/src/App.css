@@ -62,7 +62,7 @@ h1 {
 }
 
 .auth-form label {
-  color: #334155;
+  color: #e7029b;
   display: grid;
   font-weight: 600;
   gap: 8px;
@@ -1054,6 +1054,7 @@ a {
   display: grid;
   font-weight: 700;
   gap: 8px;
+  position: relative;
 }
 
 .ui-field small {
@@ -1502,6 +1503,23 @@ a {
 .filter-card {
   display: grid;
   gap: 14px;
+  overflow: visible;
+  position: relative;
+  z-index: 5;
+}
+
+.filter-card:has(.ui-select-menu) {
+  z-index: 80;
+}
+
+.dashboard-filter-row .ui-field,
+.pm-dashboard-filter-row .ui-field {
+  z-index: 1;
+}
+
+.dashboard-filter-row .ui-field:has(.ui-select-menu),
+.pm-dashboard-filter-row .ui-field:has(.ui-select-menu) {
+  z-index: 90;
 }
 
 .filter-card-title,
@@ -1694,7 +1712,7 @@ a {
 }
 
 .auth-brand-card {
-  background: #0f172a;
+  background: #e65656;
   border-radius: 26px;
   color: #e2e8f0;
   display: grid;
