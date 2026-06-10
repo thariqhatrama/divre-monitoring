@@ -12,7 +12,7 @@
 **Timeline:** 3 minggu  
 **Scope utama:** Monitoring margin, bukan approval, bukan SLA, bukan ERP.  
 **COA acuan:** COA Tahun 2025  
-**Status saat ini:** Frontend layout global tahap 1 selesai: authenticated pages kini memakai shell dashboard modern dengan sidebar role-based, topbar, responsive drawer, dan komponen UI dasar; frontend build berhasil dengan warning chunk size Vite/Recharts yang sudah dikenal
+**Status saat ini:** Frontend UI tahap 2 selesai: dashboard, daftar/detail/form proyek, login, RAB, dan realisasi sudah dimodernisasi dengan card layout, metric summary, empty/loading state, table modern, dan form spacing baru; frontend build berhasil dengan warning chunk size Vite/Recharts yang sudah dikenal
 
 ---
 
@@ -227,6 +227,19 @@ Target: aplikasi siap demo dan bisa diakses via browser.
 - [x] `frontend/src/App.css` ditambahkan style modern dashboard, sidebar fixed desktop, dan drawer tablet/mobile
 - [x] Frontend build berhasil (`npm --prefix frontend run build`) dengan warning chunk size Vite/Recharts yang sudah dikenal
 
+### Frontend UI Tahap 2
+
+- [x] `frontend/src/pages/Dashboard.jsx` — hero, KPI/metric cards, filter card, chart/table section modern
+- [x] `frontend/src/pages/DashboardCabang.jsx` — dashboard PM cabang dengan layout modern dan scope tetap existing
+- [x] `frontend/src/pages/ProyekList.jsx` — daftar proyek dengan filter/table/action modern
+- [x] `frontend/src/pages/ProyekDetail.jsx` — detail proyek dengan card metadata, chart, summary, empty state
+- [x] `frontend/src/pages/Login.jsx` — login modern dengan brand panel
+- [x] `frontend/src/pages/ProyekForm.jsx` — form registrasi/edit proyek dibagi card section tanpa mengubah payload submit
+- [x] `frontend/src/pages/RABForm.jsx` — RAB dimodernisasi dengan hero, alert Segmen 11, metric summary, form card, subtotal kategori, table modern; gate `rabLocked = !project?.seg11_no || !canEdit` dan `fieldset disabled={rabLocked || saving}` tetap dipertahankan
+- [x] `frontend/src/pages/RealisasiForm.jsx` — realisasi dimodernisasi dengan hero, metric summary, form card, histori transaksi, agregasi akun, table/empty state; `canMutate = user?.role === 'admin' || user?.role === 'pm'` tetap dipertahankan
+- [x] `frontend/src/App.css` — styling tahap 2 untuk card layout, dashboard hero, metrics, modern table, alert, textarea, dan responsive layout
+- [x] Final build frontend berhasil (`npm --prefix frontend run build`) dengan warning chunk size Vite/Recharts yang sudah dikenal
+
 ### Deployment
 
 - [ ] Deploy backend ke Render
@@ -266,6 +279,7 @@ Target: aplikasi siap demo dan bisa diakses via browser.
 
 | Tanggal | Tipe | Area | Deskripsi | File Terkait | Status |
 |---|---|---|---|---|---|
+| 2026-06-10 | Change | Frontend UI Tahap 2 | Menyelesaikan redesign UI tahap 2 untuk halaman utama frontend: dashboard Kepala Divre, dashboard PM, daftar/detail/form proyek, login, RAB, dan realisasi memakai hero/card layout, metric summary, form section, warning/empty/loading state, dan table modern; perubahan dijaga UI-only tanpa backend/API/schema/RBAC/business logic; final frontend build berhasil dengan warning chunk size Vite/Recharts yang sudah dikenal | `frontend/src/pages/Dashboard.jsx`, `frontend/src/pages/DashboardCabang.jsx`, `frontend/src/pages/ProyekList.jsx`, `frontend/src/pages/ProyekDetail.jsx`, `frontend/src/pages/Login.jsx`, `frontend/src/pages/ProyekForm.jsx`, `frontend/src/pages/RABForm.jsx`, `frontend/src/pages/RealisasiForm.jsx`, `frontend/src/App.css`, `STATUS.md` | ✅ |
 | 2026-06-10 | Add | Frontend Layout | Menambahkan layout global tahap 1: authenticated pages dibungkus `AppLayout` dengan sidebar kiri role-based, header/topbar, drawer responsive untuk tablet/mobile, active menu berdasarkan route, dan komponen UI dasar Button/Card/Badge/Input/Select/PageHeader/EmptyState/LoadingState; `index.css` dirapikan agar tidak membatasi layout full-width; frontend build berhasil dengan warning chunk size Vite/Recharts yang sudah dikenal | `frontend/src/App.jsx`, `frontend/src/App.css`, `frontend/src/index.css`, `frontend/src/components/layout/AppLayout.jsx`, `frontend/src/components/layout/Sidebar.jsx`, `frontend/src/components/layout/Header.jsx`, `frontend/src/components/ui/*.jsx`, `STATUS.md` | ✅ |
 | 2026-06-10 | Add | Seed Dummy Margin | Menambahkan `005_seed_dummy_rab_realisasi.sql` untuk mengisi RAB + realisasi pada 3 proyek dummy PM dengan skema margin berbeda: project 001 margin RAB 20% dan realisasi 25% (aman naik), project 002 margin RAB 14% dan realisasi 8% (perhatian turun), project 003 margin RAB 5% dan realisasi -3% (kritis/rugi); seed idempotent berdasarkan `project_id + uraian` dan `rab_item_id + catatan` | `backend/migrations/005_seed_dummy_rab_realisasi.sql`, `STATUS.md` | ✅ |
 | 2026-06-10 | Add | Seed Dummy PM | Menambahkan `004_seed_dummy_projects.sql` untuk 3 proyek dummy PM di Cabang Surabaya (`SBA`): Monitoring Batubara, Survey Marine, dan Sertifikasi Industri; seed idempotent berdasarkan `nomor_spmk`, memakai PM aktif pertama di Cabang Surabaya jika tersedia, dan hanya membuat metadata proyek + Segmen 11 agar RAB tetap diinput dari UI | `backend/migrations/004_seed_dummy_projects.sql`, `STATUS.md` | ✅ |
@@ -312,6 +326,7 @@ Tipe activity:
 | ID | Tanggal | Severity | Area | Bug | Penyebab | Solusi | Status |
 |---|---|---|---|---|---|---|---|
 | BUG-001 | YYYY-MM-DD | High | Auth | Contoh: JWT tidak terbaca di protected route | Token belum disimpan di localStorage | Perbaiki AuthContext | ⬜ |
+| BUG-002 | 2026-06-10 | Low | Frontend Build | Final build UI tahap 2 masih menampilkan warning chunk size > 500 kB | Bundle Recharts/Vite tetap masuk chunk utama seperti warning sebelumnya | Tidak menghambat build; catat sebagai warning dikenal dan pertimbangkan code-splitting pada fase optimasi terpisah | 🟨 |
 
 Severity:
 - `Critical` = aplikasi tidak bisa digunakan
@@ -361,27 +376,21 @@ Update bagian ini sebelum membuka sesi Claude baru agar tidak kehilangan konteks
 Tulis ringkasan singkat pekerjaan terakhir.
 
 ```txt
-Frontend layout global tahap 1 selesai. Authenticated pages kini dibungkus `AppLayout` dengan sidebar kiri role-based untuk admin/kepala_divre/PM, header/topbar, user profile/role, logout, search visual sederhana, active menu berdasarkan route, dan drawer responsive untuk tablet/mobile. Komponen UI dasar `Button`, `Card`, `Badge`, `Input`, `Select`, `PageHeader`, `EmptyState`, dan `LoadingState` dibuat. Tidak ada perubahan backend, database schema, API contract, atau allowed role route.
+Frontend UI tahap 2 selesai. Dashboard Kepala Divre, Dashboard PM, daftar/detail/form proyek, login, RAB, dan realisasi sudah memakai visual modern berbasis hero/card layout, metric summary, form section, alert/empty/loading state, dan table modern. Perubahan dijaga UI-only: tidak ada perubahan backend, database schema, API contract, RBAC, payload submit, kalkulasi margin/currency, atau gate Segmen 11. Final `npm --prefix frontend run build` berhasil dengan warning chunk size Vite/Recharts yang sudah dikenal.
 ```
 
 ### File yang terakhir diubah
 
 ```txt
-frontend/src/App.jsx
 frontend/src/App.css
-frontend/src/index.css
-frontend/src/components/layout/AppLayout.jsx
-frontend/src/components/layout/Sidebar.jsx
-frontend/src/components/layout/Header.jsx
-frontend/src/components/ui/Button.jsx
-frontend/src/components/ui/Card.jsx
-frontend/src/components/ui/Badge.jsx
-frontend/src/components/ui/Input.jsx
-frontend/src/components/ui/Select.jsx
-frontend/src/components/ui/PageHeader.jsx
-frontend/src/components/ui/EmptyState.jsx
-frontend/src/components/ui/LoadingState.jsx
-frontend/src/components/ui/index.js
+frontend/src/pages/Dashboard.jsx
+frontend/src/pages/DashboardCabang.jsx
+frontend/src/pages/ProyekList.jsx
+frontend/src/pages/ProyekDetail.jsx
+frontend/src/pages/Login.jsx
+frontend/src/pages/ProyekForm.jsx
+frontend/src/pages/RABForm.jsx
+frontend/src/pages/RealisasiForm.jsx
 STATUS.md
 ```
 
@@ -390,13 +399,13 @@ STATUS.md
 #### Selesai / validasi dasar lulus
 
 ```txt
-Frontend layout global tahap 1 selesai dan `npm --prefix frontend run build` berhasil. Ada warning chunk size Vite/Recharts yang sudah dikenal, tetapi build sukses. Protected routes tetap memakai `allowedRoles` existing; perubahan hanya membungkus halaman authenticated dengan `AppLayout` dan menambah layout/sidebar/header/UI primitives. Backend, database schema, API contract, dan RBAC backend tidak diubah.
+Frontend UI tahap 2 selesai dan `npm --prefix frontend run build` berhasil. Ada warning chunk size Vite/Recharts yang sudah dikenal, tetapi build sukses. RABForm mempertahankan `rabLocked = !project?.seg11_no || !canEdit` dan `fieldset disabled={rabLocked || saving}`; RealisasiForm mempertahankan `canMutate = user?.role === 'admin' || user?.role === 'pm'`. Backend, database schema, API contract, payload submit, kalkulasi margin/currency, gate Segmen 11, dan RBAC tidak diubah.
 ```
 
 #### Pending validasi runtime
 
 ```txt
-Validasi manual production Phase 3D masih perlu dilakukan setelah Vercel/Render selesai deploy commit terbaru: cek backend live di `https://divre-api.onrender.com/api/health`, frontend live di `https://divre-monitoring.vercel.app/`, login admin/PM/Kepala Divre, dashboard production memuat data, detail proyek memuat chart, dan DevTools tidak menunjukkan CORS error. Tambahan setelah layout tahap 1: cek visual desktop/laptop bahwa sidebar tidak overlap content, menu role-based sesuai user, active state benar, logout tetap bekerja, dan viewport tablet/mobile dapat membuka/menutup drawer. Untuk demo PM, jalankan `backend/migrations/004_seed_dummy_projects.sql` lalu `backend/migrations/005_seed_dummy_rab_realisasi.sql` di Supabase SQL Editor setelah cabang dan user PM Cabang Surabaya tersedia; lalu login sebagai PM Cabang Surabaya untuk memastikan 3 proyek dummy muncul dengan skema margin aman/perhatian/rugi. Validasi tambahan: cek langsung tabel `audit_log` untuk memastikan RAB INSERT/UPDATE/DELETE dan realisasi INSERT/UPDATE/DELETE tercatat.
+Validasi manual production Phase 3D masih perlu dilakukan setelah Vercel/Render selesai deploy commit terbaru: cek backend live di `https://divre-api.onrender.com/api/health`, frontend live di `https://divre-monitoring.vercel.app/`, login admin/PM/Kepala Divre, dashboard production memuat data, detail proyek memuat chart, dan DevTools tidak menunjukkan CORS error. Tambahan setelah UI tahap 2: cek visual desktop/laptop untuk Dashboard, DashboardCabang, ProyekList, ProyekDetail, Login, ProyekForm, RABForm, dan RealisasiForm; pastikan card/table tidak overflow, form tetap submit payload existing, RAB tetap terkunci tanpa Segmen 11, role read-only tidak dapat mutasi realisasi, dan viewport tablet/mobile tetap rapi. Untuk demo PM, jalankan `backend/migrations/004_seed_dummy_projects.sql` lalu `backend/migrations/005_seed_dummy_rab_realisasi.sql` di Supabase SQL Editor setelah cabang dan user PM Cabang Surabaya tersedia; lalu login sebagai PM Cabang Surabaya untuk memastikan 3 proyek dummy muncul dengan skema margin aman/perhatian/rugi. Validasi tambahan: cek langsung tabel `audit_log` untuk memastikan RAB INSERT/UPDATE/DELETE dan realisasi INSERT/UPDATE/DELETE tercatat.
 ```
 
 #### Butuh aksi manual / secret eksternal
@@ -408,13 +417,13 @@ Env Vercel/Render sudah diperbaiki oleh user. PM dan Kepala Divre user mungkin m
 #### Fase berikutnya sesuai PRD
 
 ```txt
-Lanjutkan deploy/push commit Phase 3D bila belum dipush, lalu lakukan checklist testing production di STATUS.md. Jangan menaruh secret di repo; isi secret hanya di Render/Vercel dashboard. Jika ingin merapikan repo, cleanup `node_modules/` yang sudah ter-track bisa menjadi task terpisah karena saat ini `.gitignore` sudah mengabaikan `node_modules/` tetapi file lama masih tracked.
+Lanjutkan review diff UI tahap 2, lalu deploy/push bila sudah sesuai. Setelah deploy, lakukan checklist testing production di STATUS.md terutama halaman RAB dan realisasi untuk memastikan gate Segmen 11, permission edit, payload submit, dan kalkulasi tetap sama. Jangan menaruh secret di repo; isi secret hanya di Render/Vercel dashboard. Jika ingin merapikan repo, cleanup `node_modules/` yang sudah ter-track bisa menjadi task terpisah karena saat ini `.gitignore` sudah mengabaikan `node_modules/` tetapi file lama masih tracked.
 ```
 
 ### Prompt lanjutan untuk Claude
 
 ```txt
-Jangan membuat fitur baru di luar PRD.md. Frontend layout global tahap 1 sudah selesai: `AppLayout`, `Sidebar`, `Header`, dan UI primitives dasar tersedia; protected routes dibungkus layout tanpa mengubah `allowedRoles`. Backend dashboard tetap membatasi PM berdasarkan `req.user.cabang_id`. Frontend `npm --prefix frontend run build` berhasil dengan warning chunk size Vite/Recharts. Fokus berikutnya: validasi visual/runtime production untuk layout sidebar/header per role, dashboard/detail, role PM/Kepala Divre, lalu tunggu instruksi user sebelum redesign halaman dashboard/proyek/RAB/realisasi lebih lanjut.
+Jangan membuat fitur baru di luar PRD.md. Frontend UI tahap 2 sudah selesai untuk Dashboard, DashboardCabang, ProyekList, ProyekDetail, Login, ProyekForm, RABForm, dan RealisasiForm. Perubahan dijaga UI-only tanpa backend/API/schema/RBAC/business logic; RAB gate dan permission realisasi tetap dipertahankan. Frontend `npm --prefix frontend run build` berhasil dengan warning chunk size Vite/Recharts. Fokus berikutnya: review diff dan validasi visual/runtime production per role, terutama RAB terkunci tanpa Segmen 11 dan realisasi read-only untuk role non-PM/admin.
 ```
 
 ---

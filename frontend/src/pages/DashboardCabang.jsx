@@ -1,6 +1,13 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import MarginBadge from '../components/MarginBadge'
+import Button from '../components/ui/Button'
+import Card from '../components/ui/Card'
+import EmptyState from '../components/ui/EmptyState'
+import Input from '../components/ui/Input'
+import LoadingState from '../components/ui/LoadingState'
+import PageHeader from '../components/ui/PageHeader'
+import Select from '../components/ui/Select'
 import useAuth from '../hooks/useAuth'
 import { dashboardAPI } from '../services/api'
 import { formatIDR, formatPercent } from '../utils/formatIDR'
@@ -78,142 +85,148 @@ function DashboardCabang() {
   return (
     <main className="app-shell master-shell">
       <section className="panel master-panel proyek-panel dashboard-panel">
-        <header className="master-header">
-          <div>
-            <p className="eyebrow">Phase 3B</p>
-            <h1>Dashboard PM Cabang</h1>
-            <p className="muted">
-              Data dibatasi oleh backend ke cabang login: {branch?.nama || user?.cabang_id || '-'}.
-            </p>
-          </div>
-          <div className="actions">
-            <Link to="/proyek">Daftar proyek</Link>
-            <Link to="/">Beranda</Link>
-            <button type="button" onClick={logout}>Logout</button>
-          </div>
-        </header>
-
-        <div className="filter-row dashboard-filter-row pm-dashboard-filter-row">
-          <label>
-            Tahun mulai
-            <input
-              type="number"
-              min="2000"
-              max="2100"
-              value={filters.tahun}
-              onChange={(event) => updateFilter('tahun', event.target.value)}
-              placeholder="Contoh: 2026"
-            />
-          </label>
-          <label>
-            Status proyek
-            <select value={filters.status} onChange={(event) => updateFilter('status', event.target.value)}>
-              {PROJECT_STATUS_OPTIONS.map((option) => (
-                <option key={option.value} value={option.value}>{option.label}</option>
-              ))}
-            </select>
-          </label>
-          <label>
-            Status margin
-            <select value={filters.status_margin} onChange={(event) => updateFilter('status_margin', event.target.value)}>
-              {MARGIN_STATUS_OPTIONS.map((option) => (
-                <option key={option.value} value={option.value}>{option.label}</option>
-              ))}
-            </select>
-          </label>
-        </div>
-
-        {error ? <p className="error-message">{error}</p> : null}
-
-        {loading ? (
-          <p className="master-empty">Memuat dashboard cabang...</p>
-        ) : (
-          <>
-            <section className="kpi-grid">
-              <div className="kpi-card">
-                <span>Total proyek aktif</span>
-                <strong>{summary?.total_proyek_aktif || 0}</strong>
-              </div>
-              <div className="kpi-card">
-                <span>Total nilai proyek cabang</span>
-                <strong>{formatIDR(summary?.total_nilai_proyek, { short: true })}</strong>
-                <small>{formatIDR(summary?.total_nilai_proyek)}</small>
-              </div>
-              <div className="kpi-card">
-                <span>Rata-rata margin RAB</span>
-                <strong>{formatPercent(summary?.rata_margin_rab)}</strong>
-              </div>
-              <div className="kpi-card">
-                <span>Rata-rata margin realisasi</span>
-                <strong>{formatPercent(summary?.rata_margin_realisasi)}</strong>
-              </div>
-              <div className="kpi-card kpi-danger">
-                <span>Proyek kritis/rugi</span>
-                <strong>{summary?.jumlah_proyek_kritis_rugi || 0}</strong>
-              </div>
-            </section>
-
-            <section className="dashboard-section">
-              <div className="master-content-header">
-                <h2>Tabel proyek cabang</h2>
-                <span>{projects.length} proyek tampil</span>
-              </div>
-              {projects.length === 0 ? (
-                <p className="master-empty">Belum ada proyek cabang sesuai filter.</p>
-              ) : (
-                <div className="table-scroll">
-                  <table className="data-table proyek-table dashboard-project-table">
-                    <thead>
-                      <tr>
-                        <th>Nama Proyek</th>
-                        <th>Nilai</th>
-                        <th>Total RAB</th>
-                        <th>Margin RAB</th>
-                        <th>Total Realisasi</th>
-                        <th>Margin Realisasi</th>
-                        <th>Delta</th>
-                        <th>Status Margin</th>
-                        <th>Status Proyek</th>
-                        <th>Aksi</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {projects.map((project) => {
-                        const isCritical = ['kritis', 'rugi'].includes(project.status_margin)
-
-                        return (
-                          <tr key={project.id} className={isCritical ? 'project-risk-row' : undefined}>
-                            <td>
-                              <strong>{project.nama}</strong>
-                              <span>{project.klien || 'Klien belum diisi'}</span>
-                              <code>{project.nomor_spmk || 'SPMK belum diisi'}</code>
-                            </td>
-                            <td>{formatIDR(project.nilai_proyek_idr, { short: true })}</td>
-                            <td>{formatIDR(project.total_rab_idr, { short: true })}</td>
-                            <td>{formatPercent(project.margin_rab)}</td>
-                            <td>{formatIDR(project.total_realisasi_idr, { short: true })}</td>
-                            <td>{formatPercent(project.margin_realisasi)}</td>
-                            <td className={getDeltaClass(project.indikator_delta)}>{formatDelta(project.delta_margin, project.indikator_delta)}</td>
-                            <td><MarginBadge status={project.status_margin} /></td>
-                            <td><span className={`status-pill status-${project.status}`}>{project.status}</span></td>
-                            <td>
-                              <div className="table-actions">
-                                <Link to={`/proyek/${project.id}/detail`}>Detail</Link>
-                                <Link to={`/proyek/${project.id}/rab`}>RAB</Link>
-                                <Link to={`/proyek/${project.id}/realisasi`}>Realisasi</Link>
-                                <Link to={`/proyek/${project.id}/edit`}>Edit</Link>
-                              </div>
-                            </td>
-                          </tr>
-                        )
-                      })}
-                    </tbody>
-                  </table>
-                </div>
+        <div className="page-stack">
+          <div className="dashboard-hero">
+            <PageHeader
+              eyebrow="Dashboard Cabang"
+              title="Dashboard PM Cabang"
+              description={`Data dibatasi oleh backend ke cabang login: ${branch?.nama || user?.cabang_id || '-'}.`}
+              actions={(
+                <>
+                  <Link className="action-link primary" to="/proyek">Daftar proyek</Link>
+                  <Link className="action-link" to="/">Beranda</Link>
+                  <Button onClick={logout} variant="secondary">Logout</Button>
+                </>
               )}
-            </section>
-          </>
-        )}
+            />
+          </div>
+
+          <Card className="filter-card">
+            <div className="filter-card-title">
+              <div>
+                <h2>Filter proyek cabang</h2>
+                <p>Filter ini tidak mengubah scope cabang PM; pembatasan cabang tetap dari backend.</p>
+              </div>
+            </div>
+            <div className="filter-row dashboard-filter-row pm-dashboard-filter-row">
+              <Input
+                label="Tahun mulai"
+                type="number"
+                min="2000"
+                max="2100"
+                value={filters.tahun}
+                onChange={(event) => updateFilter('tahun', event.target.value)}
+                placeholder="Contoh: 2026"
+              />
+              <Select label="Status proyek" value={filters.status} onChange={(event) => updateFilter('status', event.target.value)}>
+                {PROJECT_STATUS_OPTIONS.map((option) => (
+                  <option key={option.value} value={option.value}>{option.label}</option>
+                ))}
+              </Select>
+              <Select label="Status margin" value={filters.status_margin} onChange={(event) => updateFilter('status_margin', event.target.value)}>
+                {MARGIN_STATUS_OPTIONS.map((option) => (
+                  <option key={option.value} value={option.value}>{option.label}</option>
+                ))}
+              </Select>
+            </div>
+          </Card>
+
+          {error ? <p className="error-message">{error}</p> : null}
+
+          {loading ? (
+            <LoadingState label="Memuat dashboard cabang..." />
+          ) : (
+            <>
+              <section className="metric-grid">
+                <div className="metric-card">
+                  <span>Total proyek aktif</span>
+                  <strong>{summary?.total_proyek_aktif || 0}</strong>
+                </div>
+                <div className="metric-card">
+                  <span>Total nilai proyek cabang</span>
+                  <strong>{formatIDR(summary?.total_nilai_proyek, { short: true })}</strong>
+                  <small>{formatIDR(summary?.total_nilai_proyek)}</small>
+                </div>
+                <div className="metric-card">
+                  <span>Rata-rata margin RAB</span>
+                  <strong>{formatPercent(summary?.rata_margin_rab)}</strong>
+                </div>
+                <div className="metric-card">
+                  <span>Rata-rata margin realisasi</span>
+                  <strong>{formatPercent(summary?.rata_margin_realisasi)}</strong>
+                </div>
+                <div className="metric-card metric-danger">
+                  <span>Proyek kritis/rugi</span>
+                  <strong>{summary?.jumlah_proyek_kritis_rugi || 0}</strong>
+                </div>
+              </section>
+
+              <Card className="section-card">
+                <div className="section-title-row">
+                  <div>
+                    <h2>Tabel proyek cabang</h2>
+                    <p>{projects.length} proyek tampil</p>
+                  </div>
+                </div>
+                {projects.length === 0 ? (
+                  <EmptyState title="Belum ada proyek cabang" description="Belum ada proyek cabang sesuai filter." />
+                ) : (
+                  <div className="table-scroll modern-table">
+                    <table className="data-table proyek-table dashboard-project-table">
+                      <thead>
+                        <tr>
+                          <th>Nama Proyek</th>
+                          <th>Nilai</th>
+                          <th>Total RAB</th>
+                          <th>Margin RAB</th>
+                          <th>Total Realisasi</th>
+                          <th>Margin Realisasi</th>
+                          <th>Delta</th>
+                          <th>Status Margin</th>
+                          <th>Status Proyek</th>
+                          <th>Aksi</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {projects.map((project) => {
+                          const isCritical = ['kritis', 'rugi'].includes(project.status_margin)
+
+                          return (
+                            <tr key={project.id} className={isCritical ? 'project-risk-row' : undefined}>
+                              <td>
+                                <div className="project-cell">
+                                  <strong>{project.nama}</strong>
+                                  <span>{project.klien || 'Klien belum diisi'}</span>
+                                  <code>{project.nomor_spmk || 'SPMK belum diisi'}</code>
+                                </div>
+                              </td>
+                              <td>{formatIDR(project.nilai_proyek_idr, { short: true })}</td>
+                              <td>{formatIDR(project.total_rab_idr, { short: true })}</td>
+                              <td>{formatPercent(project.margin_rab)}</td>
+                              <td>{formatIDR(project.total_realisasi_idr, { short: true })}</td>
+                              <td>{formatPercent(project.margin_realisasi)}</td>
+                              <td className={getDeltaClass(project.indikator_delta)}>{formatDelta(project.delta_margin, project.indikator_delta)}</td>
+                              <td><MarginBadge status={project.status_margin} /></td>
+                              <td><span className={`status-pill status-${project.status}`}>{project.status}</span></td>
+                              <td>
+                                <div className="table-actions">
+                                  <Link className="action-link primary" to={`/proyek/${project.id}/detail`}>Detail</Link>
+                                  <Link className="action-link" to={`/proyek/${project.id}/rab`}>RAB</Link>
+                                  <Link className="action-link" to={`/proyek/${project.id}/realisasi`}>Realisasi</Link>
+                                  <Link className="action-link ghost" to={`/proyek/${project.id}/edit`}>Edit</Link>
+                                </div>
+                              </td>
+                            </tr>
+                          )
+                        })}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              </Card>
+            </>
+          )}
+        </div>
       </section>
     </main>
   )

@@ -1,6 +1,13 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import MarginCard from '../components/MarginCard'
+import Button from '../components/ui/Button'
+import Card from '../components/ui/Card'
+import EmptyState from '../components/ui/EmptyState'
+import Input from '../components/ui/Input'
+import LoadingState from '../components/ui/LoadingState'
+import PageHeader from '../components/ui/PageHeader'
+import Select from '../components/ui/Select'
 import useAuth from '../hooks/useAuth'
 import { kursAPI, realisasiAPI } from '../services/api'
 import { calculateLineTotalIdr, normalizeKurs } from '../utils/currencyConvert'
@@ -198,7 +205,7 @@ function RealisasiForm() {
     return (
       <main className="app-shell">
         <section className="panel">
-          <p className="master-empty">Memuat realisasi proyek...</p>
+          <LoadingState label="Memuat realisasi proyek..." />
         </section>
       </main>
     )
@@ -206,232 +213,265 @@ function RealisasiForm() {
 
   return (
     <main className="app-shell master-shell">
-      <section className="panel master-panel proyek-panel">
-        <header className="master-header">
-          <div>
-            <p className="eyebrow">Phase 2C</p>
-            <h1>Realisasi per Akun</h1>
-            <p className="muted">{project?.nama || 'Proyek tidak ditemukan'}</p>
+      <section className="panel master-panel proyek-panel dashboard-panel">
+        <div className="page-stack">
+          <div className="dashboard-hero">
+            <PageHeader
+              eyebrow="Realisasi per Akun"
+              title={project?.nama || 'Proyek tidak ditemukan'}
+              description="Catat transaksi realisasi per item RAB tanpa mengubah RAB awal. Total dan delta margin dihitung dari histori transaksi."
+              actions={(
+                <>
+                  <Link className="action-link" to="/proyek">Kembali ke proyek</Link>
+                  {project ? <Link className="action-link primary" to={`/proyek/${project.id}/rab`}>Kembali ke RAB</Link> : null}
+                </>
+              )}
+            />
           </div>
-          <div className="actions">
-            <Link to="/proyek">Kembali ke proyek</Link>
-            {project ? <Link to={`/proyek/${project.id}/rab`}>Kembali ke RAB</Link> : null}
-          </div>
-        </header>
 
-        <div className="margin-grid">
-          <MarginCard
-            title="Total Realisasi"
-            amount={totalRealisasi}
-            percent={marginRealisasi?.margin_persen}
-            status={marginRealisasi?.status_margin}
-            description={`Delta vs RAB ${formatPercent(marginRealisasi?.delta_margin)}`}
-          />
-          <MarginCard
-            title="Margin RAB"
-            amount={marginRealisasi?.margin_rab?.margin_idr}
-            percent={marginRealisasi?.margin_rab?.margin_persen}
-            status={marginRealisasi?.margin_rab?.status_margin}
-            description={`Nilai proyek ${formatIDR(marginRealisasi?.nilai_proyek_idr ?? project?.nilai_proyek)}`}
-          />
-        </div>
+          {error ? <p className="error-message">{error}</p> : null}
 
-        {error ? <p className="error-message">{error}</p> : null}
-
-        {canMutate ? (
-          <form className="proyek-form" onSubmit={handleSubmit}>
-            <fieldset disabled={saving}>
-              <legend>{editingId ? 'Edit transaksi realisasi' : 'Tambah transaksi realisasi'}</legend>
-
-              <label>
-                Item RAB
-                <select value={form.rab_item_id} onChange={(event) => updateField('rab_item_id', event.target.value)} disabled={Boolean(editingId)} required>
-                  <option value="">Pilih item RAB</option>
-                  {rabItems.map((item) => (
-                    <option key={item.id} value={item.id}>
-                      {item.kode_akun_seg5} — {item.uraian} ({formatIDR(item.total_idr)})
-                    </option>
-                  ))}
-                </select>
-              </label>
-
-              <label>
-                Tanggal realisasi
-                <input type="date" value={form.tanggal_realisasi} onChange={(event) => updateField('tanggal_realisasi', event.target.value)} required />
-              </label>
-
-              <label>
-                Qty
-                <input type="number" min="0" step="0.01" value={form.qty} onChange={(event) => updateField('qty', event.target.value)} required />
-              </label>
-
-              <label>
-                Satuan
-                <input value={form.satuan} onChange={(event) => updateField('satuan', event.target.value)} />
-              </label>
-
-              <label>
-                Mata uang
-                <select value={form.mata_uang} onChange={(event) => updateField('mata_uang', event.target.value)}>
-                  <option value="IDR">IDR</option>
-                  <option value="USD">USD</option>
-                </select>
-              </label>
-
-              <label>
-                Harga satuan
-                <input type="number" min="0" step="1" value={form.harga_satuan} onChange={(event) => updateField('harga_satuan', event.target.value)} required />
-              </label>
-
-              <label>
-                Kurs IDR
-                <input
-                  type="number"
-                  min="1"
-                  step="1"
-                  value={form.kurs_idr}
-                  onChange={(event) => updateField('kurs_idr', event.target.value)}
-                  disabled={form.mata_uang === 'IDR'}
-                  required
-                />
-              </label>
-
-              <label>
-                Catatan
-                <textarea value={form.catatan} onChange={(event) => updateField('catatan', event.target.value)} rows="3" />
-              </label>
-
-              <p className="muted-inline">
-                {form.mata_uang === 'IDR'
-                  ? 'Input IDR dihitung langsung dengan kurs 1.'
-                  : 'Kurs USD dikunci ke transaksi realisasi saat disimpan.'}
-              </p>
-
-              {form.mata_uang === 'USD' ? (
-                <button type="button" onClick={fillLatestKurs}>Ambil kurs terbaru</button>
-              ) : null}
-            </fieldset>
-
-            <div className="form-actions">
-              <span className="total-preview">Preview total: {formatIDR(totalPreview)}</span>
-              <button type="submit" disabled={saving || (!editingId && !selectedRabItem)}>
-                {saving ? 'Menyimpan...' : editingId ? 'Update realisasi' : 'Tambah realisasi'}
-              </button>
-              {editingId ? <button type="button" onClick={resetForm}>Batal edit</button> : null}
+          <div className="metric-grid">
+            <div className="metric-card">
+              <span>Total Realisasi</span>
+              <strong>{formatIDR(totalRealisasi)}</strong>
+              <small>{items.length} transaksi tersimpan</small>
             </div>
-          </form>
-        ) : (
-          <p className="master-empty">Role Anda hanya dapat membaca data realisasi.</p>
-        )}
+            <div className="metric-card">
+              <span>Margin Realisasi</span>
+              <strong>{formatPercent(marginRealisasi?.margin_persen ?? marginRealisasi?.margin_realisasi)}</strong>
+              <small>{marginRealisasi?.status_margin || 'Status belum tersedia'}</small>
+            </div>
+            <div className="metric-card">
+              <span>Delta vs RAB</span>
+              <strong>{formatPercent(marginRealisasi?.delta_margin)}</strong>
+              <small>{marginRealisasi?.indikator_delta || 'Belum tersedia'}</small>
+            </div>
+          </div>
 
-        <div className="table-scroll rab-table-wrap">
-          <table className="data-table proyek-table">
-            <thead>
-              <tr>
-                <th>Akun</th>
-                <th>Uraian RAB</th>
-                <th>RAB</th>
-                <th>Realisasi</th>
-                <th>Selisih</th>
-              </tr>
-            </thead>
-            <tbody>
-              {rabItems.length === 0 ? (
-                <tr>
-                  <td colSpan="5">Belum ada item RAB.</td>
-                </tr>
-              ) : rabItems.map((item) => {
-                const realisasiTotal = Number(totalsByRabItem[item.id] || 0)
-                return (
-                  <tr key={item.id}>
-                    <td><code>{item.kode_akun_seg5}</code></td>
-                    <td>{item.uraian}</td>
-                    <td>{formatIDR(item.total_idr)}</td>
-                    <td>{formatIDR(realisasiTotal)}</td>
-                    <td>{formatIDR(Number(item.total_idr || 0) - realisasiTotal)}</td>
-                  </tr>
-                )
-              })}
-            </tbody>
-          </table>
-        </div>
+          <div className="margin-grid">
+            <MarginCard
+              title="Total Realisasi"
+              amount={totalRealisasi}
+              percent={marginRealisasi?.margin_persen}
+              status={marginRealisasi?.status_margin}
+              description={`Delta vs RAB ${formatPercent(marginRealisasi?.delta_margin)}`}
+            />
+            <MarginCard
+              title="Margin RAB"
+              amount={marginRealisasi?.margin_rab?.margin_idr}
+              percent={marginRealisasi?.margin_rab?.margin_persen}
+              status={marginRealisasi?.margin_rab?.status_margin}
+              description={`Nilai proyek ${formatIDR(marginRealisasi?.nilai_proyek_idr ?? project?.nilai_proyek)}`}
+            />
+            <div className="margin-card">
+              <span>Preview transaksi</span>
+              <strong>{formatIDR(totalPreview)}</strong>
+              <small>{selectedRabItem ? `${selectedRabItem.kode_akun_seg5} · ${selectedRabItem.uraian}` : 'Pilih item RAB untuk preview transaksi baru.'}</small>
+            </div>
+          </div>
 
-        <h2>Riwayat Transaksi Realisasi</h2>
-        <div className="table-scroll rab-table-wrap">
-          <table className="data-table proyek-table">
-            <thead>
-              <tr>
-                <th>Tanggal</th>
-                <th>Akun</th>
-                <th>Qty</th>
-                <th>Harga</th>
-                <th>Total IDR</th>
-                <th>Catatan</th>
-                <th>Aksi</th>
-              </tr>
-            </thead>
-            <tbody>
-              {items.length === 0 ? (
-                <tr>
-                  <td colSpan="7">Belum ada transaksi realisasi.</td>
-                </tr>
-              ) : items.map((item) => {
-                const rabItem = rabItems.find((rab) => rab.id === item.rab_item_id)
-                return (
-                  <tr key={item.id}>
-                    <td>{item.tanggal_realisasi}</td>
-                    <td>
-                      <code>{rabItem?.kode_akun_seg5 || '-'}</code>
-                      <span>{rabItem?.uraian || 'Item RAB tidak ditemukan'}</span>
-                    </td>
-                    <td>{item.qty} {item.satuan || ''}</td>
-                    <td>
-                      {formatIDR(item.harga_satuan)}
-                      <span>{item.mata_uang} · Kurs {item.kurs_idr}</span>
-                    </td>
-                    <td>{formatIDR(item.total_idr)}</td>
-                    <td>{item.catatan || '-'}</td>
-                    <td>
-                      <div className="table-actions">
-                        <button type="button" onClick={() => handleEdit(item)} disabled={!canMutate || saving}>Edit</button>
-                        <button type="button" className="danger-button" onClick={() => handleDelete(item)} disabled={!canMutate || saving}>Hapus</button>
-                      </div>
-                    </td>
-                  </tr>
-                )
-              })}
-            </tbody>
-          </table>
-        </div>
+          {canMutate ? (
+            <Card className="form-card">
+              <div className="filter-card-title">
+                <div>
+                  <h2>{editingId ? 'Edit transaksi realisasi' : 'Tambah transaksi realisasi'}</h2>
+                  <p>Realisasi dicatat sebagai histori transaksi per akun RAB.</p>
+                </div>
+                <span className="total-preview">Preview total: {formatIDR(totalPreview)}</span>
+              </div>
 
-        <h2>Total per Akun</h2>
-        <div className="table-scroll rab-table-wrap">
-          <table className="data-table proyek-table">
-            <thead>
-              <tr>
-                <th>Akun</th>
-                <th>Kategori</th>
-                <th>Total RAB</th>
-                <th>Total Realisasi</th>
-                <th>Selisih</th>
-              </tr>
-            </thead>
-            <tbody>
-              {totalsByAccount.length === 0 ? (
-                <tr>
-                  <td colSpan="5">Belum ada total akun.</td>
-                </tr>
-              ) : totalsByAccount.map((item) => (
-                <tr key={item.kode_akun_seg5}>
-                  <td><code>{item.kode_akun_seg5}</code></td>
-                  <td>{item.kategori || '-'}</td>
-                  <td>{formatIDR(item.rab_total_idr)}</td>
-                  <td>{formatIDR(item.realisasi_total_idr)}</td>
-                  <td>{formatIDR(item.selisih_idr)}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+              <form className="proyek-form" onSubmit={handleSubmit}>
+                <fieldset disabled={saving}>
+                  <Select label="Item RAB *" value={form.rab_item_id} onChange={(event) => updateField('rab_item_id', event.target.value)} disabled={Boolean(editingId)} required>
+                    <option value="">Pilih item RAB</option>
+                    {rabItems.map((item) => (
+                      <option key={item.id} value={item.id}>
+                        {item.kode_akun_seg5} — {item.uraian} ({formatIDR(item.total_idr)})
+                      </option>
+                    ))}
+                  </Select>
+
+                  <Input label="Tanggal realisasi *" type="date" value={form.tanggal_realisasi} onChange={(event) => updateField('tanggal_realisasi', event.target.value)} required />
+                  <Input label="Qty *" type="number" min="0" step="0.01" value={form.qty} onChange={(event) => updateField('qty', event.target.value)} required />
+                  <Input label="Satuan" value={form.satuan} onChange={(event) => updateField('satuan', event.target.value)} />
+
+                  <Select label="Mata uang" value={form.mata_uang} onChange={(event) => updateField('mata_uang', event.target.value)}>
+                    <option value="IDR">IDR</option>
+                    <option value="USD">USD</option>
+                  </Select>
+
+                  <Input label="Harga satuan *" type="number" min="0" step="1" value={form.harga_satuan} onChange={(event) => updateField('harga_satuan', event.target.value)} required />
+                  <Input
+                    label="Kurs IDR *"
+                    type="number"
+                    min="1"
+                    step="1"
+                    value={form.kurs_idr}
+                    onChange={(event) => updateField('kurs_idr', event.target.value)}
+                    disabled={form.mata_uang === 'IDR'}
+                    required
+                  />
+
+                  <label>
+                    Catatan
+                    <textarea value={form.catatan} onChange={(event) => updateField('catatan', event.target.value)} rows="3" />
+                  </label>
+
+                  <p className="muted-inline">
+                    {form.mata_uang === 'IDR'
+                      ? 'Input IDR dihitung langsung dengan kurs 1.'
+                      : 'Kurs USD dikunci ke transaksi realisasi saat disimpan.'}
+                  </p>
+
+                  {form.mata_uang === 'USD' ? (
+                    <Button type="button" variant="secondary" onClick={fillLatestKurs}>Ambil kurs terbaru</Button>
+                  ) : null}
+                </fieldset>
+
+                <div className="form-actions">
+                  <Button type="submit" disabled={saving || (!editingId && !selectedRabItem)}>
+                    {saving ? 'Menyimpan...' : editingId ? 'Update realisasi' : 'Tambah realisasi'}
+                  </Button>
+                  {editingId ? <Button type="button" variant="secondary" onClick={resetForm}>Batal edit</Button> : null}
+                </div>
+              </form>
+            </Card>
+          ) : (
+            <EmptyState title="Mode baca" description="Role Anda hanya dapat membaca data realisasi." />
+          )}
+
+          <Card className="section-card">
+            <div className="section-title-row">
+              <div>
+                <h2>RAB vs Realisasi per Item</h2>
+                <p>{rabItems.length} item RAB sebagai basis transaksi realisasi.</p>
+              </div>
+            </div>
+            {rabItems.length === 0 ? (
+              <EmptyState title="Belum ada item RAB" description="Input RAB terlebih dahulu sebelum mencatat realisasi." />
+            ) : (
+              <div className="table-scroll modern-table rab-table-wrap">
+                <table className="data-table proyek-table">
+                  <thead>
+                    <tr>
+                      <th>Akun</th>
+                      <th>Uraian RAB</th>
+                      <th>RAB</th>
+                      <th>Realisasi</th>
+                      <th>Selisih</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {rabItems.map((item) => {
+                      const realisasiTotal = Number(totalsByRabItem[item.id] || 0)
+                      return (
+                        <tr key={item.id}>
+                          <td><code>{item.kode_akun_seg5}</code></td>
+                          <td>{item.uraian}</td>
+                          <td>{formatIDR(item.total_idr)}</td>
+                          <td>{formatIDR(realisasiTotal)}</td>
+                          <td>{formatIDR(Number(item.total_idr || 0) - realisasiTotal)}</td>
+                        </tr>
+                      )
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </Card>
+
+          <Card className="section-card">
+            <div className="section-title-row">
+              <div>
+                <h2>Riwayat Transaksi Realisasi</h2>
+                <p>{items.length} transaksi realisasi tersimpan.</p>
+              </div>
+            </div>
+            {items.length === 0 ? (
+              <EmptyState title="Belum ada transaksi realisasi" description="Transaksi baru akan muncul di sini setelah disimpan." />
+            ) : (
+              <div className="table-scroll modern-table rab-table-wrap">
+                <table className="data-table proyek-table">
+                  <thead>
+                    <tr>
+                      <th>Tanggal</th>
+                      <th>Akun</th>
+                      <th>Qty</th>
+                      <th>Harga</th>
+                      <th>Total IDR</th>
+                      <th>Catatan</th>
+                      <th>Aksi</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {items.map((item) => {
+                      const rabItem = rabItems.find((rab) => rab.id === item.rab_item_id)
+                      return (
+                        <tr key={item.id}>
+                          <td>{item.tanggal_realisasi}</td>
+                          <td>
+                            <code>{rabItem?.kode_akun_seg5 || '-'}</code>
+                            <span>{rabItem?.uraian || 'Item RAB tidak ditemukan'}</span>
+                          </td>
+                          <td>{item.qty} {item.satuan || ''}</td>
+                          <td>
+                            {formatIDR(item.harga_satuan)}
+                            <span>{item.mata_uang} · Kurs {item.kurs_idr}</span>
+                          </td>
+                          <td>{formatIDR(item.total_idr)}</td>
+                          <td>{item.catatan || '-'}</td>
+                          <td>
+                            <div className="table-actions">
+                              <Button size="sm" type="button" variant="secondary" onClick={() => handleEdit(item)} disabled={!canMutate || saving}>Edit</Button>
+                              <Button size="sm" type="button" variant="danger" onClick={() => handleDelete(item)} disabled={!canMutate || saving}>Hapus</Button>
+                            </div>
+                          </td>
+                        </tr>
+                      )
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </Card>
+
+          <Card className="section-card">
+            <div className="section-title-row">
+              <div>
+                <h2>Total per Akun</h2>
+                <p>Agregasi realisasi dan selisih berdasarkan kode akun.</p>
+              </div>
+            </div>
+            {totalsByAccount.length === 0 ? (
+              <EmptyState title="Belum ada total akun" description="Agregasi akun akan muncul setelah transaksi realisasi tersedia." />
+            ) : (
+              <div className="table-scroll modern-table rab-table-wrap">
+                <table className="data-table proyek-table">
+                  <thead>
+                    <tr>
+                      <th>Akun</th>
+                      <th>Kategori</th>
+                      <th>Total RAB</th>
+                      <th>Total Realisasi</th>
+                      <th>Selisih</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {totalsByAccount.map((item) => (
+                      <tr key={item.kode_akun_seg5}>
+                        <td><code>{item.kode_akun_seg5}</code></td>
+                        <td>{item.kategori || '-'}</td>
+                        <td>{formatIDR(item.rab_total_idr)}</td>
+                        <td>{formatIDR(item.realisasi_total_idr)}</td>
+                        <td>{formatIDR(item.selisih_idr)}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </Card>
         </div>
       </section>
     </main>
