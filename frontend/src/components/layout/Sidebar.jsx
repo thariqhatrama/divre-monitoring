@@ -39,13 +39,13 @@ function Sidebar({ isOpen, onNavigate }) {
 
   return (
     <aside className={["app-sidebar", isOpen ? 'is-open' : ''].filter(Boolean).join(' ')} aria-label="Navigasi utama">
-      <div className="sidebar-brand">
+      <NavLink className="sidebar-brand" onClick={onNavigate} to="/">
         <div className="sidebar-logo">DM</div>
         <div>
           <strong>Divre Monitoring</strong>
           <span>Margin Proyek</span>
         </div>
-      </div>
+      </NavLink>
 
       <nav className="sidebar-nav">
         {menuItems.map((item, index) => {

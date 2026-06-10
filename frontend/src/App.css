@@ -789,9 +789,18 @@ a {
 
 .sidebar-brand {
   align-items: center;
+  border: 0;
+  color: inherit;
   display: flex;
   gap: 12px;
+  justify-content: flex-start;
   min-height: 52px;
+  padding: 0;
+  text-decoration: none;
+}
+
+.sidebar-brand:hover {
+  color: inherit;
 }
 
 .sidebar-logo {
