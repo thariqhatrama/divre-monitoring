@@ -8,8 +8,7 @@ const MENU_BY_ROLE = {
     { label: 'RAB / Realisasi', to: '/proyek', icon: '▤', match: ['/proyek'] },
     { label: 'Master COA', to: '/master-data', icon: '◇' },
     { label: 'Master Cabang', to: '/master-data', icon: '⌂' },
-    { label: 'User Management', to: '/master-data', icon: '◉' },
-    { label: 'Kurs', to: '/master-data', icon: '↔' }
+    { label: 'User Management', to: '/master-data', icon: '◉' }
   ],
   kepala_divre: [
     { label: 'Dashboard', to: '/dashboard', icon: '▦' },

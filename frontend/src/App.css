@@ -301,7 +301,8 @@ a {
   grid-template-columns: repeat(4, minmax(0, 1fr));
 }
 
-.pm-dashboard-filter-row {
+.pm-dashboard-filter-row,
+.proyek-filter-row {
   grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
@@ -1166,7 +1167,8 @@ a {
   .filter-row,
   .proyek-form,
   .dashboard-filter-row,
-  .pm-dashboard-filter-row {
+  .pm-dashboard-filter-row,
+  .proyek-filter-row {
     grid-template-columns: 1fr;
   }
 

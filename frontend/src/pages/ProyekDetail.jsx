@@ -147,10 +147,6 @@ function ProyekDetail() {
             </div>
             <section className="detail-meta-grid">
               <div>
-                <span>Nomor SPMK</span>
-                <strong>{project?.nomor_spmk || '-'}</strong>
-              </div>
-              <div>
                 <span>Klien</span>
                 <strong>{project?.klien || '-'}</strong>
               </div>

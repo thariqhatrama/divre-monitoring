@@ -24,7 +24,7 @@ function ProyekList() {
   const [projects, setProjects] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
-  const [filters, setFilters] = useState({ status: '', tahun: '' })
+  const [filters, setFilters] = useState({ status: '', tahun: '', q: '' })
 
   const canWrite = user?.role === 'pm' || user?.role === 'admin'
   const canArchive = user?.role === 'admin'
@@ -48,7 +48,7 @@ function ProyekList() {
 
   useEffect(() => {
     loadProjects()
-  }, [filters.status, filters.tahun])
+  }, [filters.status, filters.tahun, filters.q])
 
   function updateFilter(name, value) {
     setFilters((current) => ({ ...current, [name]: value }))
@@ -89,10 +89,17 @@ function ProyekList() {
             <div className="filter-card-title">
               <div>
                 <h2>Filter proyek</h2>
-                <p>Tampilkan proyek berdasarkan status dan tahun mulai.</p>
+                <p>Tampilkan proyek berdasarkan kata kunci, status, dan tahun mulai.</p>
               </div>
             </div>
-            <div className="filter-row">
+            <div className="filter-row proyek-filter-row">
+              <Input
+                label="Cari proyek / klien"
+                type="search"
+                value={filters.q}
+                onChange={(event) => updateFilter('q', event.target.value)}
+                placeholder="Contoh: marine, sertifikasi, klien"
+              />
               <Select label="Status" value={filters.status} onChange={(event) => updateFilter('status', event.target.value)}>
                 {STATUS_OPTIONS.map((option) => (
                   <option key={option.value} value={option.value}>{option.label}</option>
@@ -143,10 +150,14 @@ function ProyekList() {
                           <div className="project-cell">
                             <strong>{project.nama}</strong>
                             <span>{project.klien || 'Klien belum diisi'}</span>
-                            <code>{project.nomor_spmk || 'SPMK belum diisi'}</code>
                           </div>
                         </td>
-                        <td><code>{project.cabang_id}</code></td>
+                        <td>
+                          <div className="project-cell">
+                            <strong>{project.cabang?.nama || '-'}</strong>
+                            <span>{project.cabang?.kode_seg23 || 'Cabang belum teridentifikasi'}</span>
+                          </div>
+                        </td>
                         <td>
                           {formatIDR(project.nilai_proyek)}
                           <span>{project.mata_uang_proyek}</span>

@@ -46,7 +46,7 @@ function ProyekForm() {
 
     async function loadBranches() {
       try {
-        const response = await masterAPI.getCabang()
+        const response = await masterAPI.getCabang({ aktif: 'true' })
         setBranches(response.data.data || [])
       } catch (err) {
         setError(err.response?.data?.error?.message || 'Gagal memuat daftar cabang')
@@ -216,7 +216,6 @@ function ProyekForm() {
               </div>
               <div className="proyek-form">
                 <Input label="Nama proyek *" value={form.nama} onChange={(event) => updateField('nama', event.target.value)} required />
-                <Input label="Nomor SPMK" value={form.nomor_spmk} onChange={(event) => updateField('nomor_spmk', event.target.value)} />
                 <Input
                   label="Segmen 11"
                   value={form.seg11_no}
@@ -230,7 +229,7 @@ function ProyekForm() {
                     <option value="">Pilih cabang / unit pelayanan</option>
                     {branches.map((branch) => (
                       <option key={branch.id} value={branch.id}>
-                        {branch.kode_seg23} — {branch.nama} ({branch.tipe === 'unit_pelayanan' ? 'UP' : 'Cabang'})
+                        {branch.kode_seg23} — {branch.nama} ({branch.tipe === 'unit_pelayanan' ? 'UP' : 'Cabang'}){branch.aktif === false ? ' · nonaktif' : ''}
                       </option>
                     ))}
                   </Select>

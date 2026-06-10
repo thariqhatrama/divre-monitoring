@@ -48,7 +48,6 @@ function ProyekTable({ projects = [], showCabang = true, showActions = true, emp
                 <td>
                   <strong>{project.nama}</strong>
                   <span>{project.klien || 'Klien belum diisi'}</span>
-                  <code>{project.nomor_spmk || 'SPMK belum diisi'}</code>
                 </td>
                 {showCabang ? (
                   <td>

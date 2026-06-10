@@ -5,7 +5,7 @@ import Button from '../ui/Button'
 const PAGE_TITLES = [
   { path: '/dashboard-cabang', title: 'Dashboard Cabang', description: 'Monitoring margin proyek untuk cabang Anda' },
   { path: '/dashboard', title: 'Dashboard Kepala Divre', description: 'Ringkasan margin proyek seluruh cabang' },
-  { path: '/master-data', title: 'Master Data', description: 'Kelola COA, cabang, user, dan kurs' },
+  { path: '/master-data', title: 'Master Data', description: 'Kelola COA, cabang, dan user' },
   { path: '/proyek', title: 'Proyek', description: 'Daftar proyek, RAB, dan realisasi' },
   { path: '/admin-test', title: 'Admin Test', description: 'Validasi route khusus admin' },
   { path: '/', title: 'Dashboard Monitoring Margin', description: 'Aplikasi monitoring margin proyek Divre Timur' }
@@ -40,11 +40,6 @@ function Header({ onOpenSidebar }) {
       </div>
 
       <div className="app-header-actions">
-        <label className="header-search" htmlFor="global-search">
-          <span aria-hidden="true">⌕</span>
-          <input id="global-search" placeholder="Cari proyek..." type="search" />
-        </label>
-
         <div className="user-chip" title={user?.email}>
           <span>{user?.nama?.charAt(0)?.toUpperCase() || 'U'}</span>
           <div>

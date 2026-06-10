@@ -9,6 +9,10 @@ function applyBranchFilters(query, filters = {}) {
     query = query.eq('parent_id', filters.parent_id)
   }
 
+  if (filters.aktif !== undefined) {
+    query = query.eq('aktif', filters.aktif === 'true')
+  }
+
   if (filters.q) {
     query = query.or(`kode_seg23.ilike.%${filters.q}%,nama.ilike.%${filters.q}%`)
   }
@@ -19,7 +23,7 @@ function applyBranchFilters(query, filters = {}) {
 async function listBranches(filters = {}) {
   let query = supabase
     .from('branches')
-    .select('id, kode_seg23, nama, tipe, parent_id, updated_at')
+    .select('id, kode_seg23, nama, tipe, parent_id, aktif, updated_at')
     .order('kode_seg23', { ascending: true })
 
   query = applyBranchFilters(query, filters)
@@ -37,7 +41,7 @@ async function createBranch(payload) {
   const { data, error } = await supabase
     .from('branches')
     .insert(payload)
-    .select('id, kode_seg23, nama, tipe, parent_id, updated_at')
+    .select('id, kode_seg23, nama, tipe, parent_id, aktif, updated_at')
     .single()
 
   if (error) {
@@ -52,7 +56,7 @@ async function updateBranch(id, payload) {
     .from('branches')
     .update(payload)
     .eq('id', id)
-    .select('id, kode_seg23, nama, tipe, parent_id, updated_at')
+    .select('id, kode_seg23, nama, tipe, parent_id, aktif, updated_at')
     .maybeSingle()
 
   if (error) {

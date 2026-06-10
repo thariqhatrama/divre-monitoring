@@ -1,12 +1,11 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { kursAPI, masterAPI } from '../services/api'
+import { masterAPI } from '../services/api'
 
 const MASTER_TABS = [
   { key: 'coa', label: 'COA' },
   { key: 'cabang', label: 'Cabang' },
-  { key: 'user', label: 'User' },
-  { key: 'kurs', label: 'Kurs' }
+  { key: 'user', label: 'User' }
 ]
 
 const ROLE_OPTIONS = [
@@ -77,6 +76,7 @@ function CabangTable({ rows }) {
             <th>Nama</th>
             <th>Tipe</th>
             <th>Parent ID</th>
+            <th>Status</th>
           </tr>
         </thead>
         <tbody>
@@ -86,6 +86,7 @@ function CabangTable({ rows }) {
               <td>{item.nama}</td>
               <td>{item.tipe}</td>
               <td>{item.parent_id || '-'}</td>
+              <td>{item.aktif === false ? 'Nonaktif' : 'Aktif'}</td>
             </tr>
           ))}
         </tbody>
@@ -125,49 +126,10 @@ function UserTable({ rows }) {
   )
 }
 
-function KursTable({ latest, history }) {
-  if (!history.length) return <EmptyState />
-
-  return (
-    <>
-      {latest && (
-        <div className="master-summary">
-          <span>Kurs terbaru</span>
-          <strong>USD {Number(latest.kurs_idr).toLocaleString('id-ID')} IDR</strong>
-          <span>Berlaku mulai {latest.berlaku_mulai}</span>
-        </div>
-      )}
-      <div className="table-scroll">
-        <table className="data-table">
-          <thead>
-            <tr>
-              <th>Mata Uang</th>
-              <th>Kurs IDR</th>
-              <th>Berlaku Mulai</th>
-              <th>Dibuat Oleh</th>
-            </tr>
-          </thead>
-          <tbody>
-            {history.map((item) => (
-              <tr key={item.id}>
-                <td>{item.mata_uang}</td>
-                <td>{Number(item.kurs_idr).toLocaleString('id-ID')}</td>
-                <td>{item.berlaku_mulai}</td>
-                <td>{item.dibuat_oleh || '-'}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    </>
-  )
-}
-
 function MasterData() {
   const [activeTab, setActiveTab] = useState('coa')
   const [rows, setRows] = useState([])
   const [branches, setBranches] = useState([])
-  const [latestKurs, setLatestKurs] = useState(null)
   const [userForm, setUserForm] = useState(INITIAL_USER_FORM)
   const [savingUser, setSavingUser] = useState(false)
   const [loading, setLoading] = useState(true)
@@ -207,18 +169,9 @@ function MasterData() {
             setBranches(branchResponse.data.data || [])
           }
         }
-
-        if (activeTab === 'kurs') {
-          const response = await kursAPI.getKurs()
-          if (!ignore) {
-            setLatestKurs(response.data.data?.latest || null)
-            setRows(response.data.data?.history || [])
-          }
-        }
       } catch (fetchError) {
         if (!ignore) {
           setRows([])
-          setLatestKurs(null)
           setError(getErrorMessage(fetchError))
         }
       } finally {
@@ -287,7 +240,7 @@ function MasterData() {
             <p className="eyebrow">Phase 1D</p>
             <h1>Master Data</h1>
             <p className="muted">
-              Halaman admin sederhana untuk melihat COA 2025, cabang, user, dan kurs.
+              Halaman admin sederhana untuk melihat COA 2025, cabang, dan user.
             </p>
           </div>
           <Link to="/">Kembali</Link>
@@ -317,7 +270,7 @@ function MasterData() {
           {!loading && successMessage && <p className="success-message">{successMessage}</p>}
           {!loading && !error && activeTab === 'coa' && <CoaTable rows={rows} />}
           {!loading && !error && activeTab === 'cabang' && <CabangTable rows={rows} />}
-          {!loading && activeTab === 'user' && (
+          {!loading && !error && activeTab === 'user' && (
             <>
               <form className="proyek-form master-user-form" onSubmit={handleCreateUser}>
                 <fieldset disabled={savingUser}>
@@ -381,7 +334,6 @@ function MasterData() {
               <UserTable rows={rows} />
             </>
           )}
-          {!loading && !error && activeTab === 'kurs' && <KursTable latest={latestKurs} history={rows} />}
         </div>
       </section>
     </main>

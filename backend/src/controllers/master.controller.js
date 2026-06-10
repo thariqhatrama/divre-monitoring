@@ -122,6 +122,9 @@ function validateBranch(body, isCreate = false) {
     errors.push('parent_id wajib berupa string UUID atau null')
   }
 
+  const aktifError = optionalBoolean(body.aktif, 'aktif')
+  if (aktifError) errors.push(aktifError)
+
   return errors
 }
 
@@ -130,7 +133,8 @@ function buildBranchPayload(body) {
     kode_seg23: cleanString(body.kode_seg23),
     nama: cleanString(body.nama),
     tipe: body.tipe,
-    parent_id: body.parent_id === '' ? null : body.parent_id
+    parent_id: body.parent_id === '' ? null : body.parent_id,
+    aktif: body.aktif
   })
 }
 

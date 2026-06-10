@@ -6,6 +6,7 @@ const PROJECT_SELECT = `
   nomor_spmk,
   seg11_no,
   cabang_id,
+  cabang:branches(id, kode_seg23, nama, tipe),
   klien,
   nilai_proyek,
   mata_uang_proyek,

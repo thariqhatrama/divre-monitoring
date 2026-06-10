@@ -197,7 +197,6 @@ function DashboardCabang() {
                                 <div className="project-cell">
                                   <strong>{project.nama}</strong>
                                   <span>{project.klien || 'Klien belum diisi'}</span>
-                                  <code>{project.nomor_spmk || 'SPMK belum diisi'}</code>
                                 </div>
                               </td>
                               <td>{formatIDR(project.nilai_proyek_idr, { short: true })}</td>
