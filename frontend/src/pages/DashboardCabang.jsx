@@ -80,7 +80,7 @@ function DashboardCabang() {
   }
 
   const projects = summary?.projects || []
-  const branch = projects[0]?.cabang || summary?.branches?.find((item) => item.id === user?.cabang_id)
+  const branch = projects[0]?.cabang || user?.cabang || summary?.branches?.find((item) => item.id === user?.cabang_id)
 
   return (
     <main className="app-shell master-shell">
@@ -90,7 +90,7 @@ function DashboardCabang() {
             <PageHeader
               eyebrow="Dashboard Cabang"
               title="Dashboard PM Cabang"
-              description={`Data dibatasi oleh backend ke cabang login: ${branch?.nama || user?.cabang_id || '-'}.`}
+              description={`Data dibatasi oleh backend ke cabang login: ${branch ? `${branch.kode_seg23} — ${branch.nama}` : '-'}.`}
               actions={(
                 <>
                   <Link className="action-link primary" to="/proyek">Daftar proyek</Link>

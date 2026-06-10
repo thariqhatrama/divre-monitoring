@@ -39,7 +39,7 @@ const GUIDES = {
       title: 'Master cabang dan user',
       steps: [
         'Buka Master Cabang untuk menambah atau memperbarui cabang/unit pelayanan.',
-        'Kosongkan Parent ID untuk cabang induk, isi Parent ID untuk unit pelayanan jika diperlukan.',
+        'Pilih Parent Cabang untuk unit pelayanan jika diperlukan; kosongkan untuk cabang induk.',
         'Buka User Management untuk membuat admin, Kepala Divre, atau PM.',
         'User PM wajib memiliki cabang. Role non-PM tidak memakai cabang.',
         'Saat edit user, kosongkan password jika tidak ingin reset password; isi password baru jika ingin reset.'

@@ -177,7 +177,7 @@ function AuditLog() {
                         <td>
                           <div className="project-cell">
                             <strong>{log.user?.nama || 'User tidak tersedia'}</strong>
-                            <span>{log.user?.email || log.user_id || '-'}</span>
+                            <span>{log.user?.email || (log.user_id ? 'Akun tidak ditemukan' : '-')}</span>
                           </div>
                         </td>
                         <td><pre className="audit-json">{formatJson(log.nilai_lama)}</pre></td>

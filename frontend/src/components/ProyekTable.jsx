@@ -52,7 +52,7 @@ function ProyekTable({ projects = [], showCabang = true, showActions = true, emp
                 {showCabang ? (
                   <td>
                     <strong>{project.cabang?.nama || '-'}</strong>
-                    <span>{project.cabang?.kode_seg23 || project.cabang_id || '-'}</span>
+                    <span>{project.cabang?.kode_seg23 || '-'}</span>
                   </td>
                 ) : null}
                 <td>{formatIDR(project.nilai_proyek_idr, { short: true })}</td>

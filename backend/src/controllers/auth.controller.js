@@ -8,7 +8,8 @@ function sanitizeUser(user) {
     nama: user.nama,
     email: user.email,
     role: user.role,
-    cabang_id: user.cabang_id
+    cabang_id: user.cabang_id,
+    cabang: user.cabang || null
   }
 }
 

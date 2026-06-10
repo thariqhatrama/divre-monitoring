@@ -228,7 +228,7 @@ function ProyekForm() {
                   hint="Opsional saat draft. Jika diisi, wajib tepat 6 angka tanpa huruf atau simbol."
                 />
                 {isPm ? (
-                  <Input label="Cabang (otomatis dari akun PM)" value={user?.cabang_id ? 'Otomatis sesuai cabang akun PM' : 'PM belum memiliki cabang'} disabled />
+                  <Input label="Cabang (otomatis dari akun PM)" value={user?.cabang ? `${user.cabang.kode_seg23} — ${user.cabang.nama}` : 'PM belum memiliki cabang'} disabled />
                 ) : (
                   <Select label="Cabang *" value={form.cabang_id} onChange={(event) => updateField('cabang_id', event.target.value)} required>
                     <option value="">Pilih cabang / unit pelayanan</option>

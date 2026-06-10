@@ -288,7 +288,7 @@ function Dashboard() {
                               <td>
                                 <div className="project-cell">
                                   <strong>{project.cabang?.nama || '-'}</strong>
-                                  <span>{project.cabang?.kode_seg23 || project.cabang_id || '-'}</span>
+                                  <span>{project.cabang?.kode_seg23 || '-'}</span>
                                 </div>
                               </td>
                               <td>{formatIDR(project.nilai_proyek_idr, { short: true })}</td>

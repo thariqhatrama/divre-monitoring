@@ -102,7 +102,12 @@ function CoaTable({ rows, onEdit, onToggle }) {
   )
 }
 
-function CabangTable({ rows, onEdit, onToggle }) {
+function formatBranchName(branch) {
+  if (!branch) return '-'
+  return `${branch.kode_seg23} — ${branch.nama}`
+}
+
+function CabangTable({ rows, onEdit, onToggle, branchById = {} }) {
   if (!rows.length) return <EmptyState />
 
   return (
@@ -113,7 +118,7 @@ function CabangTable({ rows, onEdit, onToggle }) {
             <th>Kode Seg 2&3</th>
             <th>Nama</th>
             <th>Tipe</th>
-            <th>Parent ID</th>
+            <th>Parent Cabang</th>
             <th>Status</th>
             <th>Aksi</th>
           </tr>
@@ -124,7 +129,7 @@ function CabangTable({ rows, onEdit, onToggle }) {
               <td><code>{item.kode_seg23}</code></td>
               <td>{item.nama}</td>
               <td>{item.tipe}</td>
-              <td>{item.parent_id || '-'}</td>
+              <td>{formatBranchName(branchById[item.parent_id])}</td>
               <td>{item.aktif === false ? 'Nonaktif' : 'Aktif'}</td>
               <td><ActionButtons item={item} onEdit={onEdit} onToggle={onToggle} active={item.aktif !== false} /></td>
             </tr>
@@ -146,7 +151,7 @@ function UserTable({ rows, onEdit, onToggle }) {
             <th>Nama</th>
             <th>Email</th>
             <th>Role</th>
-            <th>Cabang ID</th>
+            <th>Cabang</th>
             <th>Status</th>
             <th>Aksi</th>
           </tr>
@@ -157,7 +162,7 @@ function UserTable({ rows, onEdit, onToggle }) {
               <td>{item.nama}</td>
               <td>{item.email}</td>
               <td>{item.role}</td>
-              <td>{item.cabang_id || '-'}</td>
+              <td>{formatBranchName(item.cabang)}</td>
               <td>{item.aktif ? 'Aktif' : 'Nonaktif'}</td>
               <td><ActionButtons item={item} onEdit={onEdit} onToggle={onToggle} active={item.aktif} /></td>
             </tr>
@@ -190,6 +195,11 @@ function MasterData() {
     return tab?.label || 'Master Data'
   }, [activeTab])
 
+  const branchOptions = activeTab === 'cabang' ? rows : branches
+  const branchById = useMemo(() => Object.fromEntries(
+    branchOptions.map((branch) => [branch.id, branch])
+  ), [branchOptions])
+
   useEffect(() => {
     if (tab && !MASTER_TAB_KEYS.includes(tab)) {
       navigate('/master-data/coa', { replace: true })
@@ -208,7 +218,9 @@ function MasterData() {
 
       if (activeTab === 'cabang') {
         const response = await masterAPI.getCabang()
-        setRows(response.data.data || [])
+        const branchRows = response.data.data || []
+        setRows(branchRows)
+        setBranches(branchRows)
       }
 
       if (activeTab === 'user') {
@@ -491,7 +503,7 @@ function MasterData() {
                 <label>Kode Seg 2&3<input value={cabangForm.kode_seg23} onChange={(event) => updateCabangForm('kode_seg23', event.target.value)} required /></label>
                 <label>Nama<input value={cabangForm.nama} onChange={(event) => updateCabangForm('nama', event.target.value)} required /></label>
                 <label>Tipe<select value={cabangForm.tipe} onChange={(event) => updateCabangForm('tipe', event.target.value)}>{BRANCH_TYPES.map((item) => <option key={item.value} value={item.value}>{item.label}</option>)}</select></label>
-                <label>Parent ID<input value={cabangForm.parent_id} onChange={(event) => updateCabangForm('parent_id', event.target.value)} placeholder="Kosongkan jika cabang induk" /></label>
+                <label>Parent Cabang<select value={cabangForm.parent_id} onChange={(event) => updateCabangForm('parent_id', event.target.value)}><option value="">Tidak ada parent</option>{branches.filter((branch) => branch.id !== editingCabang?.id).map((branch) => <option key={branch.id} value={branch.id}>{branch.kode_seg23} — {branch.nama}</option>)}</select></label>
                 <label>Status<select value={cabangForm.aktif ? 'true' : 'false'} onChange={(event) => updateCabangForm('aktif', event.target.value === 'true')}><option value="true">Aktif</option><option value="false">Nonaktif</option></select></label>
               </fieldset>
               <div className="form-actions">
@@ -523,7 +535,7 @@ function MasterData() {
           {!loading && error && <p className="error-message">{error}</p>}
           {!loading && successMessage && <p className="success-message">{successMessage}</p>}
           {!loading && !error && activeTab === 'coa' && <CoaTable rows={rows} onEdit={editCoa} onToggle={toggleCoa} />}
-          {!loading && !error && activeTab === 'cabang' && <CabangTable rows={rows} onEdit={editCabang} onToggle={toggleCabang} />}
+          {!loading && !error && activeTab === 'cabang' && <CabangTable rows={rows} onEdit={editCabang} onToggle={toggleCabang} branchById={branchById} />}
           {!loading && !error && activeTab === 'user' && <UserTable rows={rows} onEdit={editUser} onToggle={toggleUser} />}
         </div>
       </section>

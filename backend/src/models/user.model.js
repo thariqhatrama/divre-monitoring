@@ -27,7 +27,7 @@ function applyUserFilters(query, filters = {}) {
 async function findUserByEmail(email) {
   const { data, error } = await supabase
     .from('users')
-    .select('id, nama, email, password_hash, role, cabang_id, aktif')
+    .select('id, nama, email, password_hash, role, cabang_id, aktif, cabang:branches(id, kode_seg23, nama, tipe)')
     .eq('email', email)
     .maybeSingle()
 
@@ -41,7 +41,7 @@ async function findUserByEmail(email) {
 async function findUserById(id) {
   const { data, error } = await supabase
     .from('users')
-    .select('id, nama, email, role, cabang_id, aktif')
+    .select('id, nama, email, role, cabang_id, aktif, cabang:branches(id, kode_seg23, nama, tipe)')
     .eq('id', id)
     .maybeSingle()
 
@@ -55,7 +55,7 @@ async function findUserById(id) {
 async function listUsers(filters = {}) {
   let query = supabase
     .from('users')
-    .select('id, nama, email, role, cabang_id, aktif, created_at, updated_at')
+    .select('id, nama, email, role, cabang_id, aktif, created_at, updated_at, cabang:branches(id, kode_seg23, nama, tipe)')
     .order('nama', { ascending: true })
 
   query = applyUserFilters(query, filters)
@@ -73,7 +73,7 @@ async function createUser(payload) {
   const { data, error } = await supabase
     .from('users')
     .insert(payload)
-    .select('id, nama, email, role, cabang_id, aktif, created_at, updated_at')
+    .select('id, nama, email, role, cabang_id, aktif, created_at, updated_at, cabang:branches(id, kode_seg23, nama, tipe)')
     .single()
 
   if (error) {
@@ -88,7 +88,7 @@ async function updateUser(id, payload) {
     .from('users')
     .update(payload)
     .eq('id', id)
-    .select('id, nama, email, role, cabang_id, aktif, created_at, updated_at')
+    .select('id, nama, email, role, cabang_id, aktif, created_at, updated_at, cabang:branches(id, kode_seg23, nama, tipe)')
     .maybeSingle()
 
   if (error) {

@@ -41,8 +41,8 @@ function Home() {
             <dd>{user?.role}</dd>
           </div>
           <div>
-            <dt>Cabang ID</dt>
-            <dd>{user?.cabang_id || '-'}</dd>
+            <dt>Cabang</dt>
+            <dd>{user?.cabang ? `${user.cabang.kode_seg23} — ${user.cabang.nama}` : '-'}</dd>
           </div>
         </dl>
 
