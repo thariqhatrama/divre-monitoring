@@ -162,6 +162,10 @@ function validateUser(body, isCreate = false) {
     errors.push('cabang_id wajib berupa string UUID atau null')
   }
 
+  if ((isCreate || body.role !== undefined || body.cabang_id !== undefined) && body.role === 'pm' && !body.cabang_id) {
+    errors.push('PM wajib memiliki cabang_id')
+  }
+
   const aktifError = optionalBoolean(body.aktif, 'aktif')
   if (aktifError) errors.push(aktifError)
 
@@ -169,11 +173,12 @@ function validateUser(body, isCreate = false) {
 }
 
 async function buildUserPayload(body, includePassword = false) {
+  const cabangId = body.role && body.role !== 'pm' ? null : (body.cabang_id === '' ? null : body.cabang_id)
   const payload = pickDefined({
     nama: cleanString(body.nama),
     email: typeof body.email === 'string' ? body.email.trim().toLowerCase() : body.email,
     role: body.role,
-    cabang_id: body.cabang_id === '' ? null : body.cabang_id,
+    cabang_id: cabangId,
     aktif: body.aktif
   })
 

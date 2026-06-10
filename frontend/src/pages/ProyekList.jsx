@@ -150,6 +150,7 @@ function ProyekList() {
                     </td>
                     <td>
                       <div className="table-actions">
+                        <Link to={`/proyek/${project.id}/detail`}>Detail</Link>
                         <Link to={`/proyek/${project.id}/rab`}>Kelola RAB</Link>
                         <Link to={`/proyek/${project.id}/realisasi`}>Realisasi</Link>
                         {canWrite ? <Link to={`/proyek/${project.id}/edit`}>Edit</Link> : null}

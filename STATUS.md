@@ -12,7 +12,7 @@
 **Timeline:** 3 minggu  
 **Scope utama:** Monitoring margin, bukan approval, bukan SLA, bukan ERP.  
 **COA acuan:** COA Tahun 2025  
-**Status saat ini:** Phase 2D margin realisasi dan delta selesai pada level implementasi dasar: backend menghitung `total_biaya_realisasi`, `laba_operasi_realisasi`, `margin_realisasi`, `delta_margin`, dan `indikator_delta` naik/turun/tetap; RABForm menampilkan summary RAB vs realisasi; validasi kalkulasi lokal dan build frontend berhasil
+**Status saat ini:** Admin sekarang bisa menambahkan user dari Master Data tab User dengan dropdown role (`pm`, `kepala_divre`, `admin`) dan dropdown cabang untuk PM; backend memvalidasi PM wajib punya `cabang_id` dan role non-PM tidak terikat cabang; backend syntax check dan frontend build berhasil
 
 ---
 
@@ -24,14 +24,14 @@
 | Frontend setup | ✅ Selesai | React 19 + Vite 8 tersedia; Vercel root `frontend/`; build lokal berhasil dengan Node `v22.22.3` |
 | Backend setup | ✅ Selesai | Phase 1A selesai: Express 5.2.1, middleware dasar, Supabase client, health check `/api/health`; Render root `backend/` |
 | Database setup | 🟨 Dalam proses | Project Supabase sudah dibuat; `001_create_tables.sql`, `002_seed_coa.sql`, dan `003_seed_branches.sql` sudah dijalankan/diinsert |
-| Auth & RBAC | ✅ Selesai | Phase 1C tervalidasi: bootstrap admin login sukses, JWT dibuat, dan admin RBAC route berhasil |
+| Auth & RBAC | ✅ Selesai | Phase 1C tervalidasi: bootstrap admin login sukses, JWT dibuat, admin RBAC route berhasil, dan admin bisa menambahkan user role PM/Kepala Divre/Admin dari Master Data |
 | Master data COA | ✅ Selesai | Seed COA Tahun 2025 dari `docs/COA tahun 2025.xlsx` sheet `SEG 5 (BIAYA)` berisi 86 akun detail RAB |
 | Master data cabang | ✅ Selesai | Seed 13 cabang + 26 UP Divre Timur sudah dibuat dan diinsert ke Supabase |
 | Proyek | ✅ Selesai | Phase 1E: CRUD proyek + RBAC cabang PM + gate Segmen 11 indicator |
 | RAB | ✅ Selesai | Phase 1F: input line item RAB basic + gate Segmen 11 backend/frontend |
-| Realisasi | 🟨 Dalam proses | Phase 2C implementasi dasar selesai dan validasi lokal lulus: CRUD realisasi per akun + audit log + agregasi; runtime API/browser production belum divalidasi |
-| Kalkulasi margin | ✅ Selesai | Phase 2D selesai: margin RAB, margin realisasi, laba operasi realisasi, delta margin, dan indikator delta naik/turun/tetap dihitung; validasi lokal lulus, runtime API/browser production tetap perlu diuji |
-| Dashboard | ⬜ Belum mulai | Kepala Divre + PM |
+| Realisasi | ✅ Selesai | Phase 2C tervalidasi user di production: input realisasi berhasil; CRUD realisasi per akun + audit log + agregasi tersedia |
+| Kalkulasi margin | ✅ Selesai | Phase 2D selesai: margin RAB, margin realisasi, laba operasi realisasi, delta margin, dan indikator delta naik/turun/tetap dihitung; validasi lokal lulus |
+| Dashboard | 🟨 Dalam proses | Phase 3A Kepala Divre, Phase 3B Dashboard PM, dan Phase 3C detail/chart selesai implementasi dasar; deployment/runtime production belum divalidasi |
 | Deployment | ⬜ Belum mulai | Vercel + Render |
 
 Keterangan status:
@@ -75,8 +75,8 @@ Keterangan status:
 - [x] Buat project Supabase (`https://qefgdirmcbmeqcfyjzzy.supabase.co`)
 - [x] Buat project Vercel dengan Root Directory: `frontend` (`https://divre-monitoring.vercel.app/`)
 - [x] Buat service Render dengan Root Directory: `backend` (`https://divre-api.onrender.com`)
-- [ ] Set environment variables frontend
-- [ ] Set environment variables backend
+- [x] Set environment variables frontend — diperbaiki user dan login production berhasil
+- [x] Set environment variables backend — diperbaiki user dan login production berhasil
 
 ### 3.3 Database
 
@@ -157,7 +157,7 @@ Target: aplikasi sudah bisa menghitung margin RAB, margin realisasi, dan delta m
 - [x] `backend/src/controllers/realisasi.controller.js`
 - [x] `backend/src/models/realisasi.model.js`
 - [x] `backend/src/routes/kurs.routes.js`
-- [ ] Audit log untuk perubahan RAB
+- [x] Audit log untuk perubahan RAB
 - [x] Audit log untuk input realisasi
 
 ### Frontend
@@ -174,9 +174,9 @@ Target: aplikasi sudah bisa menghitung margin RAB, margin realisasi, dan delta m
 
 - [x] Margin RAB muncul real-time
 - [x] Input USD dikonversi ke IDR sebelum kalkulasi
-- [x] Realisasi bisa ditambahkan per akun — implementasi endpoint/form tersedia; perlu validasi runtime production
-- [x] Margin realisasi dihitung otomatis — implementasi endpoint tersedia; perlu validasi runtime production
-- [x] Delta margin tampil naik/turun — implementasi endpoint/form tersedia; perlu validasi runtime production
+- [x] Realisasi bisa ditambahkan per akun — tervalidasi user di production
+- [x] Margin realisasi dihitung otomatis — implementasi tersedia dan validasi lokal lulus
+- [x] Delta margin tampil naik/turun — implementasi tersedia dan validasi lokal lulus
 - [x] Status margin tampil: aman, perhatian, kritis, rugi
 - [x] Akun subkon 4422 dihitung sebagai % subkon
 
@@ -188,23 +188,23 @@ Target: aplikasi siap demo dan bisa diakses via browser.
 
 ### Backend
 
-- [ ] `backend/src/routes/dashboard.routes.js`
-- [ ] `backend/src/controllers/dashboard.controller.js`
-- [ ] Endpoint KPI summary
-- [ ] Endpoint margin per cabang
-- [ ] Endpoint detail proyek lengkap
-- [ ] Filter dashboard: cabang, tahun, status proyek, status margin
+- [x] `backend/src/routes/dashboard.routes.js`
+- [x] `backend/src/controllers/dashboard.controller.js`
+- [x] Endpoint KPI summary
+- [x] Endpoint margin per cabang
+- [x] Endpoint detail proyek lengkap — memakai komposisi endpoint proyek/RAB/realisasi existing di frontend detail
+- [x] Filter dashboard: cabang, tahun, status proyek, status margin
 
 ### Frontend
 
-- [ ] `frontend/src/pages/Dashboard.jsx`
-- [ ] `frontend/src/pages/DashboardCabang.jsx`
-- [ ] `frontend/src/pages/ProyekDetail.jsx`
-- [ ] `frontend/src/components/ProyekTable.jsx`
-- [ ] `frontend/src/components/MarginChart.jsx`
-- [ ] `frontend/src/components/BreakdownChart.jsx`
+- [x] `frontend/src/pages/Dashboard.jsx`
+- [x] `frontend/src/pages/DashboardCabang.jsx`
+- [x] `frontend/src/pages/ProyekDetail.jsx`
+- [x] `frontend/src/components/ProyekTable.jsx`
+- [x] `frontend/src/components/MarginChart.jsx`
+- [x] `frontend/src/components/BreakdownChart.jsx`
 - [ ] `frontend/src/context/FilterContext.jsx`
-- [ ] Highlight proyek kritis/rugi
+- [x] Highlight proyek kritis/rugi
 
 ### Deployment
 
@@ -224,6 +224,11 @@ Target: aplikasi siap demo dan bisa diakses via browser.
 
 | Tanggal | Tipe | Area | Deskripsi | File Terkait | Status |
 |---|---|---|---|---|---|
+| 2026-06-10 | Add | Master User | Menambahkan form admin untuk membuat user dari tab Master Data User: dropdown role PM/Kepala Divre/Admin, dropdown cabang wajib untuk PM, status aktif/nonaktif, password sementara, refresh tabel setelah user dibuat; backend memvalidasi PM wajib punya `cabang_id` dan role non-PM disimpan tanpa cabang; backend syntax check dan frontend build berhasil | `frontend/src/pages/MasterData.jsx`, `frontend/src/App.css`, `backend/src/controllers/master.controller.js`, `STATUS.md` | ✅ |
+| 2026-06-10 | Add | Phase 3C Detail & Chart | Menambahkan detail proyek dan chart demo: `ProyekDetail.jsx` menampilkan nilai proyek, total RAB, margin RAB, total realisasi, margin realisasi, delta margin, breakdown RAB vs realisasi per kategori, line item individual, % subkon, dan Segmen 11; `MarginChart.jsx` dan `BreakdownChart.jsx` memakai Recharts untuk visualisasi read-only; `ProyekTable.jsx` dibuat sebagai tabel proyek reusable; frontend build berhasil dengan warning chunk size Recharts | `frontend/src/pages/ProyekDetail.jsx`, `frontend/src/components/ProyekTable.jsx`, `frontend/src/components/MarginChart.jsx`, `frontend/src/components/BreakdownChart.jsx`, `frontend/src/App.jsx`, `frontend/src/App.css`, `frontend/src/pages/ProyekList.jsx`, `frontend/src/pages/Dashboard.jsx`, `frontend/src/pages/DashboardCabang.jsx`, `STATUS.md` | ✅ |
+| 2026-06-10 | Add | Phase 3B Dashboard PM | Menambahkan dashboard PM cabang: route frontend `/dashboard-cabang`, halaman `DashboardCabang.jsx` dengan KPI dan tabel proyek cabang, serta backend dashboard memaksa filter `cabang_id` dari `req.user.cabang_id` untuk role PM sehingga manipulasi query param `cabang_id` tetap tidak membuka cabang lain; backend syntax check dan frontend build berhasil | `backend/src/routes/dashboard.routes.js`, `backend/src/controllers/dashboard.controller.js`, `frontend/src/pages/DashboardCabang.jsx`, `frontend/src/App.jsx`, `frontend/src/App.css`, `STATUS.md` | ✅ |
+| 2026-06-10 | Add | Phase 3A Dashboard | Menambahkan dashboard Kepala Divre: endpoint `GET /api/dashboard/summary` dan `GET /api/dashboard/by-cabang` untuk kepala_divre/admin, agregasi KPI total proyek aktif/total nilai/rata-rata margin RAB/rata-rata margin realisasi/jumlah kritis-rugi, tabel proyek semua cabang dengan filter cabang/tahun/status proyek/status margin, dan highlight proyek kritis/rugi; backend syntax check dan frontend build berhasil | `backend/src/routes/dashboard.routes.js`, `backend/src/controllers/dashboard.controller.js`, `backend/src/models/dashboard.model.js`, `backend/src/app.js`, `frontend/src/pages/Dashboard.jsx`, `frontend/src/services/api.js`, `frontend/src/App.jsx`, `frontend/src/App.css`, `STATUS.md` | ✅ |
+| 2026-06-10 | Add | Phase 2 Cleanup | Menyelesaikan cleanup sebelum Phase 3: user mengonfirmasi env Vercel/Render sudah diperbaiki dan testing production login, input proyek, input RAB, serta input realisasi berhasil; backend menambahkan audit log RAB untuk INSERT/UPDATE/DELETE agar perubahan RAB dan realisasi sama-sama tercatat; validasi syntax/build berhasil | `backend/src/models/rab.model.js`, `backend/src/controllers/rab.controller.js`, `STATUS.md` | ✅ |
 | 2026-06-10 | Add | Margin Realisasi | Menyelesaikan Phase 2D margin realisasi dan delta: `margin.service.js` menghitung `total_biaya_realisasi`, `laba_operasi_realisasi`, `margin_realisasi`, `delta_margin = marginRealisasi - marginRAB`, dan `indikator_delta` naik/turun/tetap; `RABForm.jsx` menampilkan summary Total RAB, Total Realisasi, Selisih RAB vs Realisasi, Margin RAB, Margin Realisasi, dan delta; validasi lokal membuktikan realisasi > RAB membuat margin turun dan realisasi < RAB membuat margin naik; backend syntax check dan frontend build berhasil | `backend/src/services/margin.service.js`, `frontend/src/pages/RABForm.jsx`, `STATUS.md` | ✅ |
 | 2026-06-10 | Test | Realisasi | Review setup repo dan validasi lokal Phase 2C: struktur root `frontend/`, `backend/`, `docs/`, `CLAUDE.md`, `STATUS.md` sesuai; Vercel config berada di `frontend/vercel.json`, Render config berada di `backend/render.yaml`; backend syntax check untuk `app.js`, controller/model/route realisasi lulus; frontend build berhasil; runtime API/browser production masih perlu diuji manual | `CLAUDE.md`, `docs/PRD.md`, `STATUS.md`, `frontend/vercel.json`, `backend/render.yaml`, `backend/src/app.js`, `backend/src/controllers/realisasi.controller.js`, `backend/src/models/realisasi.model.js`, `backend/src/routes/realisasi.routes.js`, `frontend/src/pages/RealisasiForm.jsx` | 🟨 |
 | 2026-06-10 | Add | Realisasi | Menambahkan Phase 2C realisasi per akun: backend CRUD `GET /api/proyek/:id/realisasi`, `POST /api/rab/:itemId/realisasi`, `PATCH/DELETE /api/realisasi/:id` memakai tabel `realisasi_items`; `project_id` diturunkan dari item RAB, RAB awal tidak ditimpa, satu akun RAB bisa punya banyak transaksi, total realisasi diagregasi per RAB item/per akun, audit log dibuat untuk tambah/edit/hapus, frontend `RealisasiForm.jsx` tersedia, backend syntax check Phase 2C lulus, dan build frontend berhasil | `backend/src/models/realisasi.model.js`, `backend/src/controllers/realisasi.controller.js`, `backend/src/routes/realisasi.routes.js`, `backend/src/app.js`, `backend/src/services/margin.service.js`, `frontend/src/pages/RealisasiForm.jsx`, `frontend/src/services/api.js`, `frontend/src/App.jsx`, `frontend/src/pages/RABForm.jsx`, `frontend/src/pages/ProyekList.jsx`, `STATUS.md` | 🟨 |
@@ -310,14 +315,15 @@ Update bagian ini sebelum membuka sesi Claude baru agar tidak kehilangan konteks
 Tulis ringkasan singkat pekerjaan terakhir.
 
 ```txt
-Phase 2D margin realisasi dan delta selesai di atas Phase 2C realisasi per akun. Backend `margin.service.js` menghitung `total_biaya_realisasi`, `laba_operasi_realisasi`, `margin_realisasi`, `delta_margin = marginRealisasi - marginRAB`, serta `indikator_delta` naik/turun/tetap. Frontend `RABForm.jsx` menampilkan summary RAB vs realisasi: Total RAB, Total Realisasi, Selisih RAB vs Realisasi, Margin RAB, Margin Realisasi, dan delta. Validasi lokal membuktikan realisasi lebih besar dari RAB membuat margin turun, realisasi lebih kecil dari RAB membuat margin naik, dan realisasi sama dengan RAB membuat delta tetap.
+Admin user creation selesai. Halaman Master Data tab User sekarang punya form tambah user dengan nama, email, password sementara, dropdown role (`pm`, `kepala_divre`, `admin`), dropdown cabang wajib untuk PM, dan status aktif/nonaktif. Backend `master.controller.js` memvalidasi PM wajib memiliki `cabang_id`, serta role non-PM disimpan tanpa cabang. Backend syntax check dan frontend build berhasil. Phase 3C detail proyek/chart tetap tersedia dari pekerjaan sebelumnya.
 ```
 
 ### File yang terakhir diubah
 
 ```txt
-backend/src/services/margin.service.js
-frontend/src/pages/RABForm.jsx
+frontend/src/pages/MasterData.jsx
+frontend/src/App.css
+backend/src/controllers/master.controller.js
 STATUS.md
 ```
 
@@ -326,31 +332,31 @@ STATUS.md
 #### Selesai / validasi dasar lulus
 
 ```txt
-Phase 2D margin realisasi dan delta sudah selesai pada level implementasi dasar. Backend `node --check` untuk file terkait berhasil, validasi kalkulasi lokal berhasil, dan frontend `npm --prefix frontend run build` berhasil. Endpoint realisasi tetap memakai tabel `realisasi_items`, tidak menimpa `rab_items`, mendukung banyak transaksi realisasi per RAB item, mengagregasi total realisasi per RAB item/per akun, serta sekarang mengembalikan margin realisasi dan indikator delta naik/turun/tetap.
+Admin bisa menambahkan user role PM/Kepala Divre/Admin dari Master Data tab User. Backend `node --check backend/src/controllers/master.controller.js` berhasil dan frontend `npm --prefix frontend run build` berhasil; ada warning chunk size karena Recharts masuk bundle, tetapi build sukses. Phase 3A dashboard Kepala Divre, Phase 3B dashboard PM, dan Phase 3C detail proyek/chart sudah selesai pada level implementasi dasar. Endpoint dashboard menerima kepala_divre/admin untuk semua cabang dan PM untuk cabang sendiri; khusus PM, backend memaksa filter `cabang_id` memakai `req.user.cabang_id` sehingga query param frontend tidak menentukan scope.
 ```
 
 #### Pending validasi runtime
 
 ```txt
-Backend syntax check Phase 2D dan validasi kalkulasi lokal sudah lulus. Validasi browser/API untuk skenario tambah/edit/hapus realisasi, dua realisasi pada satu item RAB, agregasi total realisasi per akun, RAB awal tidak berubah, margin realisasi/delta tampil di UI, gate Segmen 11, dan role PM/Kepala Divre masih perlu dilakukan setelah data user/test project tersedia.
+User sudah mengonfirmasi env production diperbaiki serta login, input proyek, input RAB, dan input realisasi berhasil di production. Validasi yang masih perlu dilakukan setelah deploy Phase 3C: login sebagai Kepala Divre untuk memastikan `/dashboard` menampilkan semua cabang; login sebagai PM untuk memastikan `/dashboard-cabang` hanya menampilkan proyek cabangnya; coba panggil endpoint dashboard sebagai PM dengan query param `cabang_id` cabang lain dan pastikan response tetap dibatasi ke `req.user.cabang_id`; buka `/proyek/:id/detail` untuk proyek yang punya RAB dan realisasi, pastikan summary, breakdown kategori, line item, % subkon, Segmen 11, dan chart tampil informatif; pastikan chart hanya visualisasi dan tidak mengubah data. Validasi tambahan: cek langsung tabel `audit_log` untuk memastikan RAB INSERT/UPDATE/DELETE dan realisasi INSERT/UPDATE/DELETE tercatat.
 ```
 
 #### Butuh aksi manual / secret eksternal
 
 ```txt
-PM dan Kepala Divre user mungkin masih perlu dibuat/dirotasi melalui master user untuk validasi role penuh. Password bootstrap admin sementara tetap perlu diganti/dirotasi melalui endpoint user management. Backend env production di Render masih perlu diisi manual memakai SUPABASE_SERVICE_KEY dari Supabase Project Settings > API (service_role), bukan publishable key.
+Env Vercel/Render sudah diperbaiki oleh user. PM dan Kepala Divre user mungkin masih perlu dibuat/dirotasi melalui master user untuk validasi role penuh. Password bootstrap admin sementara tetap perlu diganti/dirotasi melalui endpoint user management.
 ```
 
 #### Fase berikutnya sesuai PRD
 
 ```txt
-Runtime validation realisasi, dashboard, detail proyek, dan deployment final belum selesai. Realisasi per akun sudah dibuat pada level implementasi dasar; lanjutkan validasi runtime dan Phase 3 sesuai PRD.
+Runtime validation production untuk dashboard Kepala Divre, dashboard PM, dan detail proyek/chart belum dilakukan setelah deploy perubahan Phase 3A/3B/3C. Deployment final dan testing production dashboard/detail masih belum selesai. Lanjutkan validasi/deploy sesuai PRD tanpa menambah approval/email/SLA/ERP.
 ```
 
 ### Prompt lanjutan untuk Claude
 
 ```txt
-Jangan membuat fitur baru di luar PRD.md. Phase 2D margin realisasi dan delta sudah dibuat pada level implementasi dasar: backend menghitung `total_biaya_realisasi`, `laba_operasi_realisasi`, `margin_realisasi`, `delta_margin = marginRealisasi - marginRAB`, dan `indikator_delta` naik/turun/tetap; frontend `RABForm.jsx` menampilkan summary RAB vs realisasi dan delta. Backend `node --check`, validasi kalkulasi lokal, dan `npm --prefix frontend run build` berhasil. Fokus berikutnya: validasi runtime tambah/edit/hapus realisasi dan tampilan margin/delta di browser/API, lalu lanjut Phase 3 dashboard/detail sesuai PRD.
+Jangan membuat fitur baru di luar PRD.md. Phase 3A dashboard Kepala Divre, Phase 3B dashboard PM, dan Phase 3C detail proyek/chart sudah dibuat pada level implementasi dasar. Backend dashboard membatasi PM berdasarkan `req.user.cabang_id`. Detail proyek memakai endpoint RAB/realisasi existing dan chart Recharts hanya visualisasi read-only. Frontend `npm --prefix frontend run build` berhasil dengan warning chunk size Recharts. Fokus berikutnya: validasi runtime production dashboard/detail, role PM/Kepala Divre, lalu deploy/final polish sesuai PRD.
 ```
 
 ---

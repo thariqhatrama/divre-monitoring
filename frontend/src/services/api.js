@@ -94,10 +94,19 @@ export const realisasiAPI = {
     return api.post(`/api/rab/${itemId}/realisasi`, payload)
   },
   updateRealisasi(id, payload) {
-    return api.patch(`/api/realisasi/${id}`, payload)
+    return api.patch(`/api/realisasi/${id}`)
   },
   deleteRealisasi(id) {
     return api.delete(`/api/realisasi/${id}`)
+  }
+}
+
+export const dashboardAPI = {
+  getSummary(params) {
+    return api.get('/api/dashboard/summary', { params })
+  },
+  getByCabang(params) {
+    return api.get('/api/dashboard/by-cabang', { params })
   }
 }
 

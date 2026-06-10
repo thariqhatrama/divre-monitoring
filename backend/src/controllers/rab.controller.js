@@ -294,6 +294,15 @@ async function createRabItem(req, res) {
     if (!payload) return null
 
     const data = await rabModel.createRabItem(project.id, payload)
+    await rabModel.createAuditLog({
+      tabel: 'rab_items',
+      record_id: data.id,
+      aksi: 'INSERT',
+      nilai_lama: null,
+      nilai_baru: data,
+      user_id: req.user.id
+    })
+
     return success(res, data, 201)
   } catch (error) {
     const mapped = mapModelError(error)
@@ -327,6 +336,15 @@ async function updateRabItem(req, res) {
     if (!payload) return null
 
     const data = await rabModel.updateRabItem(req.params.itemId, payload)
+    await rabModel.createAuditLog({
+      tabel: 'rab_items',
+      record_id: data.id,
+      aksi: 'UPDATE',
+      nilai_lama: item,
+      nilai_baru: data,
+      user_id: req.user.id
+    })
+
     return success(res, data)
   } catch (error) {
     const mapped = mapModelError(error)
@@ -353,6 +371,15 @@ async function deleteRabItem(req, res) {
     }
 
     const data = await rabModel.deleteRabItem(req.params.itemId)
+    await rabModel.createAuditLog({
+      tabel: 'rab_items',
+      record_id: item.id,
+      aksi: 'DELETE',
+      nilai_lama: item,
+      nilai_baru: null,
+      user_id: req.user.id
+    })
+
     return success(res, data || { id: req.params.itemId })
   } catch (error) {
     const mapped = mapModelError(error)

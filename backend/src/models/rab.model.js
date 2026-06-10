@@ -81,8 +81,22 @@ async function deleteRabItem(itemId) {
     .from('rab_items')
     .delete()
     .eq('id', itemId)
-    .select('id')
+    .select(RAB_SELECT)
     .maybeSingle()
+
+  if (error) {
+    throw error
+  }
+
+  return data
+}
+
+async function createAuditLog({ tabel, record_id, aksi, nilai_lama, nilai_baru, user_id }) {
+  const { data, error } = await supabase
+    .from('audit_log')
+    .insert({ tabel, record_id, aksi, nilai_lama, nilai_baru, user_id })
+    .select('id, tabel, record_id, aksi, user_id, waktu')
+    .single()
 
   if (error) {
     throw error
@@ -96,5 +110,6 @@ module.exports = {
   findRabItemById,
   createRabItem,
   updateRabItem,
-  deleteRabItem
+  deleteRabItem,
+  createAuditLog
 }

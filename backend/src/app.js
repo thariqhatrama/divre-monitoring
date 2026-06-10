@@ -9,6 +9,7 @@ const masterRoutes = require('./routes/master.routes')
 const proyekRoutes = require('./routes/proyek.routes')
 const rabRoutes = require('./routes/rab.routes')
 const realisasiRoutes = require('./routes/realisasi.routes')
+const dashboardRoutes = require('./routes/dashboard.routes')
 const testRoutes = require('./routes/test.routes')
 
 const app = express()
@@ -44,6 +45,7 @@ app.use('/api/kurs', kursRoutes)
 app.use('/api/proyek', proyekRoutes)
 app.use('/api', rabRoutes)
 app.use('/api', realisasiRoutes)
+app.use('/api/dashboard', dashboardRoutes)
 app.use('/api/test', testRoutes)
 
 app.use((req, res) => {

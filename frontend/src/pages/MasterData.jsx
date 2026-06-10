@@ -9,6 +9,21 @@ const MASTER_TABS = [
   { key: 'kurs', label: 'Kurs' }
 ]
 
+const ROLE_OPTIONS = [
+  { value: 'pm', label: 'Project Manager (PM)' },
+  { value: 'kepala_divre', label: 'Kepala Divre' },
+  { value: 'admin', label: 'Admin / Staff RAB' }
+]
+
+const INITIAL_USER_FORM = {
+  nama: '',
+  email: '',
+  password: '',
+  role: 'pm',
+  cabang_id: '',
+  aktif: true
+}
+
 function getErrorMessage(error) {
   return error.response?.data?.error?.message || 'Data master gagal dimuat'
 }
@@ -151,9 +166,13 @@ function KursTable({ latest, history }) {
 function MasterData() {
   const [activeTab, setActiveTab] = useState('coa')
   const [rows, setRows] = useState([])
+  const [branches, setBranches] = useState([])
   const [latestKurs, setLatestKurs] = useState(null)
+  const [userForm, setUserForm] = useState(INITIAL_USER_FORM)
+  const [savingUser, setSavingUser] = useState(false)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+  const [successMessage, setSuccessMessage] = useState('')
 
   const title = useMemo(() => {
     const tab = MASTER_TABS.find((item) => item.key === activeTab)
@@ -179,8 +198,14 @@ function MasterData() {
         }
 
         if (activeTab === 'user') {
-          const response = await masterAPI.getUsers()
-          if (!ignore) setRows(response.data.data || [])
+          const [userResponse, branchResponse] = await Promise.all([
+            masterAPI.getUsers(),
+            masterAPI.getCabang()
+          ])
+          if (!ignore) {
+            setRows(userResponse.data.data || [])
+            setBranches(branchResponse.data.data || [])
+          }
         }
 
         if (activeTab === 'kurs') {
@@ -207,6 +232,52 @@ function MasterData() {
       ignore = true
     }
   }, [activeTab])
+
+  function updateUserForm(name, value) {
+    setUserForm((current) => {
+      const next = { ...current, [name]: value }
+
+      if (name === 'role' && value !== 'pm') {
+        next.cabang_id = ''
+      }
+
+      return next
+    })
+  }
+
+  async function reloadUsers() {
+    const response = await masterAPI.getUsers()
+    setRows(response.data.data || [])
+  }
+
+  async function handleCreateUser(event) {
+    event.preventDefault()
+    setError('')
+    setSuccessMessage('')
+
+    if (userForm.role === 'pm' && !userForm.cabang_id) {
+      setError('Pilih cabang untuk user PM')
+      return
+    }
+
+    setSavingUser(true)
+
+    try {
+      const payload = {
+        ...userForm,
+        cabang_id: userForm.role === 'pm' ? userForm.cabang_id : null
+      }
+
+      await masterAPI.createUser(payload)
+      setUserForm(INITIAL_USER_FORM)
+      setSuccessMessage('User berhasil ditambahkan')
+      await reloadUsers()
+    } catch (createError) {
+      setError(createError.response?.data?.error?.message || 'Gagal menambahkan user')
+    } finally {
+      setSavingUser(false)
+    }
+  }
 
   return (
     <main className="app-shell master-shell">
@@ -243,9 +314,73 @@ function MasterData() {
 
           {loading && <p className="muted master-empty">Memuat data...</p>}
           {!loading && error && <p className="error-message">{error}</p>}
+          {!loading && successMessage && <p className="success-message">{successMessage}</p>}
           {!loading && !error && activeTab === 'coa' && <CoaTable rows={rows} />}
           {!loading && !error && activeTab === 'cabang' && <CabangTable rows={rows} />}
-          {!loading && !error && activeTab === 'user' && <UserTable rows={rows} />}
+          {!loading && activeTab === 'user' && (
+            <>
+              <form className="proyek-form master-user-form" onSubmit={handleCreateUser}>
+                <fieldset disabled={savingUser}>
+                  <legend>Tambah user baru</legend>
+
+                  <label>
+                    Nama
+                    <input value={userForm.nama} onChange={(event) => updateUserForm('nama', event.target.value)} required />
+                  </label>
+
+                  <label>
+                    Email
+                    <input type="email" value={userForm.email} onChange={(event) => updateUserForm('email', event.target.value)} required />
+                  </label>
+
+                  <label>
+                    Password sementara
+                    <input type="password" value={userForm.password} onChange={(event) => updateUserForm('password', event.target.value)} required />
+                  </label>
+
+                  <label>
+                    Role
+                    <select value={userForm.role} onChange={(event) => updateUserForm('role', event.target.value)} required>
+                      {ROLE_OPTIONS.map((role) => (
+                        <option key={role.value} value={role.value}>{role.label}</option>
+                      ))}
+                    </select>
+                  </label>
+
+                  <label>
+                    Cabang / Unit PM
+                    <select
+                      value={userForm.cabang_id}
+                      onChange={(event) => updateUserForm('cabang_id', event.target.value)}
+                      disabled={userForm.role !== 'pm'}
+                      required={userForm.role === 'pm'}
+                    >
+                      <option value="">{userForm.role === 'pm' ? 'Pilih cabang untuk PM' : 'Tidak dipakai untuk role ini'}</option>
+                      {branches.map((branch) => (
+                        <option key={branch.id} value={branch.id}>
+                          {branch.kode_seg23} — {branch.nama}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+
+                  <label>
+                    Status
+                    <select value={userForm.aktif ? 'true' : 'false'} onChange={(event) => updateUserForm('aktif', event.target.value === 'true')}>
+                      <option value="true">Aktif</option>
+                      <option value="false">Nonaktif</option>
+                    </select>
+                  </label>
+                </fieldset>
+
+                <div className="form-actions">
+                  <button type="submit" disabled={savingUser}>{savingUser ? 'Menyimpan...' : 'Tambah user'}</button>
+                </div>
+              </form>
+
+              <UserTable rows={rows} />
+            </>
+          )}
           {!loading && !error && activeTab === 'kurs' && <KursTable latest={latestKurs} history={rows} />}
         </div>
       </section>

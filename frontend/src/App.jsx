@@ -2,7 +2,10 @@ import { BrowserRouter, Link, Route, Routes } from 'react-router-dom'
 import ProtectedRoute from './components/ProtectedRoute'
 import useAuth from './hooks/useAuth'
 import Login from './pages/Login'
+import Dashboard from './pages/Dashboard'
+import DashboardCabang from './pages/DashboardCabang'
 import MasterData from './pages/MasterData'
+import ProyekDetail from './pages/ProyekDetail'
 import ProyekForm from './pages/ProyekForm'
 import ProyekList from './pages/ProyekList'
 import RABForm from './pages/RABForm'
@@ -41,6 +44,8 @@ function Home() {
         </dl>
 
         <div className="actions">
+          {(user?.role === 'kepala_divre' || user?.role === 'admin') && <Link to="/dashboard">Dashboard Kepala Divre</Link>}
+          {user?.role === 'pm' && <Link to="/dashboard-cabang">Dashboard PM Cabang</Link>}
           <Link to="/proyek">Daftar proyek</Link>
           <Link to="/admin-test">Test route admin</Link>
           {user?.role === 'admin' && <Link to="/master-data">Master data</Link>}
@@ -94,6 +99,22 @@ function App() {
           }
         />
         <Route
+          path="/dashboard"
+          element={
+            <ProtectedRoute allowedRoles={['kepala_divre', 'admin']}>
+              <Dashboard />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard-cabang"
+          element={
+            <ProtectedRoute allowedRoles={['pm']}>
+              <DashboardCabang />
+            </ProtectedRoute>
+          }
+        />
+        <Route
           path="/proyek"
           element={
             <ProtectedRoute allowedRoles={['kepala_divre', 'pm', 'admin']}>
@@ -114,6 +135,14 @@ function App() {
           element={
             <ProtectedRoute allowedRoles={['pm', 'admin']}>
               <ProyekForm />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/proyek/:id/detail"
+          element={
+            <ProtectedRoute allowedRoles={['kepala_divre', 'pm', 'admin']}>
+              <ProyekDetail />
             </ProtectedRoute>
           }
         />
