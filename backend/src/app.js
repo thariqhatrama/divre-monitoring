@@ -14,7 +14,10 @@ const testRoutes = require('./routes/test.routes')
 
 const app = express()
 const PORT = process.env.PORT || 3001
-const corsOrigin = process.env.CORS_ORIGIN || 'http://localhost:5173'
+const defaultCorsOrigin = process.env.NODE_ENV === 'production'
+  ? 'https://divre-monitoring.vercel.app'
+  : 'http://localhost:5173'
+const corsOrigin = process.env.CORS_ORIGIN || defaultCorsOrigin
 
 app.use(helmet())
 app.use(cors({ origin: corsOrigin }))

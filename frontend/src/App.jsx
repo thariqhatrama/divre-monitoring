@@ -1,4 +1,5 @@
 import { BrowserRouter, Link, Route, Routes } from 'react-router-dom'
+import AppLayout from './components/layout/AppLayout'
 import ProtectedRoute from './components/ProtectedRoute'
 import useAuth from './hooks/useAuth'
 import Login from './pages/Login'
@@ -69,6 +70,14 @@ function AdminTest() {
   )
 }
 
+function ProtectedLayout({ allowedRoles, children }) {
+  return (
+    <ProtectedRoute allowedRoles={allowedRoles}>
+      <AppLayout>{children}</AppLayout>
+    </ProtectedRoute>
+  )
+}
+
 function App() {
   return (
     <BrowserRouter>
@@ -77,89 +86,89 @@ function App() {
         <Route
           path="/"
           element={
-            <ProtectedRoute allowedRoles={['kepala_divre', 'pm', 'admin']}>
+            <ProtectedLayout allowedRoles={['kepala_divre', 'pm', 'admin']}>
               <Home />
-            </ProtectedRoute>
+            </ProtectedLayout>
           }
         />
         <Route
           path="/admin-test"
           element={
-            <ProtectedRoute allowedRoles={['admin']}>
+            <ProtectedLayout allowedRoles={['admin']}>
               <AdminTest />
-            </ProtectedRoute>
+            </ProtectedLayout>
           }
         />
         <Route
           path="/master-data"
           element={
-            <ProtectedRoute allowedRoles={['admin']}>
+            <ProtectedLayout allowedRoles={['admin']}>
               <MasterData />
-            </ProtectedRoute>
+            </ProtectedLayout>
           }
         />
         <Route
           path="/dashboard"
           element={
-            <ProtectedRoute allowedRoles={['kepala_divre', 'admin']}>
+            <ProtectedLayout allowedRoles={['kepala_divre', 'admin']}>
               <Dashboard />
-            </ProtectedRoute>
+            </ProtectedLayout>
           }
         />
         <Route
           path="/dashboard-cabang"
           element={
-            <ProtectedRoute allowedRoles={['pm']}>
+            <ProtectedLayout allowedRoles={['pm']}>
               <DashboardCabang />
-            </ProtectedRoute>
+            </ProtectedLayout>
           }
         />
         <Route
           path="/proyek"
           element={
-            <ProtectedRoute allowedRoles={['kepala_divre', 'pm', 'admin']}>
+            <ProtectedLayout allowedRoles={['kepala_divre', 'pm', 'admin']}>
               <ProyekList />
-            </ProtectedRoute>
+            </ProtectedLayout>
           }
         />
         <Route
           path="/proyek/new"
           element={
-            <ProtectedRoute allowedRoles={['pm', 'admin']}>
+            <ProtectedLayout allowedRoles={['pm', 'admin']}>
               <ProyekForm />
-            </ProtectedRoute>
+            </ProtectedLayout>
           }
         />
         <Route
           path="/proyek/:id/edit"
           element={
-            <ProtectedRoute allowedRoles={['pm', 'admin']}>
+            <ProtectedLayout allowedRoles={['pm', 'admin']}>
               <ProyekForm />
-            </ProtectedRoute>
+            </ProtectedLayout>
           }
         />
         <Route
           path="/proyek/:id/detail"
           element={
-            <ProtectedRoute allowedRoles={['kepala_divre', 'pm', 'admin']}>
+            <ProtectedLayout allowedRoles={['kepala_divre', 'pm', 'admin']}>
               <ProyekDetail />
-            </ProtectedRoute>
+            </ProtectedLayout>
           }
         />
         <Route
           path="/proyek/:id/rab"
           element={
-            <ProtectedRoute allowedRoles={['kepala_divre', 'pm', 'admin']}>
+            <ProtectedLayout allowedRoles={['kepala_divre', 'pm', 'admin']}>
               <RABForm />
-            </ProtectedRoute>
+            </ProtectedLayout>
           }
         />
         <Route
           path="/proyek/:id/realisasi"
           element={
-            <ProtectedRoute allowedRoles={['kepala_divre', 'pm', 'admin']}>
+            <ProtectedLayout allowedRoles={['kepala_divre', 'pm', 'admin']}>
               <RealisasiForm />
-            </ProtectedRoute>
+            </ProtectedLayout>
           }
         />
       </Routes>

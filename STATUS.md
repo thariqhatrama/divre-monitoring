@@ -12,7 +12,7 @@
 **Timeline:** 3 minggu  
 **Scope utama:** Monitoring margin, bukan approval, bukan SLA, bukan ERP.  
 **COA acuan:** COA Tahun 2025  
-**Status saat ini:** Admin sekarang bisa menambahkan user dari Master Data tab User dengan dropdown role (`pm`, `kepala_divre`, `admin`) dan dropdown cabang untuk PM; backend memvalidasi PM wajib punya `cabang_id` dan role non-PM tidak terikat cabang; backend syntax check dan frontend build berhasil
+**Status saat ini:** Frontend layout global tahap 1 selesai: authenticated pages kini memakai shell dashboard modern dengan sidebar role-based, topbar, responsive drawer, dan komponen UI dasar; frontend build berhasil dengan warning chunk size Vite/Recharts yang sudah dikenal
 
 ---
 
@@ -23,7 +23,7 @@
 | Repo setup | ✅ Selesai | Repo GitHub: `https://github.com/thariqhatrama/divre-monitoring`; struktur root tersedia |
 | Frontend setup | ✅ Selesai | React 19 + Vite 8 tersedia; Vercel root `frontend/`; build lokal berhasil dengan Node `v22.22.3` |
 | Backend setup | ✅ Selesai | Phase 1A selesai: Express 5.2.1, middleware dasar, Supabase client, health check `/api/health`; Render root `backend/` |
-| Database setup | 🟨 Dalam proses | Project Supabase sudah dibuat; `001_create_tables.sql`, `002_seed_coa.sql`, dan `003_seed_branches.sql` sudah dijalankan/diinsert |
+| Database setup | 🟨 Dalam proses | Project Supabase sudah dibuat; `001_create_tables.sql`, `002_seed_coa.sql`, dan `003_seed_branches.sql` sudah dijalankan/diinsert; `004_seed_dummy_projects.sql` tersedia untuk seed demo PM |
 | Auth & RBAC | ✅ Selesai | Phase 1C tervalidasi: bootstrap admin login sukses, JWT dibuat, admin RBAC route berhasil, dan admin bisa menambahkan user role PM/Kepala Divre/Admin dari Master Data |
 | Master data COA | ✅ Selesai | Seed COA Tahun 2025 dari `docs/COA tahun 2025.xlsx` sheet `SEG 5 (BIAYA)` berisi 86 akun detail RAB |
 | Master data cabang | ✅ Selesai | Seed 13 cabang + 26 UP Divre Timur sudah dibuat dan diinsert ke Supabase |
@@ -32,7 +32,7 @@
 | Realisasi | ✅ Selesai | Phase 2C tervalidasi user di production: input realisasi berhasil; CRUD realisasi per akun + audit log + agregasi tersedia |
 | Kalkulasi margin | ✅ Selesai | Phase 2D selesai: margin RAB, margin realisasi, laba operasi realisasi, delta margin, dan indikator delta naik/turun/tetap dihitung; validasi lokal lulus |
 | Dashboard | 🟨 Dalam proses | Phase 3A Kepala Divre, Phase 3B Dashboard PM, dan Phase 3C detail/chart selesai implementasi dasar; deployment/runtime production belum divalidasi |
-| Deployment | ⬜ Belum mulai | Vercel + Render |
+| Deployment | 🟨 Dalam proses | Phase 3D deployment review selesai; perlu validasi manual live Vercel/Render setelah deploy |
 
 Keterangan status:
 - ⬜ Belum mulai
@@ -83,6 +83,8 @@ Keterangan status:
 - [x] Jalankan migration `001_create_tables.sql` — tabel berhasil dibuat di Supabase
 - [x] Jalankan seed `002_seed_coa.sql` — COA Tahun 2025 dari `docs/COA tahun 2025.xlsx` sudah dibuat dan diinsert ke Supabase
 - [x] Jalankan seed `003_seed_branches.sql` — 13 cabang + 26 UP Divre Timur sudah dibuat dan diinsert ke Supabase
+- [ ] Jalankan seed `004_seed_dummy_projects.sql` — 3 proyek dummy PM Cabang Surabaya tersedia untuk validasi dashboard PM
+- [ ] Jalankan seed `005_seed_dummy_rab_realisasi.sql` — RAB + realisasi dummy tersedia untuk 3 skema margin demo
 - [x] Buat admin user pertama
 - [x] Test koneksi backend ke Supabase
 
@@ -206,15 +208,55 @@ Target: aplikasi siap demo dan bisa diakses via browser.
 - [ ] `frontend/src/context/FilterContext.jsx`
 - [x] Highlight proyek kritis/rugi
 
+### Frontend Layout / UI Tahap 1
+
+- [x] `frontend/src/components/layout/AppLayout.jsx` — shell authenticated dengan sidebar, header, content area, dan drawer responsive
+- [x] `frontend/src/components/layout/Sidebar.jsx` — menu role-based untuk admin, kepala_divre, dan PM dengan active state route
+- [x] `frontend/src/components/layout/Header.jsx` — topbar dengan title halaman, search sederhana, user profile/role, dan logout
+- [x] `frontend/src/components/ui/Button.jsx`
+- [x] `frontend/src/components/ui/Card.jsx`
+- [x] `frontend/src/components/ui/Badge.jsx`
+- [x] `frontend/src/components/ui/Input.jsx`
+- [x] `frontend/src/components/ui/Select.jsx`
+- [x] `frontend/src/components/ui/PageHeader.jsx`
+- [x] `frontend/src/components/ui/EmptyState.jsx`
+- [x] `frontend/src/components/ui/LoadingState.jsx`
+- [x] `frontend/src/components/ui/index.js`
+- [x] Protected routes dibungkus `AppLayout` tanpa mengubah `allowedRoles`
+- [x] `frontend/src/index.css` dirapikan dari template root constraint agar dashboard full-width
+- [x] `frontend/src/App.css` ditambahkan style modern dashboard, sidebar fixed desktop, dan drawer tablet/mobile
+- [x] Frontend build berhasil (`npm --prefix frontend run build`) dengan warning chunk size Vite/Recharts yang sudah dikenal
+
 ### Deployment
 
 - [ ] Deploy backend ke Render
 - [ ] Deploy frontend ke Vercel
-- [ ] Set CORS Render ke domain Vercel
-- [ ] Set `VITE_API_URL` di Vercel
+- [x] Set CORS Render ke domain Vercel — `CORS_ORIGIN=https://divre-monitoring.vercel.app` di `render.yaml` dan fallback production backend
+- [x] Set `VITE_API_URL` di Vercel — wajib manual di Vercel dashboard: `https://divre-api.onrender.com`
 - [ ] Test login di production
 - [ ] Test input proyek di production
 - [ ] Test dashboard di production
+
+### Checklist Testing Production Phase 3D
+
+- [ ] Vercel project memakai Root Directory `frontend`
+- [ ] Vercel Build Command `npm run build`
+- [ ] Vercel Output Directory `dist`
+- [ ] Vercel env `VITE_API_URL=https://divre-api.onrender.com`
+- [ ] Render service memakai Root Directory `backend`
+- [ ] Render Build Command `npm install`
+- [ ] Render Start Command `node src/app.js`
+- [ ] Render env lengkap: `SUPABASE_URL`, `SUPABASE_SERVICE_KEY`, `JWT_SECRET`, `CORS_ORIGIN=https://divre-monitoring.vercel.app`, optional `PORT`
+- [ ] Backend live: buka `https://divre-api.onrender.com/api/health` dan response `success: true`
+- [ ] Frontend live: buka `https://divre-monitoring.vercel.app/`
+- [ ] Login production admin berhasil
+- [ ] Admin bisa membuat user PM dan Kepala Divre dari Master Data
+- [ ] Login production PM berhasil dan `/dashboard-cabang` hanya memuat cabang sendiri
+- [ ] Login production Kepala Divre berhasil dan `/dashboard` memuat semua cabang
+- [ ] Dashboard production memuat KPI dan tabel tanpa error
+- [ ] Detail proyek production memuat summary, breakdown, line item, dan chart
+- [ ] Browser DevTools Network/Console tidak menunjukkan CORS error
+- [ ] Tidak ada secret nyata di repo; env rahasia hanya di Render/Vercel dashboard
 
 ---
 
@@ -224,6 +266,10 @@ Target: aplikasi siap demo dan bisa diakses via browser.
 
 | Tanggal | Tipe | Area | Deskripsi | File Terkait | Status |
 |---|---|---|---|---|---|
+| 2026-06-10 | Add | Frontend Layout | Menambahkan layout global tahap 1: authenticated pages dibungkus `AppLayout` dengan sidebar kiri role-based, header/topbar, drawer responsive untuk tablet/mobile, active menu berdasarkan route, dan komponen UI dasar Button/Card/Badge/Input/Select/PageHeader/EmptyState/LoadingState; `index.css` dirapikan agar tidak membatasi layout full-width; frontend build berhasil dengan warning chunk size Vite/Recharts yang sudah dikenal | `frontend/src/App.jsx`, `frontend/src/App.css`, `frontend/src/index.css`, `frontend/src/components/layout/AppLayout.jsx`, `frontend/src/components/layout/Sidebar.jsx`, `frontend/src/components/layout/Header.jsx`, `frontend/src/components/ui/*.jsx`, `STATUS.md` | ✅ |
+| 2026-06-10 | Add | Seed Dummy Margin | Menambahkan `005_seed_dummy_rab_realisasi.sql` untuk mengisi RAB + realisasi pada 3 proyek dummy PM dengan skema margin berbeda: project 001 margin RAB 20% dan realisasi 25% (aman naik), project 002 margin RAB 14% dan realisasi 8% (perhatian turun), project 003 margin RAB 5% dan realisasi -3% (kritis/rugi); seed idempotent berdasarkan `project_id + uraian` dan `rab_item_id + catatan` | `backend/migrations/005_seed_dummy_rab_realisasi.sql`, `STATUS.md` | ✅ |
+| 2026-06-10 | Add | Seed Dummy PM | Menambahkan `004_seed_dummy_projects.sql` untuk 3 proyek dummy PM di Cabang Surabaya (`SBA`): Monitoring Batubara, Survey Marine, dan Sertifikasi Industri; seed idempotent berdasarkan `nomor_spmk`, memakai PM aktif pertama di Cabang Surabaya jika tersedia, dan hanya membuat metadata proyek + Segmen 11 agar RAB tetap diinput dari UI | `backend/migrations/004_seed_dummy_projects.sql`, `STATUS.md` | ✅ |
+| 2026-06-10 | Review | Phase 3D Deployment | Review konfigurasi deployment: Vercel harus memakai root `frontend`, build `npm run build`, output `dist`, env `VITE_API_URL=https://divre-api.onrender.com`; Render memakai root `backend`, build `npm install`, start `node src/app.js`; `render.yaml` dilengkapi env vars wajib tanpa secret (`sync: false`) dan `CORS_ORIGIN` domain Vercel; backend CORS fallback production diarahkan ke Vercel; tracked env file hanya `.env.example`; checklist testing production ditambahkan; backend syntax check dan frontend build berhasil | `backend/render.yaml`, `backend/src/app.js`, `STATUS.md` | ✅ |
 | 2026-06-10 | Add | Master User | Menambahkan form admin untuk membuat user dari tab Master Data User: dropdown role PM/Kepala Divre/Admin, dropdown cabang wajib untuk PM, status aktif/nonaktif, password sementara, refresh tabel setelah user dibuat; backend memvalidasi PM wajib punya `cabang_id` dan role non-PM disimpan tanpa cabang; backend syntax check dan frontend build berhasil | `frontend/src/pages/MasterData.jsx`, `frontend/src/App.css`, `backend/src/controllers/master.controller.js`, `STATUS.md` | ✅ |
 | 2026-06-10 | Add | Phase 3C Detail & Chart | Menambahkan detail proyek dan chart demo: `ProyekDetail.jsx` menampilkan nilai proyek, total RAB, margin RAB, total realisasi, margin realisasi, delta margin, breakdown RAB vs realisasi per kategori, line item individual, % subkon, dan Segmen 11; `MarginChart.jsx` dan `BreakdownChart.jsx` memakai Recharts untuk visualisasi read-only; `ProyekTable.jsx` dibuat sebagai tabel proyek reusable; frontend build berhasil dengan warning chunk size Recharts | `frontend/src/pages/ProyekDetail.jsx`, `frontend/src/components/ProyekTable.jsx`, `frontend/src/components/MarginChart.jsx`, `frontend/src/components/BreakdownChart.jsx`, `frontend/src/App.jsx`, `frontend/src/App.css`, `frontend/src/pages/ProyekList.jsx`, `frontend/src/pages/Dashboard.jsx`, `frontend/src/pages/DashboardCabang.jsx`, `STATUS.md` | ✅ |
 | 2026-06-10 | Add | Phase 3B Dashboard PM | Menambahkan dashboard PM cabang: route frontend `/dashboard-cabang`, halaman `DashboardCabang.jsx` dengan KPI dan tabel proyek cabang, serta backend dashboard memaksa filter `cabang_id` dari `req.user.cabang_id` untuk role PM sehingga manipulasi query param `cabang_id` tetap tidak membuka cabang lain; backend syntax check dan frontend build berhasil | `backend/src/routes/dashboard.routes.js`, `backend/src/controllers/dashboard.controller.js`, `frontend/src/pages/DashboardCabang.jsx`, `frontend/src/App.jsx`, `frontend/src/App.css`, `STATUS.md` | ✅ |
@@ -315,15 +361,27 @@ Update bagian ini sebelum membuka sesi Claude baru agar tidak kehilangan konteks
 Tulis ringkasan singkat pekerjaan terakhir.
 
 ```txt
-Admin user creation selesai. Halaman Master Data tab User sekarang punya form tambah user dengan nama, email, password sementara, dropdown role (`pm`, `kepala_divre`, `admin`), dropdown cabang wajib untuk PM, dan status aktif/nonaktif. Backend `master.controller.js` memvalidasi PM wajib memiliki `cabang_id`, serta role non-PM disimpan tanpa cabang. Backend syntax check dan frontend build berhasil. Phase 3C detail proyek/chart tetap tersedia dari pekerjaan sebelumnya.
+Frontend layout global tahap 1 selesai. Authenticated pages kini dibungkus `AppLayout` dengan sidebar kiri role-based untuk admin/kepala_divre/PM, header/topbar, user profile/role, logout, search visual sederhana, active menu berdasarkan route, dan drawer responsive untuk tablet/mobile. Komponen UI dasar `Button`, `Card`, `Badge`, `Input`, `Select`, `PageHeader`, `EmptyState`, dan `LoadingState` dibuat. Tidak ada perubahan backend, database schema, API contract, atau allowed role route.
 ```
 
 ### File yang terakhir diubah
 
 ```txt
-frontend/src/pages/MasterData.jsx
+frontend/src/App.jsx
 frontend/src/App.css
-backend/src/controllers/master.controller.js
+frontend/src/index.css
+frontend/src/components/layout/AppLayout.jsx
+frontend/src/components/layout/Sidebar.jsx
+frontend/src/components/layout/Header.jsx
+frontend/src/components/ui/Button.jsx
+frontend/src/components/ui/Card.jsx
+frontend/src/components/ui/Badge.jsx
+frontend/src/components/ui/Input.jsx
+frontend/src/components/ui/Select.jsx
+frontend/src/components/ui/PageHeader.jsx
+frontend/src/components/ui/EmptyState.jsx
+frontend/src/components/ui/LoadingState.jsx
+frontend/src/components/ui/index.js
 STATUS.md
 ```
 
@@ -332,13 +390,13 @@ STATUS.md
 #### Selesai / validasi dasar lulus
 
 ```txt
-Admin bisa menambahkan user role PM/Kepala Divre/Admin dari Master Data tab User. Backend `node --check backend/src/controllers/master.controller.js` berhasil dan frontend `npm --prefix frontend run build` berhasil; ada warning chunk size karena Recharts masuk bundle, tetapi build sukses. Phase 3A dashboard Kepala Divre, Phase 3B dashboard PM, dan Phase 3C detail proyek/chart sudah selesai pada level implementasi dasar. Endpoint dashboard menerima kepala_divre/admin untuk semua cabang dan PM untuk cabang sendiri; khusus PM, backend memaksa filter `cabang_id` memakai `req.user.cabang_id` sehingga query param frontend tidak menentukan scope.
+Frontend layout global tahap 1 selesai dan `npm --prefix frontend run build` berhasil. Ada warning chunk size Vite/Recharts yang sudah dikenal, tetapi build sukses. Protected routes tetap memakai `allowedRoles` existing; perubahan hanya membungkus halaman authenticated dengan `AppLayout` dan menambah layout/sidebar/header/UI primitives. Backend, database schema, API contract, dan RBAC backend tidak diubah.
 ```
 
 #### Pending validasi runtime
 
 ```txt
-User sudah mengonfirmasi env production diperbaiki serta login, input proyek, input RAB, dan input realisasi berhasil di production. Validasi yang masih perlu dilakukan setelah deploy Phase 3C: login sebagai Kepala Divre untuk memastikan `/dashboard` menampilkan semua cabang; login sebagai PM untuk memastikan `/dashboard-cabang` hanya menampilkan proyek cabangnya; coba panggil endpoint dashboard sebagai PM dengan query param `cabang_id` cabang lain dan pastikan response tetap dibatasi ke `req.user.cabang_id`; buka `/proyek/:id/detail` untuk proyek yang punya RAB dan realisasi, pastikan summary, breakdown kategori, line item, % subkon, Segmen 11, dan chart tampil informatif; pastikan chart hanya visualisasi dan tidak mengubah data. Validasi tambahan: cek langsung tabel `audit_log` untuk memastikan RAB INSERT/UPDATE/DELETE dan realisasi INSERT/UPDATE/DELETE tercatat.
+Validasi manual production Phase 3D masih perlu dilakukan setelah Vercel/Render selesai deploy commit terbaru: cek backend live di `https://divre-api.onrender.com/api/health`, frontend live di `https://divre-monitoring.vercel.app/`, login admin/PM/Kepala Divre, dashboard production memuat data, detail proyek memuat chart, dan DevTools tidak menunjukkan CORS error. Tambahan setelah layout tahap 1: cek visual desktop/laptop bahwa sidebar tidak overlap content, menu role-based sesuai user, active state benar, logout tetap bekerja, dan viewport tablet/mobile dapat membuka/menutup drawer. Untuk demo PM, jalankan `backend/migrations/004_seed_dummy_projects.sql` lalu `backend/migrations/005_seed_dummy_rab_realisasi.sql` di Supabase SQL Editor setelah cabang dan user PM Cabang Surabaya tersedia; lalu login sebagai PM Cabang Surabaya untuk memastikan 3 proyek dummy muncul dengan skema margin aman/perhatian/rugi. Validasi tambahan: cek langsung tabel `audit_log` untuk memastikan RAB INSERT/UPDATE/DELETE dan realisasi INSERT/UPDATE/DELETE tercatat.
 ```
 
 #### Butuh aksi manual / secret eksternal
@@ -350,13 +408,13 @@ Env Vercel/Render sudah diperbaiki oleh user. PM dan Kepala Divre user mungkin m
 #### Fase berikutnya sesuai PRD
 
 ```txt
-Runtime validation production untuk dashboard Kepala Divre, dashboard PM, dan detail proyek/chart belum dilakukan setelah deploy perubahan Phase 3A/3B/3C. Deployment final dan testing production dashboard/detail masih belum selesai. Lanjutkan validasi/deploy sesuai PRD tanpa menambah approval/email/SLA/ERP.
+Lanjutkan deploy/push commit Phase 3D bila belum dipush, lalu lakukan checklist testing production di STATUS.md. Jangan menaruh secret di repo; isi secret hanya di Render/Vercel dashboard. Jika ingin merapikan repo, cleanup `node_modules/` yang sudah ter-track bisa menjadi task terpisah karena saat ini `.gitignore` sudah mengabaikan `node_modules/` tetapi file lama masih tracked.
 ```
 
 ### Prompt lanjutan untuk Claude
 
 ```txt
-Jangan membuat fitur baru di luar PRD.md. Phase 3A dashboard Kepala Divre, Phase 3B dashboard PM, dan Phase 3C detail proyek/chart sudah dibuat pada level implementasi dasar. Backend dashboard membatasi PM berdasarkan `req.user.cabang_id`. Detail proyek memakai endpoint RAB/realisasi existing dan chart Recharts hanya visualisasi read-only. Frontend `npm --prefix frontend run build` berhasil dengan warning chunk size Recharts. Fokus berikutnya: validasi runtime production dashboard/detail, role PM/Kepala Divre, lalu deploy/final polish sesuai PRD.
+Jangan membuat fitur baru di luar PRD.md. Frontend layout global tahap 1 sudah selesai: `AppLayout`, `Sidebar`, `Header`, dan UI primitives dasar tersedia; protected routes dibungkus layout tanpa mengubah `allowedRoles`. Backend dashboard tetap membatasi PM berdasarkan `req.user.cabang_id`. Frontend `npm --prefix frontend run build` berhasil dengan warning chunk size Vite/Recharts. Fokus berikutnya: validasi visual/runtime production untuk layout sidebar/header per role, dashboard/detail, role PM/Kepala Divre, lalu tunggu instruksi user sebelum redesign halaman dashboard/proyek/RAB/realisasi lebih lanjut.
 ```
 
 ---
