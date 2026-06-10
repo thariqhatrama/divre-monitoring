@@ -70,13 +70,35 @@ h1 {
 
 .auth-form input,
 .proyek-form input,
-.proyek-form select,
-.filter-row input,
-.filter-row select {
+.filter-row input {
   border: 1px solid #cbd5e1;
   border-radius: 12px;
   font: inherit;
   padding: 12px 14px;
+}
+
+.proyek-form select,
+.filter-row select {
+  appearance: none;
+  background:
+    linear-gradient(135deg, rgba(20, 184, 166, 0.12), rgba(37, 99, 235, 0.08)) right 14px center / 34px 34px no-repeat,
+    linear-gradient(45deg, transparent 50%, #0f766e 50%) calc(100% - 24px) 50% / 7px 7px no-repeat,
+    linear-gradient(135deg, #0f766e 50%, transparent 50%) calc(100% - 18px) 50% / 7px 7px no-repeat,
+    #ffffff;
+  border: 1px solid rgba(15, 118, 110, 0.22);
+  border-radius: 14px;
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.06);
+  color: #0f172a;
+  font: inherit;
+  min-height: 46px;
+  padding: 12px 54px 12px 14px;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.proyek-form select:hover,
+.filter-row select:hover {
+  border-color: rgba(15, 118, 110, 0.45);
+  box-shadow: 0 14px 28px rgba(15, 23, 42, 0.09);
 }
 
 .auth-form input:focus,
@@ -1043,8 +1065,7 @@ a {
   color: #b91c1c !important;
 }
 
-.ui-input,
-.ui-select {
+.ui-input {
   background: #ffffff;
   border: 1px solid #cbd5e1;
   border-radius: 12px;
@@ -1053,10 +1074,44 @@ a {
   padding: 0 14px;
 }
 
+.ui-select {
+  appearance: none;
+  background:
+    linear-gradient(135deg, rgba(20, 184, 166, 0.12), rgba(37, 99, 235, 0.08)) right 14px center / 34px 34px no-repeat,
+    linear-gradient(45deg, transparent 50%, #0f766e 50%) calc(100% - 24px) 50% / 7px 7px no-repeat,
+    linear-gradient(135deg, #0f766e 50%, transparent 50%) calc(100% - 18px) 50% / 7px 7px no-repeat,
+    #ffffff;
+  border: 1px solid rgba(15, 118, 110, 0.22);
+  border-radius: 14px;
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.06);
+  color: #0f172a;
+  min-height: 46px;
+  padding: 0 54px 0 14px;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.ui-select:hover {
+  border-color: rgba(15, 118, 110, 0.45);
+  box-shadow: 0 14px 28px rgba(15, 23, 42, 0.09);
+}
+
+.ui-select option,
+.proyek-form select option,
+.filter-row select option {
+  background: #ffffff;
+  color: #0f172a;
+}
+
 .ui-input:focus,
 .ui-select:focus {
   border-color: #0f766e;
   outline: 3px solid rgba(15, 118, 110, 0.15);
+}
+
+.ui-select:focus,
+.proyek-form select:focus,
+.filter-row select:focus {
+  box-shadow: 0 16px 30px rgba(15, 118, 110, 0.12);
 }
 
 .page-header {
