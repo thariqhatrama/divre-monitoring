@@ -7,6 +7,7 @@ import useAuth from '../hooks/useAuth'
 function Login() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [showPassword, setShowPassword] = useState(false)
   const { isAuthenticated, login, loading, error } = useAuth()
   const navigate = useNavigate()
   const location = useLocation()
@@ -67,14 +68,24 @@ function Login() {
               required
             />
 
-            <Input
-              label="Password"
-              type="password"
-              value={password}
-              onChange={(event) => setPassword(event.target.value)}
-              placeholder="••••••••"
-              required
-            />
+            <div className="password-field">
+              <Input
+                label="Password"
+                type={showPassword ? 'text' : 'password'}
+                value={password}
+                onChange={(event) => setPassword(event.target.value)}
+                placeholder="••••••••"
+                required
+              />
+              <button
+                type="button"
+                className="password-toggle"
+                aria-pressed={showPassword}
+                onClick={() => setShowPassword((current) => !current)}
+              >
+                {showPassword ? 'Sembunyikan password' : 'Tampilkan password'}
+              </button>
+            </div>
 
             {error ? <p className="error-message">{error}</p> : null}
 

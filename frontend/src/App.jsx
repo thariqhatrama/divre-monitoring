@@ -12,6 +12,7 @@ import ProyekForm from './pages/ProyekForm'
 import ProyekList from './pages/ProyekList'
 import RABForm from './pages/RABForm'
 import RealisasiForm from './pages/RealisasiForm'
+import UserGuide from './pages/UserGuide'
 import './App.css'
 
 function Home() {
@@ -89,6 +90,14 @@ function App() {
           element={
             <ProtectedLayout allowedRoles={['kepala_divre', 'pm', 'admin']}>
               <Home />
+            </ProtectedLayout>
+          }
+        />
+        <Route
+          path="/user-guide"
+          element={
+            <ProtectedLayout allowedRoles={['kepala_divre', 'pm', 'admin']}>
+              <UserGuide />
             </ProtectedLayout>
           }
         />

@@ -1136,6 +1136,60 @@ a {
   }
 }
 
+.password-field {
+  display: grid;
+  gap: 8px;
+}
+
+.password-toggle {
+  background: transparent;
+  border: 1px solid #cbd5e1;
+  color: #0f766e;
+  justify-self: flex-start;
+  min-height: 36px;
+  padding: 0 12px;
+}
+
+.guide-grid {
+  display: grid;
+  gap: 18px;
+}
+
+.user-guide-card {
+  overflow: hidden;
+}
+
+.guide-section-list {
+  display: grid;
+  gap: 16px;
+}
+
+.guide-section {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  padding: 16px;
+}
+
+.guide-section h3 {
+  color: #0f172a;
+  font-size: 1rem;
+  margin: 0 0 10px;
+}
+
+.guide-section ol {
+  color: #334155;
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding-left: 20px;
+}
+
+.guide-section li::marker {
+  color: #0f766e;
+  font-weight: 800;
+}
+
 @media (max-width: 1024px) {
   .app-sidebar {
     box-shadow: 20px 0 50px rgba(15, 23, 42, 0.28);
