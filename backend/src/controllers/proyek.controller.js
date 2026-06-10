@@ -102,6 +102,13 @@ function validateProject(body, { isCreate = false, user } = {}) {
     errors.push('status harus draft, aktif, selesai, atau arsip')
   }
 
+  if (body.seg11_no !== undefined && body.seg11_no !== null && body.seg11_no !== '') {
+    const seg11 = String(body.seg11_no).trim()
+    if (!/^\d{6}$/.test(seg11)) {
+      errors.push('seg11_no wajib terdiri dari tepat 6 angka')
+    }
+  }
+
   if (isCreate && user?.role === 'admin' && (typeof body.cabang_id !== 'string' || body.cabang_id.trim() === '')) {
     errors.push('cabang_id wajib diisi untuk admin')
   }

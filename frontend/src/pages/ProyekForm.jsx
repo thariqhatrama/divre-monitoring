@@ -100,7 +100,8 @@ function ProyekForm() {
 
   function updateField(name, value) {
     setForm((current) => {
-      const next = { ...current, [name]: value }
+      const normalizedValue = name === 'seg11_no' ? value.replace(/\D/g, '').slice(0, 6) : value
+      const next = { ...current, [name]: normalizedValue }
 
       if (name === 'mata_uang_proyek' && value === 'IDR') {
         next.kurs_idr_proyek = '1'
@@ -220,7 +221,11 @@ function ProyekForm() {
                   label="Segmen 11"
                   value={form.seg11_no}
                   onChange={(event) => updateField('seg11_no', event.target.value)}
-                  placeholder="Boleh kosong saat draft"
+                  placeholder="6 digit angka"
+                  inputMode="numeric"
+                  pattern="\d{6}"
+                  maxLength="6"
+                  hint="Opsional saat draft. Jika diisi, wajib tepat 6 angka tanpa huruf atau simbol."
                 />
                 {isPm ? (
                   <Input label="Cabang (otomatis dari akun PM)" value={user?.cabang_id ? 'Otomatis sesuai cabang akun PM' : 'PM belum memiliki cabang'} disabled />
