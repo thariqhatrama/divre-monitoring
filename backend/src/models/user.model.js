@@ -1,5 +1,29 @@
 const supabase = require('../db/supabase')
 
+function applyUserFilters(query, filters = {}) {
+  if (filters.role) {
+    query = query.eq('role', filters.role)
+  }
+
+  if (filters.aktif === 'true') {
+    query = query.eq('aktif', true)
+  }
+
+  if (filters.aktif === 'false') {
+    query = query.eq('aktif', false)
+  }
+
+  if (filters.cabang_id) {
+    query = query.eq('cabang_id', filters.cabang_id)
+  }
+
+  if (filters.q) {
+    query = query.or(`nama.ilike.%${filters.q}%,email.ilike.%${filters.q}%`)
+  }
+
+  return query
+}
+
 async function findUserByEmail(email) {
   const { data, error } = await supabase
     .from('users')
@@ -28,7 +52,56 @@ async function findUserById(id) {
   return data
 }
 
+async function listUsers(filters = {}) {
+  let query = supabase
+    .from('users')
+    .select('id, nama, email, role, cabang_id, aktif, created_at, updated_at')
+    .order('nama', { ascending: true })
+
+  query = applyUserFilters(query, filters)
+
+  const { data, error } = await query
+
+  if (error) {
+    throw error
+  }
+
+  return data
+}
+
+async function createUser(payload) {
+  const { data, error } = await supabase
+    .from('users')
+    .insert(payload)
+    .select('id, nama, email, role, cabang_id, aktif, created_at, updated_at')
+    .single()
+
+  if (error) {
+    throw error
+  }
+
+  return data
+}
+
+async function updateUser(id, payload) {
+  const { data, error } = await supabase
+    .from('users')
+    .update(payload)
+    .eq('id', id)
+    .select('id, nama, email, role, cabang_id, aktif, created_at, updated_at')
+    .maybeSingle()
+
+  if (error) {
+    throw error
+  }
+
+  return data
+}
+
 module.exports = {
   findUserByEmail,
-  findUserById
+  findUserById,
+  listUsers,
+  createUser,
+  updateUser
 }

@@ -189,7 +189,7 @@ Validasi:
 Gunakan setelah auth berjalan.
 
 ```txt
-Baca CLAUDE.md, docs/PRD.md, dan STATUS.md.
+Baca CLAUDE.md, docs/PRD.md, docs/COA tahun 2025.xlsx dan STATUS.md.
 
 Fokus hanya Phase 1D: master data.
 

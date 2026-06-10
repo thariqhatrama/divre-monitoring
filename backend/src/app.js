@@ -4,6 +4,11 @@ const helmet = require('helmet')
 require('dotenv').config()
 
 const authRoutes = require('./routes/auth.routes')
+const kursRoutes = require('./routes/kurs.routes')
+const masterRoutes = require('./routes/master.routes')
+const proyekRoutes = require('./routes/proyek.routes')
+const rabRoutes = require('./routes/rab.routes')
+const realisasiRoutes = require('./routes/realisasi.routes')
 const testRoutes = require('./routes/test.routes')
 
 const app = express()
@@ -34,6 +39,11 @@ app.get('/', (req, res) => {
 })
 
 app.use('/api/auth', authRoutes)
+app.use('/api/master', masterRoutes)
+app.use('/api/kurs', kursRoutes)
+app.use('/api/proyek', proyekRoutes)
+app.use('/api', rabRoutes)
+app.use('/api', realisasiRoutes)
 app.use('/api/test', testRoutes)
 
 app.use((req, res) => {

@@ -2,6 +2,11 @@ import { BrowserRouter, Link, Route, Routes } from 'react-router-dom'
 import ProtectedRoute from './components/ProtectedRoute'
 import useAuth from './hooks/useAuth'
 import Login from './pages/Login'
+import MasterData from './pages/MasterData'
+import ProyekForm from './pages/ProyekForm'
+import ProyekList from './pages/ProyekList'
+import RABForm from './pages/RABForm'
+import RealisasiForm from './pages/RealisasiForm'
 import './App.css'
 
 function Home() {
@@ -36,7 +41,9 @@ function Home() {
         </dl>
 
         <div className="actions">
+          <Link to="/proyek">Daftar proyek</Link>
           <Link to="/admin-test">Test route admin</Link>
+          {user?.role === 'admin' && <Link to="/master-data">Master data</Link>}
           <button type="button" onClick={logout}>Logout</button>
         </div>
       </section>
@@ -75,6 +82,54 @@ function App() {
           element={
             <ProtectedRoute allowedRoles={['admin']}>
               <AdminTest />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/master-data"
+          element={
+            <ProtectedRoute allowedRoles={['admin']}>
+              <MasterData />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/proyek"
+          element={
+            <ProtectedRoute allowedRoles={['kepala_divre', 'pm', 'admin']}>
+              <ProyekList />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/proyek/new"
+          element={
+            <ProtectedRoute allowedRoles={['pm', 'admin']}>
+              <ProyekForm />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/proyek/:id/edit"
+          element={
+            <ProtectedRoute allowedRoles={['pm', 'admin']}>
+              <ProyekForm />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/proyek/:id/rab"
+          element={
+            <ProtectedRoute allowedRoles={['kepala_divre', 'pm', 'admin']}>
+              <RABForm />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/proyek/:id/realisasi"
+          element={
+            <ProtectedRoute allowedRoles={['kepala_divre', 'pm', 'admin']}>
+              <RealisasiForm />
             </ProtectedRoute>
           }
         />

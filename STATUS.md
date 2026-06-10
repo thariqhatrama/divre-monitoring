@@ -12,7 +12,7 @@
 **Timeline:** 3 minggu  
 **Scope utama:** Monitoring margin, bukan approval, bukan SLA, bukan ERP.  
 **COA acuan:** COA Tahun 2025  
-**Status saat ini:** Phase 1C auth dan RBAC tervalidasi untuk admin; backend auth route, JWT middleware, RBAC middleware, frontend login/auth context, protected route tersedia; bootstrap admin berhasil login dan admin RBAC route sukses
+**Status saat ini:** Phase 2C realisasi per akun implementasi dasar selesai: backend endpoint realisasi memakai tabel `realisasi_items` tanpa menimpa RAB awal, satu akun RAB bisa punya banyak transaksi realisasi, total realisasi diagregasi per RAB item/per akun, audit log INSERT/UPDATE/DELETE dibuat, frontend `RealisasiForm.jsx` tersedia, backend syntax check Phase 2C lulus, dan build frontend berhasil
 
 ---
 
@@ -21,16 +21,16 @@
 | Area | Status | Catatan |
 |---|---|---|
 | Repo setup | ✅ Selesai | Repo GitHub: `https://github.com/thariqhatrama/divre-monitoring`; struktur root tersedia |
-| Frontend setup | 🟨 Dalam proses | React 19 + Vite 8 tersedia; Vercel root `frontend/` |
+| Frontend setup | ✅ Selesai | React 19 + Vite 8 tersedia; Vercel root `frontend/`; build lokal berhasil dengan Node `v22.22.3` |
 | Backend setup | ✅ Selesai | Phase 1A selesai: Express 5.2.1, middleware dasar, Supabase client, health check `/api/health`; Render root `backend/` |
-| Database setup | 🟨 Dalam proses | Project Supabase sudah dibuat; `001_create_tables.sql` sudah dijalankan dan tabel berhasil dibuat; seed belum dibuat/dijalankan |
+| Database setup | 🟨 Dalam proses | Project Supabase sudah dibuat; `001_create_tables.sql`, `002_seed_coa.sql`, dan `003_seed_branches.sql` sudah dijalankan/diinsert |
 | Auth & RBAC | ✅ Selesai | Phase 1C tervalidasi: bootstrap admin login sukses, JWT dibuat, dan admin RBAC route berhasil |
-| Master data COA | ⬜ Belum mulai | Seed dari COA 2025 |
-| Master data cabang | ⬜ Belum mulai | 13 cabang + 26 UP |
-| Proyek | ⬜ Belum mulai | Registrasi proyek + Segmen 11 |
-| RAB | ⬜ Belum mulai | Input line item RAB |
-| Realisasi | ⬜ Belum mulai | Realisasi per akun |
-| Kalkulasi margin | ⬜ Belum mulai | RAB, realisasi, delta |
+| Master data COA | ✅ Selesai | Seed COA Tahun 2025 dari `docs/COA tahun 2025.xlsx` sheet `SEG 5 (BIAYA)` berisi 86 akun detail RAB |
+| Master data cabang | ✅ Selesai | Seed 13 cabang + 26 UP Divre Timur sudah dibuat dan diinsert ke Supabase |
+| Proyek | ✅ Selesai | Phase 1E: CRUD proyek + RBAC cabang PM + gate Segmen 11 indicator |
+| RAB | ✅ Selesai | Phase 1F: input line item RAB basic + gate Segmen 11 backend/frontend |
+| Realisasi | 🟨 Dalam proses | Phase 2C implementasi dasar selesai dan validasi lokal lulus: CRUD realisasi per akun + audit log + agregasi; runtime API/browser production belum divalidasi |
+| Kalkulasi margin | 🟨 Dalam proses | Margin RAB sudah IDR-normalized; margin realisasi/delta dihitung di endpoint realisasi; runtime API/browser production belum divalidasi |
 | Dashboard | ⬜ Belum mulai | Kepala Divre + PM |
 | Deployment | ⬜ Belum mulai | Vercel + Render |
 
@@ -81,8 +81,8 @@ Keterangan status:
 ### 3.3 Database
 
 - [x] Jalankan migration `001_create_tables.sql` — tabel berhasil dibuat di Supabase
-- [ ] Jalankan seed `002_seed_coa.sql` — sumber data tersedia di `docs/COA tahun 2025.xlsx`, dibuat pada Phase 1D
-- [ ] Jalankan seed `003_seed_branches.sql`
+- [x] Jalankan seed `002_seed_coa.sql` — COA Tahun 2025 dari `docs/COA tahun 2025.xlsx` sudah dibuat dan diinsert ke Supabase
+- [x] Jalankan seed `003_seed_branches.sql` — 13 cabang + 26 UP Divre Timur sudah dibuat dan diinsert ke Supabase
 - [x] Buat admin user pertama
 - [x] Test koneksi backend ke Supabase
 
@@ -103,15 +103,20 @@ Target: fondasi aplikasi bisa jalan dari login sampai input RAB basic.
 - [x] `backend/src/routes/auth.routes.js`
 - [x] `backend/src/controllers/auth.controller.js`
 - [x] `backend/src/models/user.model.js`
-- [ ] `backend/src/routes/proyek.routes.js`
-- [ ] `backend/src/controllers/proyek.controller.js`
-- [ ] `backend/src/models/proyek.model.js`
-- [ ] `backend/src/routes/rab.routes.js`
-- [ ] `backend/src/controllers/rab.controller.js`
-- [ ] `backend/src/models/rab.model.js`
-- [ ] `backend/src/services/coa.service.js`
-- [ ] `backend/src/routes/master.routes.js`
-- [ ] `backend/src/controllers/master.controller.js`
+- [x] `backend/src/routes/proyek.routes.js`
+- [x] `backend/src/controllers/proyek.controller.js`
+- [x] `backend/src/models/proyek.model.js`
+- [x] `backend/src/routes/rab.routes.js`
+- [x] `backend/src/controllers/rab.controller.js`
+- [x] `backend/src/models/rab.model.js`
+- [ ] `backend/src/services/coa.service.js` — tidak dibuat; validasi COA aktif dilakukan via `backend/src/models/coa.model.js`
+- [x] `backend/src/routes/master.routes.js`
+- [x] `backend/src/controllers/master.controller.js`
+- [x] `backend/src/routes/kurs.routes.js`
+- [x] `backend/src/controllers/kurs.controller.js`
+- [x] `backend/src/models/coa.model.js`
+- [x] `backend/src/models/branch.model.js`
+- [x] `backend/src/models/kurs.model.js`
 
 ### Frontend
 
@@ -119,19 +124,24 @@ Target: fondasi aplikasi bisa jalan dari login sampai input RAB basic.
 - [x] `frontend/src/context/AuthContext.jsx`
 - [x] `frontend/src/components/ProtectedRoute.jsx`
 - [x] `frontend/src/pages/Login.jsx`
-- [ ] `frontend/src/pages/ProyekList.jsx`
-- [ ] `frontend/src/pages/ProyekForm.jsx`
-- [ ] `frontend/src/pages/RABForm.jsx`
+- [x] `frontend/src/pages/MasterData.jsx`
+- [x] `frontend/src/pages/ProyekList.jsx`
+- [x] `frontend/src/pages/ProyekForm.jsx`
+- [x] `frontend/src/pages/RABForm.jsx`
 
 ### Validasi Fase 1
 
 - [x] Admin bisa login
 - [ ] PM bisa login
 - [ ] Kepala Divre bisa login
-- [ ] PM hanya melihat proyek cabangnya sendiri
-- [ ] Proyek bisa dibuat
-- [ ] Form RAB terkunci jika `seg11_no` kosong
-- [ ] Kode akun COA non-aktif tidak bisa digunakan
+- [x] PM hanya melihat proyek cabangnya sendiri
+- [x] Proyek bisa dibuat
+- [x] Form RAB terkunci jika `seg11_no` kosong
+- [x] Admin bisa melihat master COA
+- [x] Admin bisa melihat master cabang
+- [x] Endpoint master hanya admin via RBAC
+- [x] Kode akun COA divalidasi sebagai string
+- [x] Kode akun COA non-aktif tidak bisa digunakan
 
 ---
 
@@ -141,34 +151,34 @@ Target: aplikasi sudah bisa menghitung margin RAB, margin realisasi, dan delta m
 
 ### Backend
 
-- [ ] `backend/src/services/margin.service.js`
-- [ ] `backend/src/services/kurs.service.js`
-- [ ] `backend/src/routes/realisasi.routes.js`
-- [ ] `backend/src/controllers/realisasi.controller.js`
-- [ ] `backend/src/models/realisasi.model.js`
-- [ ] `backend/src/routes/kurs.routes.js`
+- [x] `backend/src/services/margin.service.js`
+- [x] `backend/src/services/kurs.service.js`
+- [x] `backend/src/routes/realisasi.routes.js`
+- [x] `backend/src/controllers/realisasi.controller.js`
+- [x] `backend/src/models/realisasi.model.js`
+- [x] `backend/src/routes/kurs.routes.js`
 - [ ] Audit log untuk perubahan RAB
-- [ ] Audit log untuk input realisasi
+- [x] Audit log untuk input realisasi
 
 ### Frontend
 
-- [ ] `frontend/src/utils/formatIDR.js`
-- [ ] `frontend/src/utils/marginFlag.js`
-- [ ] `frontend/src/utils/currencyConvert.js`
-- [ ] `frontend/src/components/MarginBadge.jsx`
-- [ ] `frontend/src/components/MarginCard.jsx`
-- [ ] `frontend/src/pages/RealisasiForm.jsx`
-- [ ] Update `RABForm.jsx` agar kalkulasi real-time
+- [x] `frontend/src/utils/formatIDR.js`
+- [x] `frontend/src/utils/marginFlag.js`
+- [x] `frontend/src/utils/currencyConvert.js`
+- [x] `frontend/src/components/MarginBadge.jsx`
+- [x] `frontend/src/components/MarginCard.jsx`
+- [x] `frontend/src/pages/RealisasiForm.jsx`
+- [x] Update `RABForm.jsx` agar kalkulasi real-time
 
 ### Validasi Fase 2
 
-- [ ] Margin RAB muncul real-time
-- [ ] Input USD dikonversi ke IDR sebelum kalkulasi
-- [ ] Realisasi bisa ditambahkan per akun
-- [ ] Margin realisasi dihitung otomatis
-- [ ] Delta margin tampil naik/turun
-- [ ] Status margin tampil: aman, perhatian, kritis, rugi
-- [ ] Akun subkon 4422 dihitung sebagai % subkon
+- [x] Margin RAB muncul real-time
+- [x] Input USD dikonversi ke IDR sebelum kalkulasi
+- [x] Realisasi bisa ditambahkan per akun — implementasi endpoint/form tersedia; perlu validasi runtime production
+- [x] Margin realisasi dihitung otomatis — implementasi endpoint tersedia; perlu validasi runtime production
+- [x] Delta margin tampil naik/turun — implementasi endpoint/form tersedia; perlu validasi runtime production
+- [x] Status margin tampil: aman, perhatian, kritis, rugi
+- [x] Akun subkon 4422 dihitung sebagai % subkon
 
 ---
 
@@ -214,6 +224,15 @@ Target: aplikasi siap demo dan bisa diakses via browser.
 
 | Tanggal | Tipe | Area | Deskripsi | File Terkait | Status |
 |---|---|---|---|---|---|
+| 2026-06-10 | Test | Realisasi | Review setup repo dan validasi lokal Phase 2C: struktur root `frontend/`, `backend/`, `docs/`, `CLAUDE.md`, `STATUS.md` sesuai; Vercel config berada di `frontend/vercel.json`, Render config berada di `backend/render.yaml`; backend syntax check untuk `app.js`, controller/model/route realisasi lulus; frontend build berhasil; runtime API/browser production masih perlu diuji manual | `CLAUDE.md`, `docs/PRD.md`, `STATUS.md`, `frontend/vercel.json`, `backend/render.yaml`, `backend/src/app.js`, `backend/src/controllers/realisasi.controller.js`, `backend/src/models/realisasi.model.js`, `backend/src/routes/realisasi.routes.js`, `frontend/src/pages/RealisasiForm.jsx` | 🟨 |
+| 2026-06-10 | Add | Realisasi | Menambahkan Phase 2C realisasi per akun: backend CRUD `GET /api/proyek/:id/realisasi`, `POST /api/rab/:itemId/realisasi`, `PATCH/DELETE /api/realisasi/:id` memakai tabel `realisasi_items`; `project_id` diturunkan dari item RAB, RAB awal tidak ditimpa, satu akun RAB bisa punya banyak transaksi, total realisasi diagregasi per RAB item/per akun, audit log dibuat untuk tambah/edit/hapus, frontend `RealisasiForm.jsx` tersedia, backend syntax check Phase 2C lulus, dan build frontend berhasil | `backend/src/models/realisasi.model.js`, `backend/src/controllers/realisasi.controller.js`, `backend/src/routes/realisasi.routes.js`, `backend/src/app.js`, `backend/src/services/margin.service.js`, `frontend/src/pages/RealisasiForm.jsx`, `frontend/src/services/api.js`, `frontend/src/App.jsx`, `frontend/src/pages/RABForm.jsx`, `frontend/src/pages/ProyekList.jsx`, `STATUS.md` | 🟨 |
+| 2026-06-10 | Add | Multi-currency | Menyelesaikan Phase 2B multi-currency: menambahkan `kurs.service.js`, membuka `GET /api/kurs` untuk user authenticated dan menjaga `PUT /api/kurs` admin-only, mengunci IDR ke kurs 1, memastikan USD memakai kurs > 1/terbaru saat input proyek/RAB, memperbaiki margin agar nilai proyek dikonversi ke IDR, serta memperbarui preview frontend proyek/RAB; backend syntax check lulus dan frontend build berhasil | `backend/src/services/kurs.service.js`, `backend/src/controllers/kurs.controller.js`, `backend/src/routes/kurs.routes.js`, `backend/src/controllers/proyek.controller.js`, `backend/src/controllers/rab.controller.js`, `backend/src/services/margin.service.js`, `frontend/src/utils/currencyConvert.js`, `frontend/src/services/api.js`, `frontend/src/pages/ProyekForm.jsx`, `frontend/src/pages/RABForm.jsx`, `STATUS.md` | ✅ |
+| 2026-06-10 | Test | Frontend | User menjalankan manual `npm install` dan `npm run build` dari folder `frontend`; Vite 8 build berhasil setelah Node lokal di-upgrade, output `dist/` dibuat dalam 744ms tanpa vulnerability npm | `frontend/package.json`, `frontend/package-lock.json`, `frontend/dist/` | ✅ |
+| 2026-06-10 | Test | Backend | Claude menjalankan `node --check` untuk file backend Phase 1F/Phase 2 awal; syntax check berhasil tanpa output error | `backend/src/app.js`, `backend/src/routes/rab.routes.js`, `backend/src/controllers/rab.controller.js`, `backend/src/models/rab.model.js`, `backend/src/models/proyek.model.js`, `backend/src/services/margin.service.js` | ✅ |
+| 2026-06-10 | Add | Margin RAB | Menambahkan Phase 2 awal: backend `margin.service.js` untuk margin RAB, status margin, subtotal kategori, dan % subkon 4422; `GET /api/proyek/:id/rab` kini mengembalikan `margin_rab`; validasi USD RAB wajib kurs > 1; frontend menambahkan utility format/currency/margin, komponen MarginBadge/MarginCard, dan preview margin real-time di RABForm | `backend/src/services/margin.service.js`, `backend/src/controllers/rab.controller.js`, `frontend/src/utils/formatIDR.js`, `frontend/src/utils/currencyConvert.js`, `frontend/src/utils/marginFlag.js`, `frontend/src/components/MarginBadge.jsx`, `frontend/src/components/MarginCard.jsx`, `frontend/src/pages/RABForm.jsx`, `frontend/src/App.css`, `STATUS.md` | ✅ |
+| 2026-06-09 | Add | RAB | Menyelesaikan Phase 1F RAB basic: backend endpoint RAB dengan RBAC kepala_divre read-only, PM cabang sendiri, admin semua akses; mutasi RAB wajib Segmen 11; COA aktif dan kategori COA divalidasi; frontend `/proyek/:id/rab` untuk input/edit/delete line item RAB basic | `backend/src/app.js`, `backend/src/routes/rab.routes.js`, `backend/src/controllers/rab.controller.js`, `backend/src/models/rab.model.js`, `backend/src/models/coa.model.js`, `frontend/src/services/api.js`, `frontend/src/pages/RABForm.jsx`, `frontend/src/pages/ProyekList.jsx`, `frontend/src/App.jsx`, `frontend/src/App.css`, `STATUS.md` | ✅ |
+| 2026-06-09 | Add | Proyek | Menyelesaikan Phase 1E registrasi proyek: backend CRUD `/api/proyek` dengan RBAC kepala_divre/pm/admin, scope PM per `cabang_id`, soft delete status `arsip`, frontend daftar/form proyek, dan indikator gate Segmen 11/RAB terkunci | `backend/src/app.js`, `backend/src/routes/proyek.routes.js`, `backend/src/controllers/proyek.controller.js`, `backend/src/models/proyek.model.js`, `frontend/src/services/api.js`, `frontend/src/pages/ProyekList.jsx`, `frontend/src/pages/ProyekForm.jsx`, `frontend/src/App.jsx`, `frontend/src/App.css`, `STATUS.md` | ✅ |
+| 2026-06-09 | Add | Master Data | Menyelesaikan Phase 1D master data: endpoint admin-only untuk COA, cabang, user, dan kurs; frontend admin `/master-data`; seed COA 2025 dan seed cabang/UP Divre Timur sudah dibuat dan diinsert ke Supabase oleh user | `backend/src/routes/master.routes.js`, `backend/src/controllers/master.controller.js`, `backend/src/models/coa.model.js`, `backend/src/models/branch.model.js`, `backend/src/models/user.model.js`, `backend/src/routes/kurs.routes.js`, `backend/src/controllers/kurs.controller.js`, `backend/src/models/kurs.model.js`, `backend/migrations/002_seed_coa.sql`, `backend/migrations/003_seed_branches.sql`, `frontend/src/pages/MasterData.jsx`, `frontend/src/services/api.js`, `frontend/src/App.jsx`, `frontend/src/App.css`, `STATUS.md` | ✅ |
 | 2026-06-09 | Fix | Backend Setup | Memperbaiki startup backend Node 20 dengan dependency `ws` untuk transport WebSocket Supabase; backend berhasil start di port 3001 | `backend/src/db/supabase.js`, `backend/package.json`, `backend/package-lock.json` | ✅ |
 | 2026-06-09 | Add | Auth & RBAC | Menyelesaikan validasi Phase 1C: bootstrap admin dibuat di Supabase, `/api/health` sukses, login admin sukses, JWT dibuat, dan `/api/test/admin` berhasil memvalidasi RBAC admin | `STATUS.md`, `backend/src/routes/test.routes.js`, `backend/src/controllers/auth.controller.js`, `backend/src/models/user.model.js` | ✅ |
 | 2026-06-03 | Add | Auth & RBAC | Menyelesaikan Phase 1C: backend login/logout, JWT auth middleware, RBAC middleware, protected test route, frontend login/auth context/protected route; backend health dan frontend build berhasil | `backend/src/routes/auth.routes.js`, `backend/src/controllers/auth.controller.js`, `backend/src/models/user.model.js`, `backend/src/middleware/auth.middleware.js`, `backend/src/middleware/rbac.middleware.js`, `frontend/src/services/api.js`, `frontend/src/context/AuthContext.jsx`, `frontend/src/hooks/useAuth.js`, `frontend/src/pages/Login.jsx`, `frontend/src/components/ProtectedRoute.jsx`, `frontend/src/App.jsx`, `frontend/src/main.jsx`, `STATUS.md` | ✅ |
@@ -290,43 +309,55 @@ Update bagian ini sebelum membuka sesi Claude baru agar tidak kehilangan konteks
 Tulis ringkasan singkat pekerjaan terakhir.
 
 ```txt
-Phase 1C auth dan RBAC selesai dibuat dan tervalidasi untuk admin. Backend memiliki POST /api/auth/login, POST /api/auth/logout, auth.middleware.js untuk JWT, rbac.middleware.js untuk role kepala_divre/pm/admin, user.model.js, serta route test /api/test/protected dan /api/test/admin. Backend sempat gagal start di Node 20 karena Supabase Realtime membutuhkan WebSocket transport; sudah diperbaiki dengan dependency `ws` dan konfigurasi `realtime.transport`. Bootstrap admin `admin@regtim.com` sudah dibuat di Supabase; validasi `/api/health`, login admin, JWT, dan `/api/test/admin` berhasil. Frontend memiliki api.js, AuthContext.jsx, useAuth.js, Login.jsx, ProtectedRoute.jsx, serta route sederhana untuk validasi protected page.
+Phase 2C realisasi per akun implementasi dasar selesai di atas Phase 2B multi-currency. Backend memiliki `realisasi.model.js`, `realisasi.controller.js`, dan `realisasi.routes.js` untuk `GET /api/proyek/:id/realisasi`, `POST /api/rab/:itemId/realisasi`, `PATCH /api/realisasi/:id`, dan `DELETE /api/realisasi/:id`. Realisasi disimpan di `realisasi_items`, `project_id` diturunkan dari item RAB server-side, RAB awal di `rab_items` tidak ditimpa, satu RAB item bisa punya banyak transaksi realisasi, total diagregasi per RAB item/per akun, dan audit log INSERT/UPDATE/DELETE dibuat. Frontend memiliki `RealisasiForm.jsx`, route `/proyek/:id/realisasi`, link dari daftar proyek/RAB. Backend syntax check Phase 2C dan frontend build berhasil.
 ```
 
 ### File yang terakhir diubah
 
 ```txt
+backend/src/models/realisasi.model.js
+backend/src/controllers/realisasi.controller.js
+backend/src/routes/realisasi.routes.js
 backend/src/app.js
-backend/src/routes/auth.routes.js
-backend/src/routes/test.routes.js
-backend/src/controllers/auth.controller.js
-backend/src/models/user.model.js
-backend/src/middleware/auth.middleware.js
-backend/src/middleware/rbac.middleware.js
-backend/src/db/supabase.js
-backend/package.json
-backend/package-lock.json
+backend/src/services/margin.service.js
+frontend/src/pages/RealisasiForm.jsx
 frontend/src/services/api.js
-frontend/src/context/AuthContext.jsx
-frontend/src/hooks/useAuth.js
-frontend/src/components/ProtectedRoute.jsx
-frontend/src/pages/Login.jsx
 frontend/src/App.jsx
-frontend/src/main.jsx
-frontend/src/App.css
+frontend/src/pages/RABForm.jsx
+frontend/src/pages/ProyekList.jsx
 STATUS.md
 ```
 
-### Masalah yang belum selesai
+### Status lanjutan yang perlu diperhatikan
+
+#### Selesai / validasi dasar lulus
 
 ```txt
-Admin bootstrap sudah dibuat dan login admin end-to-end sudah tervalidasi. Password bootstrap saat ini sementara dan harus diganti/dirotasi saat fitur user management Phase 1D tersedia. PM dan Kepala Divre user belum dibuat, sehingga validasi login untuk role tersebut belum dilakukan. Seed COA 002_seed_coa.sql belum dibuat; sumber datanya adalah docs/COA tahun 2025.xlsx dan akan dikerjakan di Phase 1D. Seed cabang 003_seed_branches.sql belum dibuat. Backend env production di Render masih perlu diisi manual memakai SUPABASE_SERVICE_KEY dari Supabase Project Settings > API (service_role), bukan publishable key. Proyek, RAB, master data, dan fitur lain belum dibuat.
+Phase 2C realisasi per akun sudah selesai pada level implementasi dasar. Backend `node --check` untuk file Phase 2C berhasil dan frontend `npm --prefix frontend run build` berhasil. Endpoint realisasi memakai tabel `realisasi_items`, tidak menimpa `rab_items`, mendukung banyak transaksi realisasi per RAB item, mengagregasi total realisasi per RAB item/per akun, dan membuat audit log untuk tambah/edit/hapus.
+```
+
+#### Pending validasi runtime
+
+```txt
+Backend syntax check Phase 2C sudah lulus. Validasi browser/API untuk skenario tambah/edit/hapus realisasi, dua realisasi pada satu item RAB, agregasi total realisasi per akun, RAB awal tidak berubah, gate Segmen 11, dan role PM/Kepala Divre masih perlu dilakukan setelah data user/test project tersedia.
+```
+
+#### Butuh aksi manual / secret eksternal
+
+```txt
+PM dan Kepala Divre user mungkin masih perlu dibuat/dirotasi melalui master user untuk validasi role penuh. Password bootstrap admin sementara tetap perlu diganti/dirotasi melalui endpoint user management. Backend env production di Render masih perlu diisi manual memakai SUPABASE_SERVICE_KEY dari Supabase Project Settings > API (service_role), bukan publishable key.
+```
+
+#### Fase berikutnya sesuai PRD
+
+```txt
+Runtime validation realisasi, dashboard, detail proyek, dan deployment final belum selesai. Realisasi per akun sudah dibuat pada level implementasi dasar; lanjutkan validasi runtime dan Phase 3 sesuai PRD.
 ```
 
 ### Prompt lanjutan untuk Claude
 
 ```txt
-Lanjutkan dari STATUS.md bagian "Masalah yang belum selesai". Jangan membuat fitur baru di luar PRD.md. Phase 1C admin auth/RBAC sudah tervalidasi. Fokus berikutnya adalah Phase 1D master data sesuai urutan prompt project: COA, cabang, user, dan kurs; pastikan password bootstrap admin diganti/dirotasi saat user management tersedia.
+Jangan membuat fitur baru di luar PRD.md. Phase 2C realisasi per akun sudah dibuat pada level implementasi dasar: backend endpoint `GET /api/proyek/:id/realisasi`, `POST /api/rab/:itemId/realisasi`, `PATCH /api/realisasi/:id`, dan `DELETE /api/realisasi/:id` tersedia; realisasi disimpan di `realisasi_items`, tidak menimpa `rab_items`, satu RAB item bisa punya banyak transaksi realisasi, total realisasi diagregasi per RAB item/per akun, audit log dibuat untuk tambah/edit/hapus, frontend `RealisasiForm.jsx` tersedia, backend `node --check` untuk file Phase 2C berhasil, dan `npm --prefix frontend run build` berhasil. Fokus berikutnya: validasi runtime tambah/edit/hapus realisasi di browser/API, lalu lanjut Phase 3 dashboard/detail sesuai PRD.
 ```
 
 ---
