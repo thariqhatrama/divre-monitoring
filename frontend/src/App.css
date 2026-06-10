@@ -62,7 +62,7 @@ h1 {
 }
 
 .auth-form label {
-  color: #e7029b;
+  color: #334155;
   display: grid;
   font-weight: 600;
   gap: 8px;
@@ -1712,7 +1712,7 @@ a {
 }
 
 .auth-brand-card {
-  background: #e65656;
+  background: #0f172a;
   border-radius: 26px;
   color: #e2e8f0;
   display: grid;
