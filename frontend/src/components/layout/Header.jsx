@@ -1,3 +1,4 @@
+import { useEffect } from 'react'
 import { useLocation } from 'react-router-dom'
 import useAuth from '../../hooks/useAuth'
 import Button from '../ui/Button'
@@ -26,6 +27,11 @@ function Header({ onOpenSidebar }) {
   const location = useLocation()
   const { logout, user } = useAuth()
   const pageMeta = getPageMeta(location.pathname)
+  const roleLabel = formatRole(user?.role)
+
+  useEffect(() => {
+    document.title = `${pageMeta.title} — ${roleLabel} | Divre Monitoring`
+  }, [pageMeta.title, roleLabel])
 
   return (
     <header className="app-header">
