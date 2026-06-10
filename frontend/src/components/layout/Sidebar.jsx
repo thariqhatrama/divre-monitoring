@@ -66,8 +66,11 @@ function Sidebar({ isOpen, onNavigate }) {
       </nav>
 
       <div className="sidebar-footer">
-        <span>PT SUCOFINDO</span>
-        <strong>Divisi Regional Timur</strong>
+        <img alt="Logo SUCOFINDO" className="sidebar-footer-logo" src="/favicon.webp" />
+        <div>
+          <span>PT SUCOFINDO</span>
+          <strong>Divisi Regional Timur</strong>
+        </div>
       </div>
     </aside>
   )

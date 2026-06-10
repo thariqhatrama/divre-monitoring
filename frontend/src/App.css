@@ -867,11 +867,25 @@ a {
 }
 
 .sidebar-footer {
+  align-items: center;
   background: rgba(255, 255, 255, 0.06);
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 16px;
+  display: flex;
+  gap: 12px;
   margin-top: auto;
   padding: 14px;
+}
+
+.sidebar-footer-logo {
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.18);
+  flex: 0 0 auto;
+  height: 42px;
+  object-fit: contain;
+  padding: 6px;
+  width: 42px;
 }
 
 .sidebar-footer strong {
