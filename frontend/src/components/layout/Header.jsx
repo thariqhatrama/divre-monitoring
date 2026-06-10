@@ -8,7 +8,6 @@ const PAGE_TITLES = [
   { path: '/dashboard', title: 'Dashboard Kepala Divre', description: 'Ringkasan margin proyek seluruh cabang' },
   { path: '/master-data', title: 'Master Data', description: 'Kelola COA, cabang, dan user' },
   { path: '/proyek', title: 'Proyek', description: 'Daftar proyek, RAB, dan realisasi' },
-  { path: '/admin-test', title: 'Admin Test', description: 'Validasi route khusus admin' },
   { path: '/', title: 'Dashboard Monitoring Margin', description: 'Aplikasi monitoring margin proyek Divre Timur' }
 ]
 

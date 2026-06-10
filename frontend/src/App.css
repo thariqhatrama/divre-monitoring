@@ -1141,13 +1141,34 @@ a {
   gap: 8px;
 }
 
+.password-input-wrap {
+  position: relative;
+}
+
+.password-input {
+  padding-right: 48px;
+}
+
 .password-toggle {
+  align-items: center;
   background: transparent;
-  border: 1px solid #cbd5e1;
+  border: 0;
   color: #0f766e;
-  justify-self: flex-start;
-  min-height: 36px;
-  padding: 0 12px;
+  cursor: pointer;
+  display: inline-flex;
+  font-size: 1rem;
+  height: 100%;
+  justify-content: center;
+  min-height: 0;
+  padding: 0 14px;
+  position: absolute;
+  right: 0;
+  top: 0;
+}
+
+.password-toggle:focus-visible {
+  outline: 2px solid #0f766e;
+  outline-offset: -4px;
 }
 
 .guide-grid {

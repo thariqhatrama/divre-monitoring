@@ -11,7 +11,6 @@ const rabRoutes = require('./routes/rab.routes')
 const realisasiRoutes = require('./routes/realisasi.routes')
 const dashboardRoutes = require('./routes/dashboard.routes')
 const auditRoutes = require('./routes/audit.routes')
-const testRoutes = require('./routes/test.routes')
 
 const app = express()
 const PORT = process.env.PORT || 3001
@@ -51,7 +50,6 @@ app.use('/api', rabRoutes)
 app.use('/api', realisasiRoutes)
 app.use('/api/dashboard', dashboardRoutes)
 app.use('/api/audit-log', auditRoutes)
-app.use('/api/test', testRoutes)
 
 app.use((req, res) => {
   res.status(404).json({

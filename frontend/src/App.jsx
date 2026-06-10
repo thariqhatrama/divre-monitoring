@@ -50,23 +50,9 @@ function Home() {
           {(user?.role === 'kepala_divre' || user?.role === 'admin') && <Link to="/dashboard">Dashboard Kepala Divre</Link>}
           {user?.role === 'pm' && <Link to="/dashboard-cabang">Dashboard PM Cabang</Link>}
           <Link to="/proyek">Daftar proyek</Link>
-          <Link to="/admin-test">Test route admin</Link>
           {user?.role === 'admin' && <Link to="/master-data">Master data</Link>}
           <button type="button" onClick={logout}>Logout</button>
         </div>
-      </section>
-    </main>
-  )
-}
-
-function AdminTest() {
-  return (
-    <main className="app-shell">
-      <section className="panel">
-        <p className="eyebrow">Admin Only</p>
-        <h1>Protected Route Admin</h1>
-        <p className="muted">Jika halaman ini tampil, role user adalah admin.</p>
-        <Link to="/">Kembali</Link>
       </section>
     </main>
   )
@@ -98,14 +84,6 @@ function App() {
           element={
             <ProtectedLayout allowedRoles={['kepala_divre', 'pm', 'admin']}>
               <UserGuide />
-            </ProtectedLayout>
-          }
-        />
-        <Route
-          path="/admin-test"
-          element={
-            <ProtectedLayout allowedRoles={['admin']}>
-              <AdminTest />
             </ProtectedLayout>
           }
         />

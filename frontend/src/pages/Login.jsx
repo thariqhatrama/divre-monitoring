@@ -72,24 +72,29 @@ function Login() {
               required
             />
 
-            <div className="password-field">
-              <Input
-                label="Password"
-                type={showPassword ? 'text' : 'password'}
-                value={password}
-                onChange={(event) => setPassword(event.target.value)}
-                placeholder="••••••••"
-                required
-              />
-              <button
-                type="button"
-                className="password-toggle"
-                aria-pressed={showPassword}
-                onClick={() => setShowPassword((current) => !current)}
-              >
-                {showPassword ? 'Sembunyikan password' : 'Tampilkan password'}
-              </button>
-            </div>
+            <label className="ui-field password-field" htmlFor="password">
+              <span>Password</span>
+              <span className="password-input-wrap">
+                <input
+                  className="ui-input password-input"
+                  id="password"
+                  type={showPassword ? 'text' : 'password'}
+                  value={password}
+                  onChange={(event) => setPassword(event.target.value)}
+                  placeholder="••••••••"
+                  required
+                />
+                <button
+                  type="button"
+                  className="password-toggle"
+                  aria-label={showPassword ? 'Sembunyikan password' : 'Tampilkan password'}
+                  aria-pressed={showPassword}
+                  onClick={() => setShowPassword((current) => !current)}
+                >
+                  {showPassword ? '🙈' : '👁️'}
+                </button>
+              </span>
+            </label>
 
             {error ? <p className="error-message">{error}</p> : null}
 
