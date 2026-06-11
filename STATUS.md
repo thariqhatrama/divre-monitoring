@@ -224,6 +224,7 @@ Target: aplikasi siap demo dan bisa diakses via browser.
 
 | Tanggal | Tipe | Area | Deskripsi | File Terkait | Status |
 |---|---|---|---|---|---|
+| 2026-06-11 | Fix | Auth/Session | Memperbaiki session login custom JWT: token login tetap expiry 8 jam dan payload kini memuat `id`, `nama`, `email`, `role`, `cabang_id`; frontend memvalidasi expiry token dari `localStorage` saat refresh/browser reopen, auto clear session saat token expired/malformed, dan interceptor Axios melakukan logout + redirect login pada response 401/403. Frontend build berhasil; lint masih gagal karena error lama di halaman non-auth, bukan dari perubahan session; backend syntax check belum berjalan karena permission command ditolak auto-classifier | `backend/src/controllers/auth.controller.js`, `backend/src/middleware/auth.middleware.js`, `frontend/src/context/AuthContext.jsx`, `frontend/src/services/api.js`, `STATUS.md` | ✅ |
 | 2026-06-10 | Remove/Fix | Auth UI | Menghapus route test admin setelah validasi auth admin selesai, melepas mount `/api/test`, menghapus halaman/link `/admin-test`, dan mengganti tombol teks tampilkan password di login menjadi icon mata di sisi kanan input password; backend syntax check dan frontend build berhasil | `backend/src/app.js`, `backend/src/routes/test.routes.js`, `frontend/src/App.jsx`, `frontend/src/components/layout/Header.jsx`, `frontend/src/pages/Login.jsx`, `frontend/src/App.css`, `STATUS.md` | ✅ |
 | 2026-06-10 | Test/Decision | Production | User mengonfirmasi validasi runtime UI/API dengan data Supabase dan validasi production Vercel/Render sudah lulus. Filter dashboard diputuskan tetap memakai implementasi saat ini yaitu state lokal di halaman dashboard, bukan `FilterContext.jsx`. | `STATUS.md`, `frontend/src/pages/Dashboard.jsx`, `frontend/src/pages/DashboardCabang.jsx` | ✅ |
 | 2026-06-10 | Docs/Test | Status | Mengaudit Status Global dan Checklist Development: realisasi, dashboard, detail proyek, audit log RAB/realisasi, dan kalkulasi margin sudah ada di repo; backend `node --check` untuk file terkait lulus; frontend `npm --prefix frontend run build` berhasil; production/API/UI end-to-end masih perlu validasi manual dengan data Supabase | `STATUS.md`, `backend/src/app.js`, `backend/src/routes/realisasi.routes.js`, `backend/src/controllers/realisasi.controller.js`, `backend/src/models/realisasi.model.js`, `backend/src/routes/dashboard.routes.js`, `backend/src/controllers/dashboard.controller.js`, `backend/src/models/dashboard.model.js`, `backend/src/services/margin.service.js`, `frontend/src/pages/RealisasiForm.jsx`, `frontend/src/pages/Dashboard.jsx`, `frontend/src/pages/DashboardCabang.jsx`, `frontend/src/pages/ProyekDetail.jsx` | 🟨 |
@@ -260,6 +261,7 @@ Tipe activity:
 
 | ID | Tanggal | Severity | Area | Bug | Penyebab | Solusi | Status |
 |---|---|---|---|---|---|---|---|
+| BUG-002 | 2026-06-11 | High | Auth/Session | Frontend masih bisa menganggap user login setelah refresh/browser reopen walau token di `localStorage` sudah expired/malformed sampai ada API call gagal | `AuthContext` hanya mengecek keberadaan token + user, belum membaca `exp` JWT; `api.js` belum punya response interceptor 401/403 | Tambahkan validasi expiry JWT di `AuthContext`, auto clear session saat expired/malformed, timer auto logout, dan interceptor Axios untuk clear session + redirect login pada 401/403 | ✅ |
 | BUG-001 | YYYY-MM-DD | High | Auth | Contoh: JWT tidak terbaca di protected route | Token belum disimpan di localStorage | Perbaiki AuthContext | ⬜ |
 
 Severity:
@@ -311,28 +313,17 @@ Update bagian ini sebelum membuka sesi Claude baru agar tidak kehilangan konteks
 Tulis ringkasan singkat pekerjaan terakhir.
 
 ```txt
-Realisasi, margin realisasi/delta, dashboard Kepala Divre/PM, detail proyek, audit log, dan deployment production sudah selesai. Backend `node --check` lulus untuk `app.js`, routes/controllers/models realisasi, routes/controllers/models dashboard, audit, dan `margin.service.js`. Frontend `npm --prefix frontend run build` berhasil dengan warning chunk size Vite/Recharts. User mengonfirmasi validasi runtime UI/API dengan data Supabase dan validasi production Vercel/Render sudah lulus. Filter dashboard diputuskan tetap memakai state lokal di halaman dashboard, bukan `FilterContext.jsx`.
+Session login custom JWT sudah diperbaiki: backend login tetap membuat JWT expiry 8 jam dengan payload `sub/id/nama/email/role/cabang_id`; frontend menyimpan token+user di localStorage, memvalidasi expiry JWT saat refresh/browser reopen, auto clear session saat token expired/malformed, dan interceptor Axios logout+redirect login pada 401/403. Frontend `npm --prefix frontend run build` berhasil dengan warning chunk size Vite/Recharts. `npm --prefix frontend run lint` masih gagal karena error lama di halaman non-auth (Dashboard, DashboardCabang, MasterData, ProyekDetail, RABForm, RealisasiForm), bukan dari perubahan session. Backend `node --check` untuk file auth belum berjalan karena permission command ditolak auto-classifier; `npm --prefix backend test` berjalan tetapi script masih placeholder no automated tests.
 ```
 
 ### File yang terakhir diubah
 
 ```txt
 STATUS.md
-backend/src/app.js
-backend/src/routes/realisasi.routes.js
-backend/src/controllers/realisasi.controller.js
-backend/src/models/realisasi.model.js
-backend/src/routes/dashboard.routes.js
-backend/src/controllers/dashboard.controller.js
-backend/src/models/dashboard.model.js
-backend/src/services/margin.service.js
-backend/src/routes/audit.routes.js
-backend/src/controllers/audit.controller.js
-backend/src/models/audit.model.js
-frontend/src/pages/RealisasiForm.jsx
-frontend/src/pages/Dashboard.jsx
-frontend/src/pages/DashboardCabang.jsx
-frontend/src/pages/ProyekDetail.jsx
+backend/src/controllers/auth.controller.js
+backend/src/middleware/auth.middleware.js
+frontend/src/context/AuthContext.jsx
+frontend/src/services/api.js
 ```
 
 ### Masalah yang belum selesai
@@ -344,7 +335,7 @@ Tidak ada blocker utama dari validasi realisasi, margin realisasi/delta, dashboa
 ### Prompt lanjutan untuk Claude
 
 ```txt
-Lanjutkan dari STATUS.md terbaru. Jangan membuat fitur baru di luar PRD.md/scope guard. Realisasi, margin realisasi/delta, dashboard Kepala Divre/PM, detail proyek, audit log, dan deployment production sudah tervalidasi. Filter dashboard memakai state lokal di halaman dashboard, bukan `FilterContext.jsx`, sesuai keputusan user. Untuk pekerjaan berikutnya, fokus pada bugfix/polish yang diminta user dan selalu validasi lokal sebelum meminta user melakukan validasi production jika diperlukan.
+Lanjutkan dari STATUS.md terbaru. Session login custom JWT sudah diperbaiki tanpa Supabase Auth/refresh token: backend JWT expiry 8 jam dan payload user lengkap; frontend validasi token localStorage saat refresh/browser reopen dan auto logout pada expired/malformed token serta response API 401/403. Jangan membuat fitur baru di luar PRD.md/scope guard. PM tetap tidak boleh melihat data cabang lain; RBAC/business logic tidak diubah. Untuk pekerjaan berikutnya, fokus pada bugfix/polish yang diminta user dan selalu validasi lokal sebelum meminta user melakukan validasi production jika diperlukan.
 ```
 
 ---

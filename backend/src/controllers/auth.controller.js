@@ -51,11 +51,16 @@ async function login(req, res) {
       })
     }
 
+    const sanitizedUser = sanitizeUser(user)
+
     const token = jwt.sign(
       {
-        sub: user.id,
-        role: user.role,
-        cabang_id: user.cabang_id
+        sub: sanitizedUser.id,
+        id: sanitizedUser.id,
+        nama: sanitizedUser.nama,
+        email: sanitizedUser.email,
+        role: sanitizedUser.role,
+        cabang_id: sanitizedUser.cabang_id
       },
       process.env.JWT_SECRET,
       { expiresIn: '8h' }
@@ -65,7 +70,7 @@ async function login(req, res) {
       success: true,
       data: {
         token,
-        user: sanitizeUser(user)
+        user: sanitizedUser
       }
     })
   } catch (error) {

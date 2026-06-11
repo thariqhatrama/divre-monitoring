@@ -32,11 +32,21 @@ async function authMiddleware(req, res, next) {
     req.user = user
     return next()
   } catch (error) {
+    if (error.name === 'TokenExpiredError') {
+      return res.status(401).json({
+        success: false,
+        error: {
+          code: 'TOKEN_EXPIRED',
+          message: 'Token sudah kedaluwarsa'
+        }
+      })
+    }
+
     return res.status(401).json({
       success: false,
       error: {
         code: 'INVALID_TOKEN',
-        message: 'Token tidak valid atau sudah kedaluwarsa'
+        message: 'Token tidak valid'
       }
     })
   }

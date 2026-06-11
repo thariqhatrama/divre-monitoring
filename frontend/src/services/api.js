@@ -14,6 +14,24 @@ api.interceptors.request.use((config) => {
   return config
 })
 
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    const status = error.response?.status
+
+    if (status === 401 || status === 403) {
+      localStorage.removeItem('divre_token')
+      localStorage.removeItem('divre_user')
+
+      if (window.location.pathname !== '/login') {
+        window.location.href = '/login'
+      }
+    }
+
+    return Promise.reject(error)
+  }
+)
+
 export const masterAPI = {
   getCoa(params) {
     return api.get('/api/master/coa', { params })
@@ -94,7 +112,7 @@ export const realisasiAPI = {
     return api.post(`/api/rab/${itemId}/realisasi`, payload)
   },
   updateRealisasi(id, payload) {
-    return api.patch(`/api/realisasi/${id}`)
+    return api.patch(`/api/realisasi/${id}`, payload)
   },
   deleteRealisasi(id) {
     return api.delete(`/api/realisasi/${id}`)
