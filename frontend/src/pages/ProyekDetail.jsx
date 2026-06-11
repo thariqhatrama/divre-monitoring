@@ -175,7 +175,6 @@ function ProyekDetail() {
               amount={nilaiProyekIdr}
               percent={100}
               status="aman"
-              description="IDR"
             />
             <MarginCard
               title="Total RAB"

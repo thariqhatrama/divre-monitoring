@@ -492,31 +492,6 @@ a {
   gap: 8px;
 }
 
-.proyek-value-grid {
-  align-items: stretch;
-}
-
-.currency-lock-card {
-  background: linear-gradient(135deg, #f8fafc, #eefcf9);
-  border: 1px solid rgba(15, 118, 110, 0.18);
-  border-radius: 14px;
-  display: grid;
-  gap: 6px;
-  padding: 14px 16px;
-}
-
-.currency-lock-card span,
-.currency-lock-card small {
-  color: #64748b;
-  font-size: 0.82rem;
-  font-weight: 700;
-}
-
-.currency-lock-card strong {
-  color: #0f766e;
-  font-size: 1.35rem;
-}
-
 .total-preview-wide {
   grid-column: 1 / -1;
 }

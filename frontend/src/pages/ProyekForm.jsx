@@ -220,7 +220,7 @@ function ProyekForm() {
               </div>
               <div className="proyek-form proyek-value-grid">
                 <Input
-                  label="Nilai proyek (IDR) *"
+                  label="Nilai proyek *"
                   type="number"
                   min="0"
                   step="1"
@@ -228,11 +228,6 @@ function ProyekForm() {
                   onChange={(event) => updateField('nilai_proyek', event.target.value)}
                   required
                 />
-                <div className="currency-lock-card">
-                  <span>Mata uang proyek</span>
-                  <strong>IDR</strong>
-                  <small>Kurs dikunci 1. Pilihan USD disembunyikan dari form proyek.</small>
-                </div>
                 <div className="total-preview total-preview-wide">
                   Preview nilai proyek: {formatIDR(nilaiProyekPreviewIdr)}
                 </div>
