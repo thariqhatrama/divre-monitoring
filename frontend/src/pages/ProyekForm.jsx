@@ -7,9 +7,12 @@ import LoadingState from '../components/ui/LoadingState'
 import PageHeader from '../components/ui/PageHeader'
 import Select from '../components/ui/Select'
 import useAuth from '../hooks/useAuth'
-import { kursAPI, masterAPI, proyekAPI } from '../services/api'
-import { calculateNilaiIdr, normalizeKurs } from '../utils/currencyConvert'
+import { masterAPI, proyekAPI } from '../services/api'
+import { calculateNilaiIdr } from '../utils/currencyConvert'
 import { formatIDR } from '../utils/formatIDR'
+
+const PROJECT_CURRENCY = 'IDR'
+const PROJECT_KURS_IDR = '1'
 
 const INITIAL_FORM = {
   nama: '',
@@ -18,8 +21,8 @@ const INITIAL_FORM = {
   cabang_id: '',
   klien: '',
   nilai_proyek: '',
-  mata_uang_proyek: 'IDR',
-  kurs_idr_proyek: '1',
+  mata_uang_proyek: PROJECT_CURRENCY,
+  kurs_idr_proyek: PROJECT_KURS_IDR,
   tgl_mulai: '',
   tgl_selesai: '',
   portofolio_seg7: '',
@@ -73,8 +76,8 @@ function ProyekForm() {
           cabang_id: project.cabang_id || '',
           klien: project.klien || '',
           nilai_proyek: String(project.nilai_proyek ?? ''),
-          mata_uang_proyek: project.mata_uang_proyek || 'IDR',
-          kurs_idr_proyek: String(project.kurs_idr_proyek ?? '1'),
+          mata_uang_proyek: PROJECT_CURRENCY,
+          kurs_idr_proyek: PROJECT_KURS_IDR,
           tgl_mulai: project.tgl_mulai || '',
           tgl_selesai: project.tgl_selesai || '',
           portofolio_seg7: project.portofolio_seg7 || '',
@@ -99,50 +102,20 @@ function ProyekForm() {
   })
 
   function updateField(name, value) {
-    setForm((current) => {
-      const normalizedValue = name === 'seg11_no' ? value.replace(/\D/g, '').slice(0, 6) : value
-      const next = { ...current, [name]: normalizedValue }
-
-      if (name === 'mata_uang_proyek' && value === 'IDR') {
-        next.kurs_idr_proyek = '1'
-      }
-
-      return next
-    })
-  }
-
-  useEffect(() => {
-    if (form.mata_uang_proyek === 'USD' && !normalizeKurs(form.mata_uang_proyek, form.kurs_idr_proyek)) {
-      fillLatestKurs()
-    }
-  }, [form.mata_uang_proyek])
-
-  async function fillLatestKurs() {
-    try {
-      const response = await kursAPI.getKurs({ mata_uang: 'USD' })
-      const kurs = response.data.data?.latest?.kurs_idr || response.data.data?.history?.[0]?.kurs_idr
-      if (kurs) {
-        updateField('kurs_idr_proyek', String(kurs))
-      }
-    } catch (err) {
-      setError(err.response?.data?.error?.message || 'Gagal mengambil kurs terbaru')
-    }
-  }
-
-  function validateSubmit() {
-    if (form.mata_uang_proyek === 'USD' && !normalizeKurs(form.mata_uang_proyek, form.kurs_idr_proyek)) {
-      setError('Kurs IDR wajib diisi dengan integer > 1 untuk mata uang USD')
-      return false
-    }
-
-    return true
+    setForm((current) => ({
+      ...current,
+      [name]: name === 'seg11_no' ? value.replace(/\D/g, '').slice(0, 6) : value,
+      mata_uang_proyek: PROJECT_CURRENCY,
+      kurs_idr_proyek: PROJECT_KURS_IDR
+    }))
   }
 
   function buildPayload() {
     const payload = {
       ...form,
+      mata_uang_proyek: PROJECT_CURRENCY,
       nilai_proyek: Number(form.nilai_proyek),
-      kurs_idr_proyek: Number(form.kurs_idr_proyek || 1)
+      kurs_idr_proyek: Number(PROJECT_KURS_IDR)
     }
 
     if (isPm) {
@@ -156,11 +129,6 @@ function ProyekForm() {
     event.preventDefault()
     setSubmitting(true)
     setError('')
-
-    if (!validateSubmit()) {
-      setSubmitting(false)
-      return
-    }
 
     try {
       if (isEdit) {
@@ -246,13 +214,13 @@ function ProyekForm() {
             <Card className="form-card">
               <div className="filter-card-title">
                 <div>
-                  <h2>Nilai proyek dan kurs</h2>
-                  <p>Semua kalkulasi margin tetap dikonversi ke IDR.</p>
+                  <h2>Nilai proyek</h2>
+                  <p>Input proyek memakai IDR karena RAB dan realisasi berjalan dalam rupiah.</p>
                 </div>
               </div>
-              <div className="proyek-form">
+              <div className="proyek-form proyek-value-grid">
                 <Input
-                  label="Nilai proyek *"
+                  label="Nilai proyek (IDR) *"
                   type="number"
                   min="0"
                   step="1"
@@ -260,26 +228,14 @@ function ProyekForm() {
                   onChange={(event) => updateField('nilai_proyek', event.target.value)}
                   required
                 />
-                <Select label="Mata uang proyek" value={form.mata_uang_proyek} onChange={(event) => updateField('mata_uang_proyek', event.target.value)}>
-                  <option value="IDR">IDR</option>
-                  <option value="USD">USD</option>
-                </Select>
-                <Input
-                  label="Kurs IDR proyek"
-                  type="number"
-                  min="1"
-                  step="1"
-                  value={form.kurs_idr_proyek}
-                  onChange={(event) => updateField('kurs_idr_proyek', event.target.value)}
-                  disabled={form.mata_uang_proyek === 'IDR'}
-                  required
-                />
-                <div className="total-preview">
+                <div className="currency-lock-card">
+                  <span>Mata uang proyek</span>
+                  <strong>IDR</strong>
+                  <small>Kurs dikunci 1. Pilihan USD disembunyikan dari form proyek.</small>
+                </div>
+                <div className="total-preview total-preview-wide">
                   Preview nilai proyek: {formatIDR(nilaiProyekPreviewIdr)}
                 </div>
-                {form.mata_uang_proyek === 'USD' ? (
-                  <Button type="button" variant="secondary" onClick={fillLatestKurs}>Ambil kurs terbaru</Button>
-                ) : null}
               </div>
             </Card>
 

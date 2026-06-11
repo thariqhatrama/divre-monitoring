@@ -72,24 +72,145 @@ Akses pengguna dikontrol melalui autentikasi JWT dan role-based access control d
 
 ---
 
-## Aturan Perhitungan Margin
+## Rumus Perhitungan Aplikasi
 
-Semua angka margin dihitung dalam IDR.
+Semua kalkulasi margin dilakukan dalam IDR. Nilai uang disimpan sebagai integer rupiah penuh, bukan sen/desimal.
+
+### Konversi Nilai Proyek ke IDR
 
 ```txt
-Margin RAB (%)       = (Nilai Proyek - Total Biaya RAB) / Nilai Proyek × 100
-Margin Realisasi (%) = (Nilai Proyek - Total Biaya Realisasi) / Nilai Proyek × 100
-Delta Margin         = Margin Realisasi - Margin RAB
+Nilai Proyek IDR = Nilai Proyek × Kurs IDR Proyek
 ```
 
-Status margin:
+Catatan:
+- Untuk proyek IDR, `Kurs IDR Proyek = 1`.
+- Pada form proyek, input proyek dikunci ke IDR sehingga nilai proyek langsung dibaca sebagai nilai rupiah.
 
-| Status | Kondisi |
-|---|---:|
-| Aman | `>= 15%` |
-| Perhatian | `>= 6%` dan `< 15%` |
-| Kritis | `>= 0%` dan `< 6%` |
-| Rugi | `< 0%` |
+### Total Line Item RAB
+
+```txt
+Subtotal RAB Line Item = Qty × Harga Satuan
+Total IDR RAB Line Item = round(Qty × Harga Satuan × Kurs IDR)
+```
+
+Catatan:
+- Untuk line item IDR, `Kurs IDR = 1`.
+- Jika line item memakai USD, kurs disimpan pada item tersebut agar histori perhitungan tetap konsisten.
+- Di database, `rab_items.total_idr` adalah generated column dari `qty`, `harga_satuan`, dan `kurs_idr`.
+
+### Total RAB Proyek
+
+```txt
+Total RAB IDR = Σ Total IDR RAB Line Item
+```
+
+Total RAB juga dikelompokkan per kategori RAB:
+
+```txt
+Total RAB Kategori I   = Σ Total IDR item kategori I
+Total RAB Kategori II  = Σ Total IDR item kategori II
+Total RAB Kategori III = Σ Total IDR item kategori III
+Total RAB Kategori IV  = Σ Total IDR item kategori IV
+Total RAB Kategori V   = Σ Total IDR item kategori V
+Total RAB Kategori VI  = Σ Total IDR item kategori VI
+```
+
+### Laba / Margin RAB
+
+```txt
+Laba Operasi RAB = Nilai Proyek IDR - Total RAB IDR
+Margin RAB (%)   = (Laba Operasi RAB / Nilai Proyek IDR) × 100
+```
+
+Atau setara dengan:
+
+```txt
+Margin RAB (%) = (Nilai Proyek IDR - Total RAB IDR) / Nilai Proyek IDR × 100
+```
+
+Hasil persen margin dibulatkan sampai 2 angka desimal.
+
+### Total Line Item Realisasi
+
+```txt
+Subtotal Realisasi Line Item = Qty Realisasi × Harga Satuan Realisasi
+Total IDR Realisasi Line Item = round(Qty Realisasi × Harga Satuan Realisasi × Kurs IDR)
+```
+
+Catatan:
+- Untuk transaksi realisasi IDR, `Kurs IDR = 1`.
+- Jika realisasi memakai USD, kurs disimpan pada transaksi realisasi tersebut.
+- Di database, `realisasi_items.total_idr` adalah generated column dari `qty`, `harga_satuan`, dan `kurs_idr`.
+
+### Total Realisasi Proyek
+
+```txt
+Total Realisasi IDR = Σ Total IDR Realisasi Line Item
+```
+
+Satu item RAB bisa memiliki banyak transaksi realisasi. Total realisasi proyek adalah agregasi seluruh transaksi realisasi pada proyek tersebut.
+
+### Laba / Margin Realisasi
+
+```txt
+Laba Operasi Realisasi = Nilai Proyek IDR - Total Realisasi IDR
+Margin Realisasi (%)   = (Laba Operasi Realisasi / Nilai Proyek IDR) × 100
+```
+
+Atau setara dengan:
+
+```txt
+Margin Realisasi (%) = (Nilai Proyek IDR - Total Realisasi IDR) / Nilai Proyek IDR × 100
+```
+
+Hasil persen margin realisasi dibulatkan sampai 2 angka desimal.
+
+### Delta Margin
+
+```txt
+Delta Margin = Margin Realisasi (%) - Margin RAB (%)
+```
+
+Indikator delta:
+
+| Indikator | Kondisi | Arti |
+|---|---:|---|
+| `naik` | `Delta Margin > 0` | Margin realisasi lebih baik dari margin RAB |
+| `tetap` | `Delta Margin = 0` | Margin realisasi sama dengan margin RAB |
+| `turun` | `Delta Margin < 0` | Margin realisasi lebih rendah dari margin RAB |
+
+### Persentase Subkon Akun 4422
+
+```txt
+Total Subkon 4422 IDR = Σ Total IDR RAB Line Item dengan kode_akun_seg5 = "4422"
+Persen Subkon (%)     = (Total Subkon 4422 IDR / Nilai Proyek IDR) × 100
+```
+
+Hasil persen subkon dibulatkan sampai 2 angka desimal.
+
+### Status Margin
+
+Status margin ditentukan dari nilai margin persen, baik untuk margin RAB maupun margin realisasi:
+
+| Status | Kondisi | Warna |
+|---|---:|---|
+| Aman | `>= 15%` | Hijau |
+| Perhatian | `>= 6%` dan `< 15%` | Kuning |
+| Kritis | `>= 0%` dan `< 6%` | Merah |
+| Rugi | `< 0%` | Merah gelap |
+
+Catatan KD No. 10/KD/2025: proyek dengan margin `< 6%` tidak dapat dilanjutkan, kecuali penugasan berbasis APBN.
+
+### Preview Frontend
+
+Frontend memakai rumus yang sama untuk preview saat input:
+
+```txt
+Preview Nilai Proyek IDR = Nilai Proyek × Kurs IDR Proyek
+Preview Total Item IDR   = Qty × Harga Satuan × Kurs IDR
+```
+
+Jika kurs tidak valid untuk mata uang non-IDR, preview dihitung sebagai `0` sampai kurs valid diisi.
 
 ---
 

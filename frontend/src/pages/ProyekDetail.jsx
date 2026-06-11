@@ -175,7 +175,7 @@ function ProyekDetail() {
               amount={nilaiProyekIdr}
               percent={100}
               status="aman"
-              description={`${project?.mata_uang_proyek || 'IDR'} · Kurs ${project?.kurs_idr_proyek || 1}`}
+              description="IDR"
             />
             <MarginCard
               title="Total RAB"

@@ -158,10 +158,7 @@ function ProyekList() {
                             <span>{project.cabang?.kode_seg23 || 'Cabang belum teridentifikasi'}</span>
                           </div>
                         </td>
-                        <td>
-                          {formatIDR(project.nilai_proyek)}
-                          <span>{project.mata_uang_proyek}</span>
-                        </td>
+                        <td>{formatIDR(project.nilai_proyek)}</td>
                         <td><span className={`status-pill status-${project.status}`}>{project.status}</span></td>
                         <td>
                           <div className="project-cell">
