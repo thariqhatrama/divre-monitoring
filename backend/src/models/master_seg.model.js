@@ -1,4 +1,4 @@
-const { supabase } = require('../db/supabase');
+const supabase = require('../db/supabase');
 
 const applySegFilters = (query, filters = {}) => {
   if (filters.aktif) {
