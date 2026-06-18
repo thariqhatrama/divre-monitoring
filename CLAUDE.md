@@ -199,7 +199,7 @@ projects         → id, nama, nomor_spmk, seg11_no, cabang_id, klien,
                    tgl_mulai, tgl_selesai, portofolio_seg7, sub_portofolio_seg8,
                    pmu_kso_seg9, pm_user_id, status, created_by, updated_at
 
-rab_items        → id, project_id, kategori (I-VI), kode_akun_seg5, seg4_kode,
+rab_items        → id, project_id, kategori (I-VII), kode_akun_seg5, seg4_kode,
                    uraian, qty, satuan, mata_uang, harga_satuan, kurs_idr,
                    total_idr (generated),
                    updated_by, updated_at
@@ -300,13 +300,14 @@ formatIDR(1500000, { short: true }) // → "Rp 1,5 jt"
 
 ### Kategori RAB
 ```js
-// Enum: 'I' | 'II' | 'III' | 'IV' | 'V' | 'VI'
+// Enum: 'I' | 'II' | 'III' | 'IV' | 'V' | 'VI' | 'VII'
 // I   = Beban Personil
 // II  = Tenaga Ahli & Labour Supply
 // III = Perjalanan Dinas
 // IV  = Beban Operasional
 // V   = Peralatan & Sewa
-// VI  = Overhead & Administrasi
+// VI  = Beban Penyusutan & Amortisasi
+// VII = Beban Kantor dan Diklat
 ```
 
 ### HTTP responses

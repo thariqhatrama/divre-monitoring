@@ -1,4 +1,4 @@
-const KATEGORI_RAB = ['I', 'II', 'III', 'IV', 'V', 'VI']
+const KATEGORI_RAB = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII']
 const SUBKON_ACCOUNT = '4422'
 
 function toNumber(value) {

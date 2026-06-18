@@ -224,6 +224,7 @@ Target: aplikasi siap demo dan bisa diakses via browser.
 
 | Tanggal | Tipe | Area | Deskripsi | File Terkait | Status |
 |---|---|---|---|---|---|
+| 2026-06-18 | Add | Master Data | Menambahkan master data untuk Portofolio Segmen 7, Sub-portofolio Segmen 8, dan PMU/KSO Segmen 9: membuat tabel di `009_create_master_seg789.sql` beserta data seed, menambahkan endpoints backend list `authOnly`, dan mengganti input form frontend menjadi Select dinamis bersarang di halaman pembuatan/edit proyek. | `backend/migrations/009_create_master_seg789.sql`, `backend/src/models/master_seg.model.js`, `backend/src/controllers/master.controller.js`, `backend/src/routes/master.routes.js`, `frontend/src/services/api.js`, `frontend/src/pages/ProyekForm.jsx`, `STATUS.md` | ✅ |
 | 2026-06-11 | Fix | Auth/Session | Memperbaiki session login custom JWT: token login tetap expiry 8 jam dan payload kini memuat `id`, `nama`, `email`, `role`, `cabang_id`; frontend memvalidasi expiry token dari `localStorage` saat refresh/browser reopen, auto clear session saat token expired/malformed, dan interceptor Axios melakukan logout + redirect login pada response 401/403. Frontend build berhasil; lint masih gagal karena error lama di halaman non-auth, bukan dari perubahan session; backend syntax check belum berjalan karena permission command ditolak auto-classifier | `backend/src/controllers/auth.controller.js`, `backend/src/middleware/auth.middleware.js`, `frontend/src/context/AuthContext.jsx`, `frontend/src/services/api.js`, `STATUS.md` | ✅ |
 | 2026-06-10 | Remove/Fix | Auth UI | Menghapus route test admin setelah validasi auth admin selesai, melepas mount `/api/test`, menghapus halaman/link `/admin-test`, dan mengganti tombol teks tampilkan password di login menjadi icon mata di sisi kanan input password; backend syntax check dan frontend build berhasil | `backend/src/app.js`, `backend/src/routes/test.routes.js`, `frontend/src/App.jsx`, `frontend/src/components/layout/Header.jsx`, `frontend/src/pages/Login.jsx`, `frontend/src/App.css`, `STATUS.md` | ✅ |
 | 2026-06-10 | Test/Decision | Production | User mengonfirmasi validasi runtime UI/API dengan data Supabase dan validasi production Vercel/Render sudah lulus. Filter dashboard diputuskan tetap memakai implementasi saat ini yaitu state lokal di halaman dashboard, bukan `FilterContext.jsx`. | `STATUS.md`, `frontend/src/pages/Dashboard.jsx`, `frontend/src/pages/DashboardCabang.jsx` | ✅ |
@@ -313,29 +314,31 @@ Update bagian ini sebelum membuka sesi Claude baru agar tidak kehilangan konteks
 Tulis ringkasan singkat pekerjaan terakhir.
 
 ```txt
-Session login custom JWT sudah diperbaiki: backend login tetap membuat JWT expiry 8 jam dengan payload `sub/id/nama/email/role/cabang_id`; frontend menyimpan token+user di localStorage, memvalidasi expiry JWT saat refresh/browser reopen, auto clear session saat token expired/malformed, dan interceptor Axios logout+redirect login pada 401/403. Frontend `npm --prefix frontend run build` berhasil dengan warning chunk size Vite/Recharts. `npm --prefix frontend run lint` masih gagal karena error lama di halaman non-auth (Dashboard, DashboardCabang, MasterData, ProyekDetail, RABForm, RealisasiForm), bukan dari perubahan session. Backend `node --check` untuk file auth belum berjalan karena permission command ditolak auto-classifier; `npm --prefix backend test` berjalan tetapi script masih placeholder no automated tests.
+Menambahkan master data dan dropdown dinamis untuk Segmen 7 (Portofolio), Segmen 8 (Sub-portofolio), dan Segmen 9 (PMU/KSO) pada saat create/edit Proyek. Dibuat tabel baru di backend (`master_seg7`, `master_seg8`, `master_seg9`) dan di seed dari data spreadsheet. Backend sekarang memiliki routes GET `authOnly` untuk fetch segment tersebut dan frontend merender `<Select>` dropdown yang otomatis difilter dan divalidasi ketika parent-nya (Seg 7) diubah. Data eksisting pada tabel proyek tidak diubah (field text tetap ada) untuk menjaga backward compatibility namun entry baru akan selalu valid.
 ```
 
 ### File yang terakhir diubah
 
 ```txt
 STATUS.md
-backend/src/controllers/auth.controller.js
-backend/src/middleware/auth.middleware.js
-frontend/src/context/AuthContext.jsx
+backend/migrations/009_create_master_seg789.sql
+backend/src/models/master_seg.model.js
+backend/src/controllers/master.controller.js
+backend/src/routes/master.routes.js
 frontend/src/services/api.js
+frontend/src/pages/ProyekForm.jsx
 ```
 
 ### Masalah yang belum selesai
 
 ```txt
-Tidak ada blocker utama dari validasi realisasi, margin realisasi/delta, dashboard, detail proyek, dan deployment production: user sudah mengonfirmasi runtime UI/API dengan data Supabase dan production Vercel/Render valid. Filter dashboard sengaja tidak memakai `FilterContext.jsx`; state filter lokal di halaman dashboard dianggap implementasi final untuk MVP. Hal yang masih perlu dijaga: jangan menambah fitur di luar PRD/scope guard, jangan membuat approval/email/SLA, dan pastikan setiap perubahan berikutnya tetap menjalankan validasi lokal + production sesuai kebutuhan.
+Migration `009_create_master_seg789.sql` harus dijalankan secara manual di Supabase SQL Editor karena credential akses psql secara remote CLI tidak tersedia. Setelah file migration dijalankan, form pada aplikasi baru bisa meload data dari backend dan merender dropdown nya dengan benar.
 ```
 
 ### Prompt lanjutan untuk Claude
 
 ```txt
-Lanjutkan dari STATUS.md terbaru. Session login custom JWT sudah diperbaiki tanpa Supabase Auth/refresh token: backend JWT expiry 8 jam dan payload user lengkap; frontend validasi token localStorage saat refresh/browser reopen dan auto logout pada expired/malformed token serta response API 401/403. Jangan membuat fitur baru di luar PRD.md/scope guard. PM tetap tidak boleh melihat data cabang lain; RBAC/business logic tidak diubah. Untuk pekerjaan berikutnya, fokus pada bugfix/polish yang diminta user dan selalu validasi lokal sebelum meminta user melakukan validasi production jika diperlukan.
+Lanjutkan dari STATUS.md terbaru. Master Segmen 7, 8, dan 9 telah ditambahkan beserta dropdown form proyeknya. Pastikan tidak menambah fitur di luar PRD.md/scope guard. Untuk pekerjaan berikutnya, fokus pada bugfix/polish yang diminta user dan selalu validasi lokal sebelum meminta user melakukan validasi production jika diperlukan.
 ```
 
 ---

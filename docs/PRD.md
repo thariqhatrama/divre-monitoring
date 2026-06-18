@@ -128,7 +128,8 @@ Selama `seg11_no` kosong, form RAB dikunci dengan pesan jelas.
 | III | Perjalanan Dinas | V | 4301, 4302, 4303 |
 | IV | Beban Operasional | V | 4411, 4421, 4422, 4431–4433 |
 | V | Peralatan & Sewa | V | 4511, 4521, 4531, 4541, 4547 |
-| VI | Overhead & Administrasi | V | 4711, 4712, 4721, 4731 |
+| VI | Beban Penyusutan & Amortisasi | F | 4621, 4631, 4651, 4661 |
+| VII | Beban Kantor dan Diklat | V | 4711, 4721, 4722, 4731, 4782, 4791, 4792 |
 
 ---
 
@@ -168,7 +169,7 @@ Status proyek: `draft → aktif → selesai → arsip`. Transisi manual oleh PM 
 
 ### 6.2 Form RAB
 
-Setiap line item: kode akun Seg 5 (dropdown + auto-suggest dari master COA), Seg 4 (dropdown), uraian, qty, satuan, mata uang (IDR/USD), harga satuan, kurs IDR jika USD (dari default terkini), total IDR (dihitung otomatis). Dikelompokkan per Kategori I–VI. Kode akun non-aktif di COA 2025 di-flag dan tidak bisa disimpan.
+Setiap line item: kode akun Seg 5 (dropdown + auto-suggest dari master COA), Seg 4 (dropdown), uraian, qty, satuan, mata uang (IDR/USD), harga satuan, kurs IDR jika USD (dari default terkini), total IDR (dihitung otomatis). Dikelompokkan per Kategori I–VII. Kode akun non-aktif di COA 2025 di-flag dan tidak bisa disimpan.
 
 ### 6.3 Input Realisasi
 
@@ -190,7 +191,7 @@ Identik dengan dashboard Kepala Divre, scope terbatas pada cabang PM tersebut. T
 
 ### 6.6 Halaman Detail Proyek
 
-Summary: nilai proyek, total RAB, margin RAB, total realisasi, margin realisasi, delta. Tabel breakdown per kategori I–VI dengan sub-total RAB vs. realisasi vs. selisih. Expand per kategori → tampilkan line item individual. Bar chart horizontal RAB vs. realisasi per kategori. Info tambahan: % subkon, mata uang komponen, Seg 11 no., tanggal update terakhir.
+Summary: nilai proyek, total RAB, margin RAB, total realisasi, margin realisasi, delta. Tabel breakdown per kategori I–VII dengan sub-total RAB vs. realisasi vs. selisih. Expand per kategori → tampilkan line item individual. Bar chart horizontal RAB vs. realisasi per kategori. Info tambahan: % subkon, mata uang komponen, Seg 11 no., tanggal update terakhir.
 
 ---
 
@@ -308,7 +309,7 @@ projects (
 rab_items (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   project_id uuid REFERENCES projects ON DELETE CASCADE,
-  kategori text NOT NULL,              -- I|II|III|IV|V|VI
+  kategori text NOT NULL,              -- I|II|III|IV|V|VI|VII
   kode_akun_seg5 text NOT NULL,        -- string, bukan integer
   seg4_kode text,
   uraian text NOT NULL,
@@ -362,7 +363,7 @@ coa_accounts (
   kode_seg5 text PRIMARY KEY,
   nama text NOT NULL,
   seg4_default text,
-  kategori_rab text,                   -- I|II|III|IV|V|VI
+  kategori_rab text,                   -- I|II|III|IV|V|VI|VII
   tipe_fv text,                        -- F|V
   aktif boolean DEFAULT true,
   updated_at timestamptz DEFAULT now()

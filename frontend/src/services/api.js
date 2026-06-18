@@ -59,6 +59,15 @@ export const masterAPI = {
   },
   updateUser(id, payload) {
     return api.patch(`/api/master/user/${id}`, payload)
+  },
+  getSeg7(params) {
+    return api.get('/api/master/seg7', { params })
+  },
+  getSeg8(params) {
+    return api.get('/api/master/seg8', { params })
+  },
+  getSeg9(params) {
+    return api.get('/api/master/seg9', { params })
   }
 }
 

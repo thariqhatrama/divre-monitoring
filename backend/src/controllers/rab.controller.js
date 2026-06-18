@@ -4,7 +4,7 @@ const rabModel = require('../models/rab.model')
 const marginService = require('../services/margin.service')
 const kursService = require('../services/kurs.service')
 
-const KATEGORI_RAB = ['I', 'II', 'III', 'IV', 'V', 'VI']
+const KATEGORI_RAB = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII']
 const CURRENCIES = ['IDR', 'USD']
 
 function success(res, data, status = 200) {
@@ -102,7 +102,7 @@ function validateRabBody(body, { isCreate = false } = {}) {
 
   if (isCreate || body.kategori !== undefined) {
     if (!KATEGORI_RAB.includes(body.kategori)) {
-      errors.push('kategori harus salah satu dari I, II, III, IV, V, VI')
+      errors.push('kategori harus salah satu dari I, II, III, IV, V, VI, VII')
     }
   }
 
@@ -230,17 +230,20 @@ async function buildValidatedPayload(body, res, { isCreate = false, existing = n
 
   const resolvedKurs = await kursService.resolveInputKurs(merged.mata_uang, merged.kurs_idr)
 
-  if (isCreate || body.kategori !== undefined || body.kode_akun_seg5 !== undefined) {
-    const { error, coa } = await validateCoa(merged)
-    if (error) {
-      errorResponse(res, error.status, error.code, error.message)
-      return null
-    }
-
-    return buildRabPayload(body, { userId, coa, isCreate, resolvedKurs })
+  const { error, coa } = await validateCoa(merged)
+  if (error) {
+    errorResponse(res, error.status, error.code, error.message)
+    return null
   }
 
-  return buildRabPayload(body, { userId, coa: null, isCreate, resolvedKurs })
+  const shouldApplyCoaDefaults = isCreate || body.kode_akun_seg5 !== undefined || body.seg4_kode !== undefined
+
+  return buildRabPayload(body, {
+    userId,
+    coa: shouldApplyCoaDefaults ? coa : null,
+    isCreate,
+    resolvedKurs
+  })
 }
 
 async function listRabItems(req, res) {

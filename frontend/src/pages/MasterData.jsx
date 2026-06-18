@@ -10,7 +10,7 @@ const MASTER_TABS = [
 ]
 
 const MASTER_TAB_KEYS = MASTER_TABS.map((item) => item.key)
-const KATEGORI_RAB = ['I', 'II', 'III', 'IV', 'V', 'VI']
+const KATEGORI_RAB = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII']
 const TIPE_FV = ['F', 'V']
 const BRANCH_TYPES = [
   { value: 'cabang', label: 'Cabang' },

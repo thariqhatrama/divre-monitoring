@@ -2,8 +2,9 @@ const bcrypt = require('bcryptjs')
 const branchModel = require('../models/branch.model')
 const coaModel = require('../models/coa.model')
 const userModel = require('../models/user.model')
+const masterSegModel = require('../models/master_seg.model')
 
-const KATEGORI_RAB = ['I', 'II', 'III', 'IV', 'V', 'VI']
+const KATEGORI_RAB = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII']
 const TIPE_FV = ['F', 'V']
 const BRANCH_TYPES = ['cabang', 'unit_pelayanan']
 const USER_ROLES = ['kepala_divre', 'pm', 'admin']
@@ -77,7 +78,7 @@ function validateCoa(body, isCreate = false) {
   }
 
   if (body.kategori_rab !== undefined && !KATEGORI_RAB.includes(body.kategori_rab)) {
-    errors.push('kategori_rab harus salah satu dari I, II, III, IV, V, VI')
+    errors.push('kategori_rab harus salah satu dari I, II, III, IV, V, VI, VII')
   }
 
   if (body.tipe_fv !== undefined && !TIPE_FV.includes(body.tipe_fv)) {
@@ -328,6 +329,36 @@ async function updateUser(req, res) {
   }
 }
 
+async function listSeg7(req, res) {
+  try {
+    const data = await masterSegModel.listSeg7(req.query)
+    return success(res, data)
+  } catch (error) {
+    const mapped = mapModelError(error)
+    return errorResponse(res, mapped.status, mapped.code, mapped.message)
+  }
+}
+
+async function listSeg8(req, res) {
+  try {
+    const data = await masterSegModel.listSeg8(req.query)
+    return success(res, data)
+  } catch (error) {
+    const mapped = mapModelError(error)
+    return errorResponse(res, mapped.status, mapped.code, mapped.message)
+  }
+}
+
+async function listSeg9(req, res) {
+  try {
+    const data = await masterSegModel.listSeg9(req.query)
+    return success(res, data)
+  } catch (error) {
+    const mapped = mapModelError(error)
+    return errorResponse(res, mapped.status, mapped.code, mapped.message)
+  }
+}
+
 module.exports = {
   listCoa,
   createCoa,
@@ -337,5 +368,8 @@ module.exports = {
   updateBranch,
   listUsers,
   createUser,
-  updateUser
+  updateUser,
+  listSeg7,
+  listSeg8,
+  listSeg9
 }

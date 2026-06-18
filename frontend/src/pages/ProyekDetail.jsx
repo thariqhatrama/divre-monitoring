@@ -11,14 +11,15 @@ import PageHeader from '../components/ui/PageHeader'
 import { rabAPI, realisasiAPI } from '../services/api'
 import { formatIDR, formatPercent } from '../utils/formatIDR'
 
-const KATEGORI_RAB = ['I', 'II', 'III', 'IV', 'V', 'VI']
+const KATEGORI_RAB = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII']
 const KATEGORI_LABEL = {
   I: 'I - Beban Personil',
   II: 'II - Tenaga Ahli & Labour Supply',
   III: 'III - Perjalanan Dinas',
   IV: 'IV - Beban Operasional',
   V: 'V - Peralatan & Sewa',
-  VI: 'VI - Overhead & Administrasi'
+  VI: 'VI - Beban Penyusutan & Amortisasi',
+  VII: 'VII - Beban Kantor dan Diklat'
 }
 
 function toNumber(value) {

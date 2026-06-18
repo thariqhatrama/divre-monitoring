@@ -39,7 +39,7 @@ CREATE TABLE IF NOT EXISTS coa_accounts (
   kode_seg5 text PRIMARY KEY,
   nama text NOT NULL,
   seg4_default text,
-  kategori_rab text CHECK (kategori_rab IN ('I', 'II', 'III', 'IV', 'V', 'VI')),
+  kategori_rab text CHECK (kategori_rab IN ('I', 'II', 'III', 'IV', 'V', 'VI', 'VII')),
   tipe_fv text CHECK (tipe_fv IN ('F', 'V')),
   aktif boolean NOT NULL DEFAULT true,
   created_at timestamptz NOT NULL DEFAULT now(),
@@ -71,7 +71,7 @@ CREATE TABLE IF NOT EXISTS projects (
 CREATE TABLE IF NOT EXISTS rab_items (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   project_id uuid NOT NULL REFERENCES projects(id) ON DELETE CASCADE,
-  kategori text NOT NULL CHECK (kategori IN ('I', 'II', 'III', 'IV', 'V', 'VI')),
+  kategori text NOT NULL CHECK (kategori IN ('I', 'II', 'III', 'IV', 'V', 'VI', 'VII')),
   kode_akun_seg5 text NOT NULL REFERENCES coa_accounts(kode_seg5) ON DELETE RESTRICT,
   seg4_kode text,
   uraian text NOT NULL,

@@ -40,9 +40,30 @@ function ProyekForm() {
 
   const [form, setForm] = useState(INITIAL_FORM)
   const [branches, setBranches] = useState([])
+  const [seg7List, setSeg7List] = useState([])
+  const [seg8List, setSeg8List] = useState([])
+  const [seg9List, setSeg9List] = useState([])
   const [loading, setLoading] = useState(isEdit)
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState('')
+
+  useEffect(() => {
+    async function loadMasterLists() {
+      try {
+        const [res7, res8, res9] = await Promise.all([
+          masterAPI.getSeg7({ aktif: 'true' }),
+          masterAPI.getSeg8({ aktif: 'true' }),
+          masterAPI.getSeg9({ aktif: 'true' })
+        ])
+        setSeg7List(res7.data.data || [])
+        setSeg8List(res8.data.data || [])
+        setSeg9List(res9.data.data || [])
+      } catch (err) {
+        setError(err.response?.data?.error?.message || 'Gagal memuat data master portofolio')
+      }
+    }
+    loadMasterLists()
+  }, [])
 
   useEffect(() => {
     if (isPm) return
@@ -102,12 +123,21 @@ function ProyekForm() {
   })
 
   function updateField(name, value) {
-    setForm((current) => ({
-      ...current,
-      [name]: name === 'seg11_no' ? value.replace(/\D/g, '').slice(0, 6) : value,
-      mata_uang_proyek: PROJECT_CURRENCY,
-      kurs_idr_proyek: PROJECT_KURS_IDR
-    }))
+    setForm((current) => {
+      const nextForm = {
+        ...current,
+        [name]: name === 'seg11_no' ? value.replace(/\D/g, '').slice(0, 6) : value,
+        mata_uang_proyek: PROJECT_CURRENCY,
+        kurs_idr_proyek: PROJECT_KURS_IDR
+      }
+
+      // Reset Seg 8 if Seg 7 changes
+      if (name === 'portofolio_seg7') {
+        nextForm.sub_portofolio_seg8 = ''
+      }
+
+      return nextForm
+    })
   }
 
   function buildPayload() {
@@ -244,9 +274,36 @@ function ProyekForm() {
               <div className="proyek-form">
                 <Input label="Tanggal mulai" type="date" value={form.tgl_mulai} onChange={(event) => updateField('tgl_mulai', event.target.value)} />
                 <Input label="Tanggal selesai" type="date" value={form.tgl_selesai} onChange={(event) => updateField('tgl_selesai', event.target.value)} />
-                <Input label="Portofolio Seg 7" value={form.portofolio_seg7} onChange={(event) => updateField('portofolio_seg7', event.target.value)} />
-                <Input label="Sub-portofolio Seg 8" value={form.sub_portofolio_seg8} onChange={(event) => updateField('sub_portofolio_seg8', event.target.value)} />
-                <Input label="PMU/KSO Seg 9" value={form.pmu_kso_seg9} onChange={(event) => updateField('pmu_kso_seg9', event.target.value)} />
+
+                <Select label="Portofolio Seg 7" value={form.portofolio_seg7} onChange={(event) => updateField('portofolio_seg7', event.target.value)}>
+                  <option value="">Pilih Portofolio</option>
+                  {seg7List.map((seg) => (
+                    <option key={seg.kode} value={seg.kode}>
+                      {seg.kode} - {seg.nama}
+                    </option>
+                  ))}
+                </Select>
+
+                <Select label="Sub-portofolio Seg 8" value={form.sub_portofolio_seg8} onChange={(event) => updateField('sub_portofolio_seg8', event.target.value)}>
+                  <option value="">Pilih Sub-portofolio</option>
+                  {seg8List
+                    .filter((seg) => !form.portofolio_seg7 || seg.parent_kode === form.portofolio_seg7)
+                    .map((seg) => (
+                    <option key={seg.kode} value={seg.kode}>
+                      {seg.kode} - {seg.nama}
+                    </option>
+                  ))}
+                </Select>
+
+                <Select label="PMU/KSO Seg 9" value={form.pmu_kso_seg9} onChange={(event) => updateField('pmu_kso_seg9', event.target.value)}>
+                  <option value="">Pilih PMU/KSO</option>
+                  {seg9List.map((seg) => (
+                    <option key={seg.kode} value={seg.kode}>
+                      {seg.kode} - {seg.nama}
+                    </option>
+                  ))}
+                </Select>
+
                 <Select label="Status proyek" value={form.status} onChange={(event) => updateField('status', event.target.value)}>
                   <option value="draft">Draft</option>
                   <option value="aktif">Aktif</option>

@@ -13,7 +13,7 @@ import { calculateLineTotalIdr, calculateNilaiIdr, normalizeKurs } from '../util
 import { formatIDR, formatPercent } from '../utils/formatIDR'
 import { calculateRabMargin } from '../utils/marginFlag'
 
-const KATEGORI_OPTIONS = ['I', 'II', 'III', 'IV', 'V', 'VI']
+const KATEGORI_OPTIONS = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII']
 
 const INITIAL_FORM = {
   kategori: 'I',
@@ -52,6 +52,10 @@ function RABForm() {
   )
 
   const totalPreview = useMemo(() => calculateLineTotalIdr(form), [form])
+
+  const filteredCoaAccounts = useMemo(() => (
+    coaAccounts.filter((coa) => !form.kategori || coa.kategori_rab === form.kategori)
+  ), [coaAccounts, form.kategori])
 
   const nilaiProyekIdr = useMemo(() => (
     marginRab?.nilai_proyek_idr ?? calculateNilaiIdr({
@@ -126,6 +130,14 @@ function RABForm() {
 
       if (name === 'mata_uang' && value === 'IDR') {
         next.kurs_idr = '1'
+      }
+
+      if (name === 'kategori' && current.kode_akun_seg5) {
+        const currentCoa = coaAccounts.find((coa) => coa.kode_seg5 === current.kode_akun_seg5)
+        if (currentCoa?.kategori_rab !== value) {
+          next.kode_akun_seg5 = ''
+          next.seg4_kode = ''
+        }
       }
 
       const selectedCoa = name === 'kode_akun_seg5'
@@ -329,7 +341,7 @@ function RABForm() {
 
                 <Select label="Kode akun Seg 5 *" value={form.kode_akun_seg5} onChange={(event) => updateField('kode_akun_seg5', event.target.value)} required>
                   <option value="">Pilih COA aktif</option>
-                  {coaAccounts.map((coa) => (
+                  {filteredCoaAccounts.map((coa) => (
                     <option key={coa.kode_seg5} value={coa.kode_seg5}>
                       {coa.kode_seg5} — {coa.nama}
                     </option>
@@ -382,7 +394,7 @@ function RABForm() {
             <div className="section-title-row">
               <div>
                 <h2>Subtotal kategori</h2>
-                <p>Ringkasan RAB tersimpan per kategori I–VI.</p>
+                <p>Ringkasan RAB tersimpan per kategori I–VII.</p>
               </div>
             </div>
             <div className="rab-summary">
