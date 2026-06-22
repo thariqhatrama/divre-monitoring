@@ -51,6 +51,7 @@ function Dashboard() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [filters, setFilters] = useState({
+    q: '',
     cabang_id: '',
     tahun: '',
     status: '',
@@ -122,10 +123,16 @@ function Dashboard() {
             <div className="filter-card-title">
               <div>
                 <h2>Filter monitoring</h2>
-                <p>Persempit data berdasarkan cabang, tahun, status proyek, dan status margin.</p>
+                <p>Cari proyek berdasarkan nama proyek, nama klien, atau Segmen 11, lalu kombinasikan dengan filter cabang, tahun, status proyek, dan status margin.</p>
               </div>
             </div>
             <div className="filter-row dashboard-filter-row">
+              <Input
+                label="Search"
+                value={filters.q}
+                onChange={(event) => updateFilter('q', event.target.value)}
+                placeholder="Nama proyek, klien, atau Segmen 11"
+              />
               <Select label="Cabang" value={filters.cabang_id} onChange={(event) => updateFilter('cabang_id', event.target.value)}>
                 <option value="">Semua cabang</option>
                 {branches.map((branch) => (

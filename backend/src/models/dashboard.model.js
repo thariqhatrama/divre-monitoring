@@ -43,6 +43,10 @@ function applyDashboardFilters(query, filters = {}) {
     }
   }
 
+  if (filters.q) {
+    query = query.or(`nama.ilike.%${filters.q}%,klien.ilike.%${filters.q}%,seg11_no.ilike.%${filters.q}%`)
+  }
+
   return query
 }
 

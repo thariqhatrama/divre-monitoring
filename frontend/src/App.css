@@ -320,10 +320,13 @@ a {
 }
 
 .dashboard-filter-row {
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+}
+
+.pm-dashboard-filter-row {
   grid-template-columns: repeat(4, minmax(0, 1fr));
 }
 
-.pm-dashboard-filter-row,
 .proyek-filter-row {
   grid-template-columns: repeat(3, minmax(0, 1fr));
 }

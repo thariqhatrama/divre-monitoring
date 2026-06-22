@@ -48,6 +48,7 @@ function DashboardCabang() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [filters, setFilters] = useState({
+    q: '',
     tahun: '',
     status: '',
     status_margin: ''
@@ -105,10 +106,16 @@ function DashboardCabang() {
             <div className="filter-card-title">
               <div>
                 <h2>Filter proyek cabang</h2>
-                <p>Filter ini tidak mengubah scope cabang PM; pembatasan cabang tetap dari backend.</p>
+                <p>Cari proyek berdasarkan nama proyek, nama klien, atau Segmen 11. Filter ini tidak mengubah scope cabang PM; pembatasan cabang tetap dari backend.</p>
               </div>
             </div>
             <div className="filter-row dashboard-filter-row pm-dashboard-filter-row">
+              <Input
+                label="Search"
+                value={filters.q}
+                onChange={(event) => updateFilter('q', event.target.value)}
+                placeholder="Nama proyek, klien, atau Segmen 11"
+              />
               <Input
                 label="Tahun mulai"
                 type="number"
