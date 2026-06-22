@@ -91,7 +91,7 @@ function Dashboard() {
 
   const projects = summary?.projects || []
   const marginChartData = byCabang.map((item) => ({
-    name: item.kode_seg23 || item.nama_cabang,
+    name: item.nama_cabang || item.kode_seg23,
     margin_rab: item.rata_margin_rab,
     margin_realisasi: item.rata_margin_realisasi
   }))
