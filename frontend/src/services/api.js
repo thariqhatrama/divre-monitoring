@@ -71,15 +71,6 @@ export const masterAPI = {
   }
 }
 
-export const kursAPI = {
-  getKurs(params) {
-    return api.get('/api/kurs', { params })
-  },
-  updateKurs(payload) {
-    return api.put('/api/kurs', payload)
-  }
-}
-
 export const proyekAPI = {
   getProyek(params) {
     return api.get('/api/proyek', { params })

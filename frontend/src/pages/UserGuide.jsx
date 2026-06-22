@@ -104,7 +104,7 @@ const GUIDES = {
       title: 'Mengelola proyek',
       steps: [
         'Buka Proyek Saya untuk melihat daftar proyek cabang.',
-        'Buat proyek baru dan isi metadata utama seperti nama, klien, nilai proyek, mata uang, tanggal, portofolio, dan Segmen 11 bila sudah tersedia.',
+        'Buat proyek baru dan isi metadata utama seperti nama, klien, nilai proyek IDR, tanggal, portofolio, dan Segmen 11 bila sudah tersedia.',
         'Update metadata proyek sesuai kebutuhan selama masih dalam kewenangan PM cabang.'
       ]
     },
@@ -113,7 +113,7 @@ const GUIDES = {
       steps: [
         'RAB tidak bisa diinput jika nomor Segmen 11 belum tersedia.',
         'Setelah Segmen 11 ada, buka RAB dari proyek terkait untuk menambah line item.',
-        'Pilih akun COA aktif, kategori RAB, mata uang, kurs, qty, satuan, dan harga satuan.',
+        'Pilih akun COA aktif, kategori RAB, qty, satuan, dan harga satuan IDR.',
         'Sistem menghitung total IDR dan margin RAB secara otomatis.'
       ]
     },
@@ -121,7 +121,7 @@ const GUIDES = {
       title: 'Input realisasi',
       steps: [
         'Buka Realisasi dari proyek terkait untuk menambahkan transaksi realisasi per akun RAB.',
-        'Isi tanggal, qty, satuan, mata uang, kurs, harga satuan, dan catatan.',
+        'Isi tanggal, qty, satuan, harga satuan IDR, dan catatan.',
         'Sistem menghitung total realisasi, margin realisasi, dan delta margin.',
         'Pantau proyek dengan status perhatian, kritis, atau rugi untuk tindak lanjut operasional.'
       ]

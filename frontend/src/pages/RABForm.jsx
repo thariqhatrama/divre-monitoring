@@ -8,8 +8,8 @@ import Input from '../components/ui/Input'
 import LoadingState from '../components/ui/LoadingState'
 import PageHeader from '../components/ui/PageHeader'
 import Select from '../components/ui/Select'
-import { kursAPI, masterAPI, rabAPI, realisasiAPI } from '../services/api'
-import { calculateLineTotalIdr, calculateNilaiIdr, normalizeKurs } from '../utils/currencyConvert'
+import { masterAPI, rabAPI, realisasiAPI } from '../services/api'
+import { calculateLineTotalIdr, calculateNilaiIdr } from '../utils/currencyConvert'
 import { formatIDR, formatPercent } from '../utils/formatIDR'
 import { calculateRabMargin } from '../utils/marginFlag'
 
@@ -22,9 +22,7 @@ const INITIAL_FORM = {
   uraian: '',
   qty: '1',
   satuan: '',
-  mata_uang: 'IDR',
-  harga_satuan: '',
-  kurs_idr: '1'
+  harga_satuan: ''
 }
 
 function RABForm() {
@@ -59,9 +57,7 @@ function RABForm() {
 
   const nilaiProyekIdr = useMemo(() => (
     marginRab?.nilai_proyek_idr ?? calculateNilaiIdr({
-      nilai: project?.nilai_proyek,
-      mata_uang: project?.mata_uang_proyek,
-      kurs_idr: project?.kurs_idr_proyek
+      nilai: project?.nilai_proyek
     })
   ), [marginRab, project])
 
@@ -118,19 +114,9 @@ function RABForm() {
     loadRab()
   }, [id])
 
-  useEffect(() => {
-    if (form.mata_uang === 'USD' && !normalizeKurs(form.mata_uang, form.kurs_idr)) {
-      fillLatestKurs()
-    }
-  }, [form.mata_uang])
-
   function updateField(name, value) {
     setForm((current) => {
       const next = { ...current, [name]: value }
-
-      if (name === 'mata_uang' && value === 'IDR') {
-        next.kurs_idr = '1'
-      }
 
       if (name === 'kategori' && current.kode_akun_seg5) {
         const currentCoa = coaAccounts.find((coa) => coa.kode_seg5 === current.kode_akun_seg5)
@@ -153,18 +139,6 @@ function RABForm() {
     })
   }
 
-  async function fillLatestKurs() {
-    try {
-      const response = await kursAPI.getKurs({ mata_uang: 'USD' })
-      const kurs = response.data.data?.latest?.kurs_idr || response.data.data?.history?.[0]?.kurs_idr
-      if (kurs) {
-        updateField('kurs_idr', String(kurs))
-      }
-    } catch (err) {
-      setError(err.response?.data?.error?.message || 'Gagal mengambil kurs terbaru')
-    }
-  }
-
   function resetForm() {
     setForm(INITIAL_FORM)
     setEditingItemId(null)
@@ -174,25 +148,13 @@ function RABForm() {
     return {
       ...form,
       qty: Number(form.qty || 0),
-      harga_satuan: Number(form.harga_satuan || 0),
-      kurs_idr: form.mata_uang === 'IDR' ? 1 : Number(form.kurs_idr || 1)
+      harga_satuan: Number(form.harga_satuan || 0)
     }
-  }
-
-  function validateSubmit() {
-    if (form.mata_uang === 'USD' && !normalizeKurs(form.mata_uang, form.kurs_idr)) {
-      setError('Kurs IDR wajib diisi dengan integer > 1 untuk mata uang USD')
-      return false
-    }
-
-    return true
   }
 
   async function handleSubmit(event) {
     event.preventDefault()
     setError('')
-
-    if (!validateSubmit()) return
 
     setSaving(true)
 
@@ -221,9 +183,7 @@ function RABForm() {
       uraian: item.uraian || '',
       qty: String(item.qty ?? '0'),
       satuan: item.satuan || '',
-      mata_uang: item.mata_uang || 'IDR',
-      harga_satuan: String(item.harga_satuan ?? '0'),
-      kurs_idr: String(item.kurs_idr ?? '1')
+      harga_satuan: String(item.harga_satuan ?? '0')
     })
   }
 
@@ -353,32 +313,7 @@ function RABForm() {
                 <Input label="Qty *" type="number" min="0" step="0.01" value={form.qty} onChange={(event) => updateField('qty', event.target.value)} required />
                 <Input label="Satuan" value={form.satuan} onChange={(event) => updateField('satuan', event.target.value)} />
 
-                <Select label="Mata uang" value={form.mata_uang} onChange={(event) => updateField('mata_uang', event.target.value)}>
-                  <option value="IDR">IDR</option>
-                  <option value="USD">USD</option>
-                </Select>
-
-                <Input label="Harga satuan *" type="number" min="0" step="1" value={form.harga_satuan} onChange={(event) => updateField('harga_satuan', event.target.value)} required />
-                <Input
-                  label="Kurs IDR *"
-                  type="number"
-                  min="1"
-                  step="1"
-                  value={form.kurs_idr}
-                  onChange={(event) => updateField('kurs_idr', event.target.value)}
-                  disabled={form.mata_uang === 'IDR'}
-                  required
-                />
-
-                <p className="muted-inline">
-                  {form.mata_uang === 'IDR'
-                    ? 'Kurs otomatis 1 untuk IDR.'
-                    : 'Kurs USD dikunci ke item RAB saat disimpan.'}
-                </p>
-
-                {form.mata_uang === 'USD' ? (
-                  <Button type="button" variant="secondary" onClick={fillLatestKurs}>Ambil kurs terbaru</Button>
-                ) : null}
+                <Input label="Harga satuan IDR *" type="number" min="0" step="1" value={form.harga_satuan} onChange={(event) => updateField('harga_satuan', event.target.value)} required />
               </fieldset>
 
               <div className="form-actions">
@@ -440,10 +375,7 @@ function RABForm() {
                         </td>
                         <td>{item.uraian}</td>
                         <td>{item.qty} {item.satuan || ''}</td>
-                        <td>
-                          {formatIDR(item.harga_satuan)}
-                          <span>{item.mata_uang} · Kurs {item.kurs_idr}</span>
-                        </td>
+                        <td>{formatIDR(item.harga_satuan)}</td>
                         <td>{formatIDR(item.total_idr)}</td>
                         <td>
                           <div className="table-actions">

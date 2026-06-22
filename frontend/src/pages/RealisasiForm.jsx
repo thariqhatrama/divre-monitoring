@@ -9,8 +9,8 @@ import LoadingState from '../components/ui/LoadingState'
 import PageHeader from '../components/ui/PageHeader'
 import Select from '../components/ui/Select'
 import useAuth from '../hooks/useAuth'
-import { kursAPI, realisasiAPI } from '../services/api'
-import { calculateLineTotalIdr, normalizeKurs } from '../utils/currencyConvert'
+import { realisasiAPI } from '../services/api'
+import { calculateLineTotalIdr } from '../utils/currencyConvert'
 import { formatIDR, formatPercent } from '../utils/formatIDR'
 
 const INITIAL_FORM = {
@@ -18,9 +18,7 @@ const INITIAL_FORM = {
   tanggal_realisasi: '',
   qty: '1',
   satuan: '',
-  mata_uang: 'IDR',
   harga_satuan: '',
-  kurs_idr: '1',
   catatan: ''
 }
 
@@ -76,43 +74,19 @@ function RealisasiForm() {
     loadRealisasi()
   }, [id])
 
-  useEffect(() => {
-    if (form.mata_uang === 'USD' && !normalizeKurs(form.mata_uang, form.kurs_idr)) {
-      fillLatestKurs()
-    }
-  }, [form.mata_uang])
-
   function updateField(name, value) {
     setForm((current) => {
       const next = { ...current, [name]: value }
-
-      if (name === 'mata_uang' && value === 'IDR') {
-        next.kurs_idr = '1'
-      }
 
       if (name === 'rab_item_id') {
         const rabItem = rabItems.find((item) => item.id === value)
         if (rabItem) {
           next.satuan = rabItem.satuan || next.satuan
-          next.mata_uang = rabItem.mata_uang || 'IDR'
-          next.kurs_idr = rabItem.mata_uang === 'IDR' ? '1' : String(rabItem.kurs_idr || next.kurs_idr || '1')
         }
       }
 
       return next
     })
-  }
-
-  async function fillLatestKurs() {
-    try {
-      const response = await kursAPI.getKurs({ mata_uang: 'USD' })
-      const kurs = response.data.data?.latest?.kurs_idr || response.data.data?.history?.[0]?.kurs_idr
-      if (kurs) {
-        updateField('kurs_idr', String(kurs))
-      }
-    } catch (err) {
-      setError(err.response?.data?.error?.message || 'Gagal mengambil kurs terbaru')
-    }
   }
 
   function resetForm() {
@@ -125,9 +99,7 @@ function RealisasiForm() {
       tanggal_realisasi: form.tanggal_realisasi,
       qty: Number(form.qty || 0),
       satuan: form.satuan,
-      mata_uang: form.mata_uang,
       harga_satuan: Number(form.harga_satuan || 0),
-      kurs_idr: form.mata_uang === 'IDR' ? 1 : Number(form.kurs_idr || 1),
       catatan: form.catatan
     }
   }
@@ -135,11 +107,6 @@ function RealisasiForm() {
   function validateSubmit() {
     if (!editingId && !form.rab_item_id) {
       setError('Pilih item RAB terlebih dahulu')
-      return false
-    }
-
-    if (form.mata_uang === 'USD' && !normalizeKurs(form.mata_uang, form.kurs_idr)) {
-      setError('Kurs IDR wajib diisi dengan integer > 1 untuk mata uang USD')
       return false
     }
 
@@ -177,9 +144,7 @@ function RealisasiForm() {
       tanggal_realisasi: item.tanggal_realisasi || todayIsoDate(),
       qty: String(item.qty ?? '0'),
       satuan: item.satuan || '',
-      mata_uang: item.mata_uang || 'IDR',
       harga_satuan: String(item.harga_satuan ?? '0'),
-      kurs_idr: String(item.kurs_idr ?? '1'),
       catatan: item.catatan || ''
     })
   }
@@ -296,37 +261,12 @@ function RealisasiForm() {
                   <Input label="Qty *" type="number" min="0" step="0.01" value={form.qty} onChange={(event) => updateField('qty', event.target.value)} required />
                   <Input label="Satuan" value={form.satuan} onChange={(event) => updateField('satuan', event.target.value)} />
 
-                  <Select label="Mata uang" value={form.mata_uang} onChange={(event) => updateField('mata_uang', event.target.value)}>
-                    <option value="IDR">IDR</option>
-                    <option value="USD">USD</option>
-                  </Select>
-
-                  <Input label="Harga satuan *" type="number" min="0" step="1" value={form.harga_satuan} onChange={(event) => updateField('harga_satuan', event.target.value)} required />
-                  <Input
-                    label="Kurs IDR *"
-                    type="number"
-                    min="1"
-                    step="1"
-                    value={form.kurs_idr}
-                    onChange={(event) => updateField('kurs_idr', event.target.value)}
-                    disabled={form.mata_uang === 'IDR'}
-                    required
-                  />
+                  <Input label="Harga satuan IDR *" type="number" min="0" step="1" value={form.harga_satuan} onChange={(event) => updateField('harga_satuan', event.target.value)} required />
 
                   <label>
                     Catatan
                     <textarea value={form.catatan} onChange={(event) => updateField('catatan', event.target.value)} rows="3" />
                   </label>
-
-                  <p className="muted-inline">
-                    {form.mata_uang === 'IDR'
-                      ? 'Input IDR dihitung langsung dengan kurs 1.'
-                      : 'Kurs USD dikunci ke transaksi realisasi saat disimpan.'}
-                  </p>
-
-                  {form.mata_uang === 'USD' ? (
-                    <Button type="button" variant="secondary" onClick={fillLatestKurs}>Ambil kurs terbaru</Button>
-                  ) : null}
                 </fieldset>
 
                 <div className="form-actions">
@@ -415,10 +355,7 @@ function RealisasiForm() {
                             <span>{rabItem?.uraian || 'Item RAB tidak ditemukan'}</span>
                           </td>
                           <td>{item.qty} {item.satuan || ''}</td>
-                          <td>
-                            {formatIDR(item.harga_satuan)}
-                            <span>{item.mata_uang} · Kurs {item.kurs_idr}</span>
-                          </td>
+                          <td>{formatIDR(item.harga_satuan)}</td>
                           <td>{formatIDR(item.total_idr)}</td>
                           <td>{item.catatan || '-'}</td>
                           <td>

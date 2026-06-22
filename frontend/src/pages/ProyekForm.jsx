@@ -11,9 +11,6 @@ import { masterAPI, proyekAPI } from '../services/api'
 import { calculateNilaiIdr } from '../utils/currencyConvert'
 import { formatIDR } from '../utils/formatIDR'
 
-const PROJECT_CURRENCY = 'IDR'
-const PROJECT_KURS_IDR = '1'
-
 const INITIAL_FORM = {
   nama: '',
   nomor_spmk: '',
@@ -21,8 +18,6 @@ const INITIAL_FORM = {
   cabang_id: '',
   klien: '',
   nilai_proyek: '',
-  mata_uang_proyek: PROJECT_CURRENCY,
-  kurs_idr_proyek: PROJECT_KURS_IDR,
   tgl_mulai: '',
   tgl_selesai: '',
   portofolio_seg7: '',
@@ -97,8 +92,6 @@ function ProyekForm() {
           cabang_id: project.cabang_id || '',
           klien: project.klien || '',
           nilai_proyek: String(project.nilai_proyek ?? ''),
-          mata_uang_proyek: PROJECT_CURRENCY,
-          kurs_idr_proyek: PROJECT_KURS_IDR,
           tgl_mulai: project.tgl_mulai || '',
           tgl_selesai: project.tgl_selesai || '',
           portofolio_seg7: project.portofolio_seg7 || '',
@@ -117,18 +110,14 @@ function ProyekForm() {
   }, [id, isEdit])
 
   const nilaiProyekPreviewIdr = calculateNilaiIdr({
-    nilai: form.nilai_proyek,
-    mata_uang: form.mata_uang_proyek,
-    kurs_idr: form.kurs_idr_proyek
+    nilai: form.nilai_proyek
   })
 
   function updateField(name, value) {
     setForm((current) => {
       const nextForm = {
         ...current,
-        [name]: name === 'seg11_no' ? value.replace(/\D/g, '').slice(0, 6) : value,
-        mata_uang_proyek: PROJECT_CURRENCY,
-        kurs_idr_proyek: PROJECT_KURS_IDR
+        [name]: name === 'seg11_no' ? value.replace(/\D/g, '').slice(0, 6) : value
       }
 
       // Reset Seg 8 if Seg 7 changes
@@ -143,9 +132,7 @@ function ProyekForm() {
   function buildPayload() {
     const payload = {
       ...form,
-      mata_uang_proyek: PROJECT_CURRENCY,
-      nilai_proyek: Number(form.nilai_proyek),
-      kurs_idr_proyek: Number(PROJECT_KURS_IDR)
+      nilai_proyek: Number(form.nilai_proyek)
     }
 
     if (isPm) {
