@@ -49,6 +49,31 @@ Akses pengguna dikontrol melalui autentikasi JWT dan role-based access control d
 - Status proyek: `draft`, `aktif`, `selesai`, `arsip`.
 - Project Manager hanya dapat mengelola proyek sesuai cabangnya.
 
+### Status Proyek
+
+Status proyek menunjukkan posisi operasional proyek di dalam aplikasi. Status ini berbeda dari **status margin**. Status proyek menjelaskan tahap pengelolaan proyek, sedangkan status margin menjelaskan kesehatan margin berdasarkan perhitungan RAB atau realisasi.
+
+| Status | Deskripsi | Fungsi di Aplikasi | Kapan Digunakan |
+|---|---|---|---|
+| `draft` | Proyek masih berupa data awal atau rencana input. Metadata proyek dapat disiapkan terlebih dahulu sebelum proyek benar-benar berjalan. | Menandai proyek yang belum aktif dimonitor sebagai proyek berjalan. Cocok untuk melengkapi data awal seperti nama proyek, klien, nilai proyek, cabang, tanggal, portofolio, dan Segmen 11 jika sudah tersedia. | Digunakan saat proyek baru didaftarkan, data belum lengkap, Segmen 11 belum tersedia, atau RAB belum siap diinput. |
+| `aktif` | Proyek sedang berjalan dan menjadi bagian utama monitoring dashboard. | Dihitung sebagai **total proyek aktif** pada KPI dashboard. Margin RAB dan margin realisasi proyek aktif menjadi perhatian utama untuk pemantauan Kepala Divre dan PM. | Digunakan setelah proyek valid untuk dimonitor, biasanya setelah metadata utama sudah lengkap dan proyek mulai berjalan. |
+| `selesai` | Proyek sudah selesai secara operasional, tetapi datanya tetap disimpan untuk histori dan evaluasi. | Tetap dapat dilihat sebagai data historis, termasuk RAB, realisasi, margin akhir, dan delta margin. Tidak lagi dihitung sebagai proyek aktif, tetapi masih berguna untuk evaluasi kinerja cabang/proyek. | Digunakan ketika pekerjaan proyek sudah selesai atau periode monitoring aktifnya berakhir. |
+| `arsip` | Proyek tidak lagi ditampilkan dalam daftar dan dashboard default. Status ini berfungsi seperti soft delete. | Menyembunyikan proyek dari tampilan normal tanpa menghapus data permanen dari database. Berguna untuk menjaga histori/audit sekaligus membersihkan tampilan dari proyek yang tidak relevan. | Digunakan untuk proyek batal, salah input, duplikat, atau data lama yang tidak perlu tampil di monitoring harian. |
+
+Alur umum status proyek:
+
+```txt
+draft → aktif → selesai → arsip
+```
+
+Catatan penggunaan:
+
+- Proyek baru otomatis dibuat sebagai `draft` jika status tidak dipilih secara eksplisit.
+- Dashboard KPI **Total proyek aktif** hanya menghitung proyek dengan status `aktif`.
+- Data dengan status `arsip` tidak muncul pada daftar/dashboard default agar tidak mengganggu monitoring berjalan.
+- Mengubah proyek menjadi `arsip` bukan berarti menghapus data permanen; data tetap dipertahankan untuk kebutuhan histori dan audit.
+- Status proyek tidak menentukan sehat/tidaknya margin. Kesehatan margin tetap ditentukan oleh status margin: **Aman**, **Perhatian**, **Kritis**, atau **Rugi**.
+
 ### Input RAB
 
 - Input RAB per line item.
