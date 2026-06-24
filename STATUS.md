@@ -224,6 +224,7 @@ Target: aplikasi siap demo dan bisa diakses via browser.
 
 | Tanggal | Tipe | Area | Deskripsi | File Terkait | Status |
 |---|---|---|---|---|---|
+| 2026-06-24 | Add | UI/Layout | Menambahkan footer profesional dan non-intrusif pada layout utama dashboard. Footer menampilkan metadata pembuat aplikasi (Thariqhat Rama Putra) untuk memenuhi persyaratan On Job Training (OJT) di Divisi Regional Timur PT SUCOFINDO. | `frontend/src/components/layout/Footer.jsx`, `frontend/src/components/layout/AppLayout.jsx`, `frontend/src/App.css`, `STATUS.md` | ✅ |
 | 2026-06-18 | Add | Master Data | Menambahkan master data untuk Portofolio Segmen 7, Sub-portofolio Segmen 8, dan PMU/KSO Segmen 9: membuat tabel di `009_create_master_seg789.sql` beserta data seed, menambahkan endpoints backend list `authOnly`, dan mengganti input form frontend menjadi Select dinamis bersarang di halaman pembuatan/edit proyek. | `backend/migrations/009_create_master_seg789.sql`, `backend/src/models/master_seg.model.js`, `backend/src/controllers/master.controller.js`, `backend/src/routes/master.routes.js`, `frontend/src/services/api.js`, `frontend/src/pages/ProyekForm.jsx`, `STATUS.md` | ✅ |
 | 2026-06-11 | Fix | Auth/Session | Memperbaiki session login custom JWT: token login tetap expiry 8 jam dan payload kini memuat `id`, `nama`, `email`, `role`, `cabang_id`; frontend memvalidasi expiry token dari `localStorage` saat refresh/browser reopen, auto clear session saat token expired/malformed, dan interceptor Axios melakukan logout + redirect login pada response 401/403. Frontend build berhasil; lint masih gagal karena error lama di halaman non-auth, bukan dari perubahan session; backend syntax check belum berjalan karena permission command ditolak auto-classifier | `backend/src/controllers/auth.controller.js`, `backend/src/middleware/auth.middleware.js`, `frontend/src/context/AuthContext.jsx`, `frontend/src/services/api.js`, `STATUS.md` | ✅ |
 | 2026-06-10 | Remove/Fix | Auth UI | Menghapus route test admin setelah validasi auth admin selesai, melepas mount `/api/test`, menghapus halaman/link `/admin-test`, dan mengganti tombol teks tampilkan password di login menjadi icon mata di sisi kanan input password; backend syntax check dan frontend build berhasil | `backend/src/app.js`, `backend/src/routes/test.routes.js`, `frontend/src/App.jsx`, `frontend/src/components/layout/Header.jsx`, `frontend/src/pages/Login.jsx`, `frontend/src/App.css`, `STATUS.md` | ✅ |
@@ -314,31 +315,28 @@ Update bagian ini sebelum membuka sesi Claude baru agar tidak kehilangan konteks
 Tulis ringkasan singkat pekerjaan terakhir.
 
 ```txt
-Menambahkan master data dan dropdown dinamis untuk Segmen 7 (Portofolio), Segmen 8 (Sub-portofolio), dan Segmen 9 (PMU/KSO) pada saat create/edit Proyek. Dibuat tabel baru di backend (`master_seg7`, `master_seg8`, `master_seg9`) dan di seed dari data spreadsheet. Backend sekarang memiliki routes GET `authOnly` untuk fetch segment tersebut dan frontend merender `<Select>` dropdown yang otomatis difilter dan divalidasi ketika parent-nya (Seg 7) diubah. Data eksisting pada tabel proyek tidak diubah (field text tetap ada) untuk menjaga backward compatibility namun entry baru akan selalu valid.
+Menambahkan footer profesional dan non-intrusif pada layout utama dashboard. Footer menampilkan metadata pembuat aplikasi (Thariqhat Rama Putra) untuk memenuhi persyaratan On Job Training (OJT) di Divisi Regional Timur PT SUCOFINDO.
 ```
 
 ### File yang terakhir diubah
 
 ```txt
 STATUS.md
-backend/migrations/009_create_master_seg789.sql
-backend/src/models/master_seg.model.js
-backend/src/controllers/master.controller.js
-backend/src/routes/master.routes.js
-frontend/src/services/api.js
-frontend/src/pages/ProyekForm.jsx
+frontend/src/components/layout/Footer.jsx
+frontend/src/components/layout/AppLayout.jsx
+frontend/src/App.css
 ```
 
 ### Masalah yang belum selesai
 
 ```txt
-Migration `009_create_master_seg789.sql` harus dijalankan secara manual di Supabase SQL Editor karena credential akses psql secara remote CLI tidak tersedia. Setelah file migration dijalankan, form pada aplikasi baru bisa meload data dari backend dan merender dropdown nya dengan benar.
+Tidak ada. Build frontend berhasil dan perubahan bersih tanpa menyebabkan lint error baru pada file terkait.
 ```
 
 ### Prompt lanjutan untuk Claude
 
 ```txt
-Lanjutkan dari STATUS.md terbaru. Master Segmen 7, 8, dan 9 telah ditambahkan beserta dropdown form proyeknya. Pastikan tidak menambah fitur di luar PRD.md/scope guard. Untuk pekerjaan berikutnya, fokus pada bugfix/polish yang diminta user dan selalu validasi lokal sebelum meminta user melakukan validasi production jika diperlukan.
+Lanjutkan dari STATUS.md terbaru. Footer OJT sudah ditambahkan ke layout utama dashboard. Pastikan tidak menambah fitur di luar PRD.md/scope guard. Untuk pekerjaan berikutnya, fokus pada bugfix/polish yang diminta user.
 ```
 
 ---
