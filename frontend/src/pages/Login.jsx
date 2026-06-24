@@ -68,7 +68,7 @@ function Login() {
               type="email"
               value={email}
               onChange={(event) => setEmail(event.target.value)}
-              placeholder="admin@sucofindo.co.id"
+              placeholder="admin@regtim.com"
               required
             />
 
@@ -81,7 +81,7 @@ function Login() {
                   type={showPassword ? 'text' : 'password'}
                   value={password}
                   onChange={(event) => setPassword(event.target.value)}
-                  placeholder="••••••••"
+                  placeholder="admin123"
                   required
                 />
                 <button
