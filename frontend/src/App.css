@@ -1026,7 +1026,26 @@ a {
 }
 
 .app-content {
+  flex: 1;
   padding: 28px;
+}
+
+.app-footer {
+  border-top: 1px dashed rgba(219, 227, 239, 0.8);
+  color: #64748b;
+  font-size: 0.82rem;
+  padding: 20px 28px;
+  text-align: center;
+}
+
+.app-footer p {
+  margin: 0;
+  line-height: 1.6;
+}
+
+.app-footer strong {
+  color: #475569;
+  font-weight: 600;
 }
 
 .app-content > .app-shell,
@@ -1529,6 +1548,10 @@ a {
 
   .app-content {
     padding: 18px;
+  }
+
+  .app-footer {
+    padding: 16px 18px;
   }
 
   .filter-row,

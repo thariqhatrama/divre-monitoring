@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import Header from './Header'
 import Sidebar from './Sidebar'
+import Footer from './Footer'
 
 function AppLayout({ children }) {
   const [sidebarOpen, setSidebarOpen] = useState(false)
@@ -19,6 +20,7 @@ function AppLayout({ children }) {
         <main className="app-content">
           {children}
         </main>
+        <Footer />
       </div>
     </div>
   )
