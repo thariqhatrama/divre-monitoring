@@ -71,7 +71,7 @@ function enrichProjects(projects = [], rabItems = [], realisasiItems = [], branc
       delta_margin: margin.delta_margin,
       indikator_delta: margin.indikator_delta,
       status_margin: statusMargin,
-      rab_locked: !project.seg11_no
+      rab_locked: false
     }
   })
 }

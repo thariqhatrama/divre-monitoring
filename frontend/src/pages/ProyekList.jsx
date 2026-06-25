@@ -162,11 +162,7 @@ function ProyekList() {
                         <td><span className={`status-pill status-${project.status}`}>{project.status}</span></td>
                         <td>
                           <div className="project-cell">
-                            {project.seg11_no ? (
-                              <span className="gate-badge gate-open">RAB siap diinput</span>
-                            ) : (
-                              <span className="gate-badge gate-locked">RAB terkunci</span>
-                            )}
+                            <span className="gate-badge gate-open">RAB aktif</span>
                             <small>{project.seg11_no || 'Segmen 11 belum diisi'}</small>
                           </div>
                         </td>

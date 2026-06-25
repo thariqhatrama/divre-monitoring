@@ -73,10 +73,6 @@ function canMutateProjectRab(user, project) {
   return false
 }
 
-function hasSeg11(project) {
-  return Boolean(project?.seg11_no && String(project.seg11_no).trim())
-}
-
 async function getProjectOrRespond(projectId, req, res) {
   const project = await proyekModel.findProjectById(projectId)
 
@@ -263,13 +259,13 @@ async function listRabItems(req, res) {
         nilai_proyek: project.nilai_proyek,
         mata_uang_proyek: project.mata_uang_proyek,
         kurs_idr_proyek: project.kurs_idr_proyek,
-        rab_locked: !hasSeg11(project)
+        rab_locked: false
       },
       items,
       totals_by_kategori: marginRab.totals_by_kategori,
       total_rab_idr: marginRab.total_rab_idr,
       margin_rab: marginRab,
-      can_edit: canMutateProjectRab(req.user, project) && hasSeg11(project)
+      can_edit: canMutateProjectRab(req.user, project)
     })
   } catch (error) {
     const mapped = mapModelError(error)
@@ -284,10 +280,6 @@ async function createRabItem(req, res) {
 
     if (!canMutateProjectRab(req.user, project)) {
       return errorResponse(res, 403, 'FORBIDDEN', 'User tidak bisa mengubah RAB proyek ini')
-    }
-
-    if (!hasSeg11(project)) {
-      return errorResponse(res, 403, 'SEG11_REQUIRED', 'RAB tidak dapat diubah sebelum No Segmen 11 proyek diisi')
     }
 
     const payload = await buildValidatedPayload(req.body, res, {
@@ -327,10 +319,6 @@ async function updateRabItem(req, res) {
       return errorResponse(res, 403, 'FORBIDDEN', 'User tidak bisa mengubah RAB proyek ini')
     }
 
-    if (!hasSeg11(project)) {
-      return errorResponse(res, 403, 'SEG11_REQUIRED', 'RAB tidak dapat diubah sebelum No Segmen 11 proyek diisi')
-    }
-
     const payload = await buildValidatedPayload(req.body, res, {
       isCreate: false,
       existing: item,
@@ -367,10 +355,6 @@ async function deleteRabItem(req, res) {
 
     if (!canMutateProjectRab(req.user, project)) {
       return errorResponse(res, 403, 'FORBIDDEN', 'User tidak bisa mengubah RAB proyek ini')
-    }
-
-    if (!hasSeg11(project)) {
-      return errorResponse(res, 403, 'SEG11_REQUIRED', 'RAB tidak dapat diubah sebelum No Segmen 11 proyek diisi')
     }
 
     const data = await rabModel.deleteRabItem(req.params.itemId)

@@ -42,7 +42,7 @@ function RABForm() {
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
 
-  const rabLocked = !project?.seg11_no || !canEdit
+  const rabLocked = !canEdit
 
   const editingItem = useMemo(
     () => items.find((item) => item.id === editingItemId),
@@ -234,8 +234,8 @@ function RABForm() {
           </div>
 
           <div className={project?.seg11_no ? 'alert-card alert-success' : 'alert-card alert-warning'}>
-            <strong>{project?.seg11_no ? 'Segmen 11 tersedia' : 'RAB terkunci'}</strong>
-            <p>{project?.seg11_no || 'Isi No Segmen 11 pada metadata proyek sebelum input RAB. Tidak ada bypass.'}</p>
+            <strong>{project?.seg11_no ? 'Segmen 11 tersedia' : 'Segmen 11 belum diisi'}</strong>
+            <p>{project?.seg11_no ? 'Nomor Segmen 11 proyek telah diisi.' : 'Input RAB tetap aktif meskipun Nomor Segmen 11 belum diisi (opsional).'}</p>
           </div>
 
           {error ? <p className="error-message">{error}</p> : null}

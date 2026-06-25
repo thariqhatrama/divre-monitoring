@@ -180,14 +180,14 @@ function ProyekForm() {
             <PageHeader
               eyebrow="Proyek"
               title={isEdit ? 'Edit Proyek' : 'Registrasi Proyek'}
-              description="Proyek boleh dibuat tanpa Segmen 11. RAB tetap terkunci sampai Segmen 11 diisi."
+              description="Proyek boleh dibuat tanpa Segmen 11. Input RAB dan Realisasi tetap aktif meskipun Segmen 11 belum diisi."
               actions={<Link className="action-link" to="/proyek">Kembali ke proyek</Link>}
             />
           </div>
 
           <div className={form.seg11_no ? 'alert-card alert-success' : 'alert-card alert-warning'}>
             <strong>{form.seg11_no ? 'Segmen 11 tersedia' : 'Segmen 11 belum diisi'}</strong>
-            <p>{form.seg11_no ? 'RAB siap diinput pada fase RAB.' : 'RAB terkunci. Tidak ada bypass sebelum Segmen 11 tersedia.'}</p>
+            <p>{form.seg11_no ? 'RAB siap diinput pada fase RAB.' : 'Input RAB dan Realisasi tetap aktif meskipun Segmen 11 belum diisi.'}</p>
           </div>
 
           {error ? <p className="error-message">{error}</p> : null}

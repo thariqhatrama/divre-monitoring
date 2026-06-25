@@ -55,7 +55,7 @@ function withRabGate(project) {
 
   return {
     ...project,
-    rab_locked: !project.seg11_no
+    rab_locked: false
   }
 }
 

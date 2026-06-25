@@ -224,6 +224,7 @@ Target: aplikasi siap demo dan bisa diakses via browser.
 
 | Tanggal | Tipe | Area | Deskripsi | File Terkait | Status |
 |---|---|---|---|---|---|
+| 2026-06-25 | Change | Input Gate | Merevisi gate Segmen 11 agar input RAB dan Realisasi tetap aktif meskipun proyek belum memiliki Nomor Segmen 11. Mengupdate validasi backend (model, RAB controller, dashboard controller) dan UI frontend (ProyekForm, RABForm, ProyekList) agar tidak lagi mengunci form dan menampilkan status warning yang informatif/opsional. | `backend/src/models/proyek.model.js`, `backend/src/controllers/rab.controller.js`, `backend/src/controllers/dashboard.controller.js`, `frontend/src/pages/RABForm.jsx`, `frontend/src/pages/ProyekForm.jsx`, `frontend/src/pages/ProyekList.jsx`, `STATUS.md` | ✅ |
 | 2026-06-24 | Add | UI/Layout | Menambahkan footer profesional dan non-intrusif pada layout utama dashboard. Footer menampilkan metadata pembuat aplikasi (Thariqhat Rama Putra) untuk memenuhi persyaratan On Job Training (OJT) di Divisi Regional Timur PT SUCOFINDO. | `frontend/src/components/layout/Footer.jsx`, `frontend/src/components/layout/AppLayout.jsx`, `frontend/src/App.css`, `STATUS.md` | ✅ |
 | 2026-06-18 | Add | Master Data | Menambahkan master data untuk Portofolio Segmen 7, Sub-portofolio Segmen 8, dan PMU/KSO Segmen 9: membuat tabel di `009_create_master_seg789.sql` beserta data seed, menambahkan endpoints backend list `authOnly`, dan mengganti input form frontend menjadi Select dinamis bersarang di halaman pembuatan/edit proyek. | `backend/migrations/009_create_master_seg789.sql`, `backend/src/models/master_seg.model.js`, `backend/src/controllers/master.controller.js`, `backend/src/routes/master.routes.js`, `frontend/src/services/api.js`, `frontend/src/pages/ProyekForm.jsx`, `STATUS.md` | ✅ |
 | 2026-06-11 | Fix | Auth/Session | Memperbaiki session login custom JWT: token login tetap expiry 8 jam dan payload kini memuat `id`, `nama`, `email`, `role`, `cabang_id`; frontend memvalidasi expiry token dari `localStorage` saat refresh/browser reopen, auto clear session saat token expired/malformed, dan interceptor Axios melakukan logout + redirect login pada response 401/403. Frontend build berhasil; lint masih gagal karena error lama di halaman non-auth, bukan dari perubahan session; backend syntax check belum berjalan karena permission command ditolak auto-classifier | `backend/src/controllers/auth.controller.js`, `backend/src/middleware/auth.middleware.js`, `frontend/src/context/AuthContext.jsx`, `frontend/src/services/api.js`, `STATUS.md` | ✅ |
@@ -315,28 +316,31 @@ Update bagian ini sebelum membuka sesi Claude baru agar tidak kehilangan konteks
 Tulis ringkasan singkat pekerjaan terakhir.
 
 ```txt
-Menambahkan footer profesional dan non-intrusif pada layout utama dashboard. Footer menampilkan metadata pembuat aplikasi (Thariqhat Rama Putra) untuk memenuhi persyaratan On Job Training (OJT) di Divisi Regional Timur PT SUCOFINDO.
+Merevisi gate Segmen 11 agar input RAB dan Realisasi tetap aktif meskipun proyek belum memiliki Nomor Segmen 11. Mengupdate validasi backend (model, RAB controller, dashboard controller) dan UI frontend (ProyekForm, RABForm, ProyekList) agar tidak lagi mengunci form dan menampilkan status warning yang informatif/opsional.
 ```
 
 ### File yang terakhir diubah
 
 ```txt
 STATUS.md
-frontend/src/components/layout/Footer.jsx
-frontend/src/components/layout/AppLayout.jsx
-frontend/src/App.css
+backend/src/models/proyek.model.js
+backend/src/controllers/rab.controller.js
+backend/src/controllers/dashboard.controller.js
+frontend/src/pages/RABForm.jsx
+frontend/src/pages/ProyekForm.jsx
+frontend/src/pages/ProyekList.jsx
 ```
 
 ### Masalah yang belum selesai
 
 ```txt
-Tidak ada. Build frontend berhasil dan perubahan bersih tanpa menyebabkan lint error baru pada file terkait.
+Tidak ada. Build frontend dan backend berjalan dengan baik serta perubahan bersih tanpa menyebabkan lint error baru pada file terkait.
 ```
 
 ### Prompt lanjutan untuk Claude
 
 ```txt
-Lanjutkan dari STATUS.md terbaru. Footer OJT sudah ditambahkan ke layout utama dashboard. Pastikan tidak menambah fitur di luar PRD.md/scope guard. Untuk pekerjaan berikutnya, fokus pada bugfix/polish yang diminta user.
+Lanjutkan dari STATUS.md terbaru. Revisi pengisian RAB dan realisasi tanpa Segmen 11 sudah diimplementasikan di frontend dan backend. Pastikan tidak menambah fitur di luar PRD.md/scope guard. Untuk pekerjaan berikutnya, fokus pada bugfix/polish yang diminta user.
 ```
 
 ---
@@ -348,7 +352,7 @@ Project dianggap selesai untuk demo apabila:
 - [x] User admin, PM, dan Kepala Divre bisa login
 - [x] Admin bisa mengelola master COA, cabang, user, dan kurs
 - [x] PM bisa membuat proyek sesuai cabangnya
-- [x] Form RAB terkunci jika Segmen 11 belum diisi
+- [x] RAB dan Realisasi tetap bisa diinput meskipun Segmen 11 belum diisi (revisi gate, 2026-06-25)
 - [x] PM bisa input RAB per akun COA
 - [x] PM bisa input realisasi per akun
 - [x] Margin RAB dihitung otomatis
